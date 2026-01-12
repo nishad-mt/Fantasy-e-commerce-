@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Checkout | Fantasy Bakery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'fantasy-cream': '#FDFBF7',
+                        'fantasy-pink': '#FCE7E7',
+                        'fantasy-pink-dark': '#F4C2C2',
+                        'fantasy-brown': '#5D4037',
+                        'fantasy-gold': '#D4AF37',
+                        'fantasy-gold-light': '#F4E5B2',
+                    },
+                    fontFamily: {
+                        serif: ['"Playfair Display"', 'serif'],
+                        sans: ['"Lato"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="bg-fantasy-cream text-gray-800 font-sans antialiased">
+    <div id="homepage-content">
+        <!-- Minimal Secure Navbar -->
+        <nav class="bg-white border-b border-gray-100 sticky top-0 z-50">
+            <div class="container mx-auto px-4 md:px-6 py-4 flex justify-between items-center">
+                <a href="index.html" class="flex items-center gap-3 group">
+                    <i
+                        class="fa-solid fa-cookie-bite text-3xl text-fantasy-gold group-hover:rotate-12 transition-transform"></i>
+                    <div class="flex flex-col">
+                        <span class="text-xl font-serif font-bold text-fantasy-brown leading-none">Fantasy Bakery</span>
+                        <span class="text-xs text-gray-400 font-medium tracking-wider uppercase mt-1">Secure
+                            Checkout</span>
+                    </div>
+                </a>
+                <div
+                    class="flex items-center gap-2 text-green-700 bg-green-50 px-3 py-1.5 rounded-full text-xs font-bold border border-green-100">
+                    <i class="fa-solid fa-lock"></i>
+                    <span>100% Secure</span>
+                </div>
+            </div>
+        </nav>
+
+        <div class="min-h-screen bg-gray-50/50 pb-24 font-sans">
+            <div class="container mx-auto px-4 md:px-6 pt-8">
+
+                <form onsubmit="event.preventDefault();" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+                    <!-- LEFT COLUMN: Checkout Flow (70%) -->
+                    <div class="lg:col-span-8 space-y-6">
+
+                        <!-- 1. Delivery Address -->
+                        <section
+                            class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300">
+                            <div class="p-6">
+                                <div class="flex justify-between items-start mb-4">
+                                    <h2 class="text-lg font-serif font-bold text-fantasy-brown flex items-center gap-2">
+                                        <span
+                                            class="bg-fantasy-brown/10 text-fantasy-brown w-6 h-6 rounded-full flex items-center justify-center text-xs">1</span>
+                                        Delivery Address
+                                    </h2>
+                                    <button
+                                        class="text-sm font-bold text-fantasy-brown hover:text-fantasy-gold transition-colors border-b border-fantasy-brown/20 pb-0.5 hover:border-fantasy-gold">
+                                        Change
+                                    </button>
+                                </div>
+
+                                <div class="pl-8">
+                                    <h3 class="font-bold text-gray-900 text-base mb-1">Alice Wonderland <span
+                                            class="bg-gray-100 text-gray-500 text-[10px] px-2 py-0.5 rounded ml-2 uppercase tracking-wide">Home</span>
+                                    </h3>
+                                    <p class="text-gray-600 text-sm leading-relaxed mb-2">
+                                        Flat 4B, Dream Castle Apartments, <br>
+                                        Sector 7, Magic Lane, Wonderland - 682001
+                                    </p>
+                                    <p class="text-sm text-gray-800 font-medium">
+                                        <i class="fa-solid fa-phone text-gray-400 mr-1.5 text-xs"></i> +91 98765 43210
+                                    </p>
+                                </div>
+                            </div>
+                            <!-- Delivery Slot Integration (Often associated with address/logistics) -->
+                            <div class="bg-fantasy-cream/30 p-4 border-t border-gray-100 px-6 pl-14">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label
+                                            class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Delivery
+                                            Date</label>
+                                        <div class="flex gap-3">
+                                            <label class="cursor-pointer">
+                                                <input type="radio" name="delivery_date" class="peer hidden" checked>
+                                                <div
+                                                    class="px-3 py-2 rounded-lg border border-gray-200 bg-white text-center peer-checked:border-fantasy-brown peer-checked:ring-1 peer-checked:ring-fantasy-brown peer-checked:text-fantasy-brown transition-all">
+                                                    <div class="text-sm font-bold">Tomorrow</div>
+                                                    <div class="text-[10px] text-gray-500 uppercase">Jan 8</div>
+                                                </div>
+                                            </label>
+                                            <label class="cursor-pointer">
+                                                <input type="radio" name="delivery_date" class="peer hidden">
+                                                <div
+                                                    class="px-3 py-2 rounded-lg border border-gray-200 bg-white text-center peer-checked:border-fantasy-brown peer-checked:ring-1 peer-checked:ring-fantasy-brown peer-checked:text-fantasy-brown transition-all">
+                                                    <div class="text-sm font-bold">Thu</div>
+                                                    <div class="text-[10px] text-gray-500 uppercase">Jan 9</div>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Time
+                                            Slot</label>
+                                        <select
+                                            class="w-full bg-white border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-fantasy-gold focus:border-fantasy-gold block p-2.5 outline-none">
+                                            <option>09:00 AM - 11:00 AM</option>
+                                            <option>12:00 PM - 02:00 PM</option>
+                                            <option>06:00 PM - 08:00 PM</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- 2. Order Items -->
+                        <section
+                            class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300">
+                            <div class="p-6 border-b border-gray-50">
+                                <h2 class="text-lg font-serif font-bold text-fantasy-brown flex items-center gap-2">
+                                    <span
+                                        class="bg-fantasy-brown/10 text-fantasy-brown w-6 h-6 rounded-full flex items-center justify-center text-xs">2</span>
+                                    Order Items <span class="text-gray-400 text-sm font-sans font-normal ml-1">(3
+                                        Items)</span>
+                                </h2>
+                            </div>
+
+                            <div class="divide-y divide-gray-50">
+                                <!-- Item 1 -->
+                                <div class="p-6 flex gap-4 sm:gap-6 group">
+                                    <div
+                                        class="w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden border border-gray-100">
+                                        <img src="https://images.unsplash.com/photo-1535141192574-5d4897c12636?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+                                            alt="Cake"
+                                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex justify-between items-start mb-1">
+                                            <h3 class="font-bold text-gray-900 text-base">Enchanted Forest Cake</h3>
+                                            <span class="font-bold text-fantasy-brown">₹850</span>
+                                        </div>
+                                        <p class="text-sm text-gray-500 mb-2">1kg • Eggless</p>
+
+                                        <div class="flex flex-wrap items-center justify-between gap-4 mt-3">
+                                            <div class="flex items-center gap-3">
+                                                <div
+                                                    class="flex items-center border border-gray-200 rounded-md bg-gray-50 h-8">
+                                                    <button type="button"
+                                                        class="w-8 h-full flex items-center justify-center text-gray-500 hover:text-fantasy-brown transition-colors">−</button>
+                                                    <span
+                                                        class="w-8 text-center text-sm font-bold text-gray-800">1</span>
+                                                    <button type="button"
+                                                        class="w-8 h-full flex items-center justify-center text-gray-500 hover:text-fantasy-brown transition-colors">+</button>
+                                                </div>
+                                            </div>
+                                            <button
+                                                class="text-xs font-bold text-red-400 hover:text-red-600 uppercase tracking-wide">Remove</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Item 2 -->
+                                <div class="p-6 flex gap-4 sm:gap-6 group">
+                                    <div
+                                        class="w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden border border-gray-100">
+                                        <img src="wheat3.jpg" alt="Cupcakes"
+                                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex justify-between items-start mb-1">
+                                            <h3 class="font-bold text-gray-900 text-base">Unicorn Cupcakes</h3>
+                                            <span class="font-bold text-fantasy-brown">₹450</span>
+                                        </div>
+                                        <p class="text-sm text-gray-500 mb-2">Box of 6</p>
+
+                                        <div class="flex flex-wrap items-center justify-between gap-4 mt-3">
+                                            <div class="flex items-center gap-3">
+                                                <div
+                                                    class="flex items-center border border-gray-200 rounded-md bg-gray-50 h-8">
+                                                    <button type="button"
+                                                        class="w-8 h-full flex items-center justify-center text-gray-500 hover:text-fantasy-brown transition-colors">−</button>
+                                                    <span
+                                                        class="w-8 text-center text-sm font-bold text-gray-800">1</span>
+                                                    <button type="button"
+                                                        class="w-8 h-full flex items-center justify-center text-gray-500 hover:text-fantasy-brown transition-colors">+</button>
+                                                </div>
+                                            </div>
+                                            <button
+                                                class="text-xs font-bold text-red-400 hover:text-red-600 uppercase tracking-wide">Remove</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- 3. Payment Method -->
+                        <section
+                            class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300">
+                            <div class="p-6">
+                                <h2
+                                    class="text-lg font-serif font-bold text-fantasy-brown flex items-center gap-2 mb-6">
+                                    <span
+                                        class="bg-fantasy-brown/10 text-fantasy-brown w-6 h-6 rounded-full flex items-center justify-center text-xs">3</span>
+                                    Payment Options
+                                </h2>
+
+                                <div class="space-y-4 pl-8">
+                                    <!-- COD -->
+                                    <label
+                                        class="relative flex items-center p-4 border border-fantasy-gold bg-orange-50/20 rounded-xl cursor-pointer transition-all">
+                                        <div class="flex items-center h-5">
+                                            <input type="radio" name="payment" value="cod"
+                                                class="w-5 h-5 text-fantasy-brown border-gray-300 focus:ring-fantasy-gold"
+                                                checked>
+                                        </div>
+                                        <div class="ml-4 flex-1">
+                                            <div class="flex items-center justify-between">
+                                                <span class="font-bold text-gray-900">Cash on Delivery</span>
+                                                <i class="fa-solid fa-money-bill-wave text-fantasy-gold text-xl"></i>
+                                            </div>
+                                            <p class="text-xs text-gray-500 mt-0.5">Pay cash when you receive your
+                                                order.</p>
+                                        </div>
+                                        <!-- Selected Indicator Strip -->
+                                        <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-fantasy-gold rounded-l-xl">
+                                        </div>
+                                    </label>
+
+                                    <!-- UPI -->
+                                    <label
+                                        class="relative flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer hover:border-gray-300 transition-all opacity-75 hover:opacity-100">
+                                        <div class="flex items-center h-5">
+                                            <input type="radio" name="payment" value="upi"
+                                                class="w-5 h-5 text-fantasy-brown border-gray-300 focus:ring-fantasy-gold">
+                                        </div>
+                                        <div class="ml-4 flex-1">
+                                            <div class="flex items-center justify-between">
+                                                <span class="font-bold text-gray-900">UPI (GPay / PhonePe)</span>
+                                                <i class="fa-brands fa-google-pay text-gray-400 text-2xl"></i>
+                                            </div>
+                                        </div>
+                                    </label>
+
+                                    <!-- Card -->
+                                    <label
+                                        class="relative flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer hover:border-gray-300 transition-all opacity-75 hover:opacity-100">
+                                        <div class="flex items-center h-5">
+                                            <input type="radio" name="payment" value="card"
+                                                class="w-5 h-5 text-fantasy-brown border-gray-300 focus:ring-fantasy-gold">
+                                        </div>
+                                        <div class="ml-4 flex-1">
+                                            <div class="flex items-center justify-between">
+                                                <span class="font-bold text-gray-900">Credit / Debit Card</span>
+                                                <div class="flex gap-2 text-gray-400 text-xl">
+                                                    <i class="fa-brands fa-cc-visa"></i>
+                                                    <i class="fa-brands fa-cc-mastercard"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </section>
+
+                    </div>
+
+                    <!-- RIGHT COLUMN: Sticky Summary (30%) -->
+                    <div class="lg:col-span-4 mt-6 lg:mt-0">
+                        <div class="sticky top-24 space-y-6">
+
+                            <!-- Coupon Code -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Apply
+                                    Coupon</label>
+                                <div class="flex gap-2">
+                                    <div class="relative flex-1">
+                                        <i
+                                            class="fa-solid fa-tag absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                                        <input type="text" placeholder="FANTASY20"
+                                            class="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-fantasy-gold uppercase font-medium">
+                                    </div>
+                                    <button
+                                        class="px-4 py-2.5 bg-gray-900 text-white rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors">Apply</button>
+                                </div>
+                            </div>
+
+                            <!-- Bill Summary -->
+                            <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden relative">
+                                <!-- Decorative top border -->
+                                <div class="h-1 bg-gradient-to-r from-fantasy-brown via-fantasy-gold to-fantasy-brown">
+                                </div>
+
+                                <div class="p-6">
+                                    <h3 class="font-serif font-bold text-lg text-fantasy-brown mb-6">Order Summary</h3>
+
+                                    <div class="space-y-3 text-sm">
+                                        <div class="flex justify-between text-gray-600">
+                                            <span>Item Total</span>
+                                            <span>₹1300.00</span>
+                                        </div>
+                                        <div class="flex justify-between text-gray-600">
+                                            <span>Delivery Fee</span>
+                                            <span class="text-green-600 font-bold">FREE</span>
+                                        </div>
+                                        <div class="flex justify-between text-gray-600">
+                                            <span>Discount</span>
+                                            <span class="text-green-600 relative">
+                                                - ₹260.00
+                                                <span
+                                                    class="absolute -right-2 top-0 w-1.5 h-1.5 bg-red-400 rounded-full animate-ping"></span>
+                                            </span>
+                                        </div>
+                                        <div class="flex justify-between text-gray-600">
+                                            <span>Taxes & Charges</span>
+                                            <span>₹45.00</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="border-t border-dashed border-gray-200 my-4"></div>
+
+                                    <div class="flex justify-between items-end mb-6">
+                                        <span class="font-bold text-gray-800">Grand Total</span>
+                                        <span class="font-serif font-bold text-3xl text-fantasy-brown">₹1085</span>
+                                    </div>
+
+                                    <button
+                                        class="w-full py-4 bg-fantasy-brown text-white rounded-xl font-bold text-lg shadow-xl shadow-fantasy-brown/20 hover:bg-opacity-90 hover:shadow-2xl transform hover:-translate-y-0.5 transition-all duration-300 flex justify-center items-center gap-3">
+                                        <span>Place Order</span>
+                                        <i class="fa-solid fa-arrow-right-long"></i>
+                                    </button>
+
+                                    <div class="mt-4 text-center">
+                                        <p
+                                            class="text-[10px] text-gray-400 font-medium flex items-center justify-center gap-1.5">
+                                            <i class="fa-solid fa-shield-halved text-green-500"></i>
+                                            Secure & encrypted payment
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="bg-gray-50 p-3 text-center border-t border-gray-100">
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Stripe_Logo%2C_revised_2016.svg/2560px-Stripe_Logo%2C_revised_2016.svg.png"
+                                        alt="Payments" class="h-4 mx-auto opacity-50 grayscale">
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+        <footer class="bg-white border-t border-gray-100 mt-auto py-8">
+            <div class="container mx-auto px-4 text-center">
+                <p class="text-gray-400 text-sm mb-4">© 2025 Fantasy Bakery. Crafted with <i
+                        class="fa-solid fa-heart text-red-300 mx-1"></i> for foodies.</p>
+                <div class="flex justify-center gap-6 text-gray-300 text-xs">
+                    <a href="#" class="hover:text-gray-500">Privacy Policy</a>
+                    <a href="#" class="hover:text-gray-500">Terms of Service</a>
+                    <a href="#" class="hover:text-gray-500">Shipping Policy</a>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Cart Drawer (Hidden) -->
+        <div id="cart-drawer"
+            class="fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50 flex flex-col">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-fantasy-cream">
+                <h2 class="font-serif font-bold text-xl text-fantasy-brown">Your Basket (3)</h2>
+                <button id="close-cart" class="text-gray-500 hover:text-fantasy-brown"><i
+                        class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                <!-- Cart Item -->
+                <div class="flex gap-4">
+                    <img src="https://images.unsplash.com/photo-1535141192574-5d4897c12636?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+                        class="w-20 h-20 rounded-lg object-cover">
+                    <div class="flex-1">
+                        <h4 class="font-bold text-fantasy-brown text-sm">Enchanted Forest Cake</h4>
+                        <p class="text-gray-500 text-xs mb-2">1kg • Eggless</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center border rounded-lg">
+                                <button class="px-2 py-1 text-gray-500 hover:text-fantasy-brown">-</button>
+                                <span class="px-2 text-sm font-bold">1</span>
+                                <button class="px-2 py-1 text-gray-500 hover:text-fantasy-brown">+</button>
+                            </div>
+                            <span class="font-bold text-fantasy-brown">$45.00</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Cart Item -->
+                <div class="flex gap-4">
+                    <img src="https://images.unsplash.com/photo-1603532648955-039310d9ed75?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+                        class="w-20 h-20 rounded-lg object-cover">
+                    <div class="flex-1">
+                        <h4 class="font-bold text-fantasy-brown text-sm">Unicorn Cupcakes</h4>
+                        <p class="text-gray-500 text-xs mb-2">Box of 6</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center border rounded-lg">
+                                <button class="px-2 py-1 text-gray-500 hover:text-fantasy-brown">-</button>
+                                <span class="px-2 text-sm font-bold">1</span>
+                                <button class="px-2 py-1 text-gray-500 hover:text-fantasy-brown">+</button>
+                            </div>
+                            <span class="font-bold text-fantasy-brown">$12.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 border-t border-gray-100 bg-fantasy-cream">
+                <div class="flex justify-between mb-2 text-sm">
+                    <span class="text-gray-600">Subtotal</span>
+                    <span class="font-bold text-fantasy-brown">$57.00</span>
+                </div>
+                <div class="flex justify-between mb-4 text-sm text-green-600">
+                    <span>Discount (SWEET20)</span>
+                    <span>-$11.40</span>
+                </div>
+                <div class="flex justify-between mb-6 text-lg font-bold text-fantasy-brown">
+                    <span>Total</span>
+                    <span>$45.60</span>
+                </div>
+                <button
+                    class="w-full bg-fantasy-brown text-white py-3 rounded-xl font-bold hover:bg-opacity-90 shadow-lg">Checkout</button>
+            </div>
+        </div>
+
+        <!-- Overlay for Cart/Mobile Menu -->
+        <div id="overlay" class="fixed inset-0 bg-black/50 hidden z-40 backdrop-blur-sm"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,156 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block title %}My Orders | Fantasy Bakery{% endblock %}
+
+{% block content %}
+<section class="bg-fantasy-cream min-h-screen pt-32 pb-16">
+    <div class="max-w-6xl mx-auto px-4">
+
+        <!-- Page Header -->
+        <div class="mb-10">
+            <h1 class="text-3xl font-serif font-bold text-fantasy-brown">My Orders</h1>
+            <p class="text-gray-500 mt-1">Track, return, and manage your purchases</p>
+        </div>
+
+        <!-- ORDER CARD -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-8">
+
+            <!-- Header -->
+            <div class="flex flex-wrap justify-between items-center gap-4 p-6 border-b">
+                <div>
+                    <p class="text-sm text-gray-500">Order ID</p>
+                    <p class="font-bold text-gray-800">FFN-99214</p>
+                    <p class="text-xs text-gray-400 mt-1">Placed on 28 Nov 2025</p>
+                </div>
+
+                <span class="px-4 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-700">
+                    Delivered
+                </span>
+            </div>
+
+            <!-- Items -->
+            <div class="divide-y">
+                <!-- Item -->
+                <div class="flex gap-4 p-6">
+                    <a href="{% url 'order_detail' %}">
+                    <img src="{% static 'images/banana.jpg' %}"
+                         class="w-24 h-24 rounded-xl object-cover border"></a>
+
+                    <div class="flex-1">
+                        <h3 class="font-bold text-lg text-gray-800">Kerala Banana Chips</h3>
+                        <p class="text-sm text-gray-500 mt-1">500g Pack • Best before 10 days</p>
+                        <p class="text-sm text-green-600 mt-1 font-semibold">
+                            Delivered on 30 Nov
+                        </p>
+                        <p class="font-bold text-lg mt-2 text-fantasy-brown">₹180</p>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="relative">
+                        <button onclick="toggleMenu(this)"
+                                class="text-gray-400 hover:text-gray-700 text-2xl leading-none">⋮</button>
+
+                        <div class="hidden absolute right-0 mt-2 w-40 bg-white border rounded-xl shadow-md z-10">
+                            <button onclick="openReturnModal()"
+                                    class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-50 text-red-600">
+                                Request Return
+                            </button>
+                        </div>
+                    </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="flex flex-wrap justify-between gap-6 p-6 border-t bg-gray-50 rounded-b-2xl">
+                <div>
+                    <p class="text-sm text-gray-500">Delivered To</p>
+                    <p class="font-medium text-gray-700">Nishad, Malappuram, Kerala</p>
+                </div>
+
+                <div class="text-right">
+                    <p class="text-sm text-gray-500">Total Amount</p>
+                    <p class="text-xl font-bold text-fantasy-brown">₹440</p>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="p-6 flex flex-wrap gap-3">
+                <button class="px-5 py-2 rounded-lg border font-semibold hover:bg-gray-100">
+                    View Invoice
+                </button>
+                <button class="px-5 py-2 rounded-lg border font-semibold hover:bg-gray-100">
+                    Reorder
+                </button>
+                <button class="px-5 py-2 rounded-lg bg-fantasy-brown text-white font-semibold hover:opacity-90">
+                    Track Order
+                </button>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- RETURN MODAL -->
+<div id="returnModal"
+     class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-2xl w-full max-w-md p-6">
+
+        <h3 class="text-lg font-bold text-fantasy-brown mb-4">
+            Return Request
+        </h3>
+
+        <form class="space-y-3">
+            <label class="flex items-center gap-2">
+                <input type="radio" name="reason" required>
+                Product was damaged
+            </label>
+            <label class="flex items-center gap-2">
+                <input type="radio" name="reason">
+                Expired product
+            </label>
+            <label class="flex items-center gap-2">
+                <input type="radio" name="reason">
+                Wrong item delivered
+            </label>
+            <label class="flex items-center gap-2">
+                <input type="radio" name="reason">
+                Not satisfied
+            </label>
+
+            <textarea rows="3"
+                      placeholder="Additional comments (optional)"
+                      class="w-full border rounded-lg p-3 mt-3"></textarea>
+
+            <div class="flex justify-end gap-3 mt-5">
+                <button type="button"
+                        onclick="closeReturnModal()"
+                        class="px-4 py-2 rounded-lg border">
+                    Cancel
+                </button>
+                <button type="submit"
+                        class="px-4 py-2 rounded-lg bg-red-600 text-white font-semibold">
+                    Submit Return
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function toggleMenu(btn) {
+    const menu = btn.nextElementSibling;
+    document.querySelectorAll('.relative div').forEach(d => d.classList.add('hidden'));
+    menu.classList.toggle('hidden');
+}
+
+function openReturnModal() {
+    document.getElementById('returnModal').classList.remove('hidden');
+}
+
+function closeReturnModal() {
+    document.getElementById('returnModal').classList.add('hidden');
+}
+</script>
+{% endblock %}

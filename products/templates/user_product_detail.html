@@ -1,0 +1,571 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block title %}{{ product.name|default:"Fantasy_bakery" }} | Fantasy Bakery{% endblock %}
+
+{% block content %}
+
+<div class="bg-fantasy-cream py-4 pt-28">
+    <div class="container mx-auto px-6">
+        <nav class="text-sm font-medium text-gray-500">
+            <a href="{% url 'home' %}" class="hover:text-fantasy-brown transition-colors">Home</a>
+            <span class="mx-2">/</span>
+            <a href="{% url 'products_by_category' product.category.slug %}" class="hover:text-fantasy-brown transition-colors">{{ product.category }}</a>
+            <span class="mx-2">/</span>
+            <span class="text-fantasy-brown font-bold">{{ product.name|default:"Fantasy Foods" }}</span>
+        </nav>
+    </div>
+</div>
+
+<!-- Product Hero Section -->
+<section class="py-12 bg-white">
+    <div class="container mx-auto px-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            <!-- Product Images Gallery (Reduced Size: 5 cols instead of 6/half) -->
+            <div class="lg:col-span-5 space-y-4">
+                <div class="relative overflow-hidden rounded-2xl shadow-lg bg-gray-50 aspect-square group">
+                    <img id="main-product-image"
+                        src="{{ product.main_image.url }}"
+                        alt="Product Image"
+                        class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 cursor-zoom-in">
+
+                    <!-- Discount Badge -->
+                    <span
+                        class="absolute top-4 left-4 bg-fantasy-pink-dark text-white text-sm font-bold px-3 py-1 rounded-full shadow-md">
+                        20% OFF
+                    </span>
+
+                    <!-- Wishlist Button -->
+                    <form method="POST" action="{% url 'wishlist:toggle_wishlist' product.product_id %}">
+                        {% csrf_token %}
+                        <button
+                            type="submit"class="absolute top-3 right-3 z-10 w-8 h-8 bg-white/80 backdrop-blur
+                            rounded-full flex items-center justify-center transition-all shadow-sm
+                            {% if product.product_id in wishlist_product_ids %}
+                                text-red-500
+                            {% else %}
+                                text-gray-400 hover:text-red-500
+                            {% endif %}">
+                            <i class="fa-solid fa-heart"></i>
+                        </button>
+                    </form>
+               </div>
+
+                <!-- Thumbnails -->
+                <div class="flex gap-4 overflow-x-auto pb-2 hide-scrollbar">
+                    <button 
+                    onclick="updateMainImage('{{ product.main_image.url }}', this)"
+                        class="relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border-2 border-fantasy-gold shadow-sm">
+                        <img src="{{ product.main_image.url }}"
+                            class="w-full h-full object-cover">
+                    </button>
+                    {% for img in images %}
+                    <button 
+                    onclick="updateMainImage('{{ img.image.url }}', this)"
+                        class="relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border-2 border-fantasy-gold shadow-sm">
+                        <img src="{{ img.image.url }}"
+                            class="w-full h-full object-cover">
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Product Details (Expanded Size: 7 cols) -->
+            <div class="lg:col-span-7 flex flex-col h-full">
+                <div class="mb-2">
+                    <span class="text-fantasy-gold font-bold uppercase tracking-wider text-xs">{{ product.category}}</span>
+                </div>
+
+                <h1 class="text-4xl md:text-5xl font-serif font-bold text-fantasy-brown mb-4 leading-tight">
+                    {{ product.name|default:"Fantasy Foods" }}
+                </h1>
+
+                <!-- Ratings -->
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="flex text-yellow-400 text-sm">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star-half-stroke"></i>
+                    </div>
+                    <span class="text-gray-500 text-sm font-medium border-l border-gray-300 pl-4">
+                        4.8 (124 reviews)
+                    </span>
+                    {% if product.is_active %}
+                    <span class="text-green-600 text-sm font-bold bg-green-50 px-2 py-0.5 rounded-full">
+                        In Stock
+                    </span>
+                    {% else %}
+                    <span class="text-red-600 text-sm font-bold bg-red-50 px-2 py-0.5 rounded-full">
+                        Out Of Stock
+                    </span>
+                    {% endif %}
+                </div>
+
+                <!-- Price -->
+                <div class="flex items-end gap-3 mb-6 bg-fantasy-cream/50 p-4 rounded-xl inline-block w-max">
+                    <span class="text-4xl font-bold text-fantasy-brown" id="product-price">{{ initial_variant.price }}</span>
+                    <span id= "product-mrp" class="text-xl text-gray-400 line-through mb-1">{{ initial_variant.price }}</span>
+                </div>
+
+                <p class="text-gray-600 leading-relaxed mb-8 text-lg">
+                    {{ product.description }}
+                </p>
+
+                <!-- Variants -->
+                {% if has_variants %}
+                <div class="mb-8">
+                    <h3 class="font-bold text-fantasy-brown mb-3">Choose Weight</h3>
+                    <div class="flex flex-wrap gap-3" id="variant-selector">
+                        {% for var in variants %}
+                        <button type="button"
+                            class="variant-btn px-6 py-2 rounded-full border-2 border-gray-200 text-gray-600 transition-all font-medium"
+                            data-price="{{ var.price }}"
+                            data-mrp="{{ var.price|add:29 }}" 
+                            data-variant-id="{{ var.id }}"
+                            onclick="selectVariant(this)">
+                            {{ var.size_name }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Actions -->
+                <div class="flex flex-col sm:flex-row gap-4 mb-8">
+                    <!-- Quantity -->
+                    <div class="flex items-center border-2 border-gray-200 rounded-full h-14 w-max px-2">
+                        <button onclick="updateQuantity(-1)"
+                            class="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-fantasy-brown transition-colors">
+                            <i class="fa-solid fa-minus"></i>
+                        </button>
+                        <input type="text" value="1" id="quantity-input"
+                            class="w-12 text-center font-bold text-fantasy-brown bg-transparent focus:outline-none"
+                            readonly>
+                        <button onclick="updateQuantity(1)"
+                            class="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-fantasy-brown transition-colors">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+
+                    <!-- Add to Cart -->
+{% if messages %}
+    {% for message in messages %}
+        {% if message.tags == "success" %}
+            <div id="cart-success"
+                 class="flex-1 min-w-[240px] h-14 rounded-full
+                        bg-green-100 text-green-700 font-semibold text-lg
+                        flex items-center justify-center gap-2">
+                <i class="fa-solid fa-check"></i>
+                {{ message }}
+            </div>
+        {% endif %}
+    {% endfor %}
+{% else %}
+    <!-- Add to Cart -->
+    <form method="POST" action="{% url 'cart:toggle_cart' 0 %}" id="addToCartForm">
+        {% csrf_token %}
+
+        <input type="hidden" name="variant_id" id="selectedVariantInput">
+        <input type="hidden" name="quantity" id="quantityHidden" value="1">
+
+        <button type="submit"
+            id="addToCartBtn"
+            class="flex-1 min-w-[240px] h-14 rounded-full bg-fantasy-brown
+                   text-white font-semibold text-lg">
+            <i class="fa-solid fa-cart-plus"></i> Add to Cart
+        </button>
+    </form>
+{% endif %}
+
+
+                    <!-- Buy Now -->
+                    <a href="{% url 'checkout' %}"
+                        class="flex-1 bg-fantasy-gold text-fantasy-brown h-14 rounded-full font-bold shadow-lg hover:bg-opacity-90 hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2 text-lg">
+                        <i class="fa-solid fa-bolt"></i>
+                        Buy Now
+                    </a>
+                </div>
+
+                <!-- Coupon & Delivery -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-gray-50 rounded-2xl border border-gray-100">
+                    <!-- Delivery Check -->
+                    <div>
+                        <h4 class="font-bold text-fantasy-brown mb-2 text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-truck-fast text-fantasy-gold"></i> Delivery Availability
+                        </h4>
+                        <div class="relative">
+                            <input type="text" placeholder="Enter Pincode"
+                                class="w-full pl-4 pr-20 py-2.5 rounded-lg border border-gray-200 focus:outline-none focus:border-fantasy-brown focus:ring-1 focus:ring-fantasy-brown text-sm">
+                            <button
+                                class="absolute right-1 top-1 bottom-1 px-4 bg-fantasy-brown text-white rounded-md text-xs font-bold hover:bg-opacity-90">Check</button>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2"><i class="fa-regular fa-clock mr-1"></i> Order now for
+                            delivery by <span class="font-bold text-gray-700">Tomorrow, 4 PM</span></p>
+                    </div>
+
+                    <!-- Coupon -->
+                    <div>
+                        <h4 class="font-bold text-fantasy-brown mb-2 text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-tag text-fantasy-gold"></i> Apply Coupon
+                        </h4>
+                        <div class="relative">
+                            <input type="text" placeholder="Promo Code"
+                                class="w-full pl-4 pr-20 py-2.5 rounded-lg border border-gray-200 focus:border-dashed focus:border-fantasy-brown focus:outline-none text-sm uppercase">
+                            <button
+                                class="absolute right-1 top-1 bottom-1 px-4 text-fantasy-brown font-bold text-xs hover:bg-fantasy-cream rounded-md transition-colors">APPLY</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Description & Reviews Sections (Stacked) -->
+<section class="bg-fantasy-cream border-t border-fantasy-brown/10">
+    <div class="container mx-auto px-6 max-w-5xl">
+
+        <!-- Description Content -->
+        <div class="py-16 border-b border-gray-200">
+            <h3 class="text-3xl font-serif font-bold text-fantasy-brown mb-8 text-center">Magical Details</h3>
+            <div class="prose prose-lg text-gray-600 max-w-none">
+                <p class="mb-4">
+                    Immerse yourself in the whimsical world of our Enchanted Forest Cake. Each layer is meticulously
+                    crafted to tell a story of flavor and fantasy. Using only the finest ingredients sourced from
+                    magical lands (and certified farms), we create a dessert that is as pleasing to the eye as it is to
+                    the palate.
+                </p>
+                <div class="grid md:grid-cols-2 gap-8 my-8">
+                    <ul class="space-y-3 font-medium">
+                        <li class="flex items-start gap-3">
+                            <i class="fa-solid fa-leaf text-green-500 mt-1"></i>
+                            <span>Organic Dark Chocolate from Belgium (70% Cocoa)</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa-solid fa-leaf text-green-500 mt-1"></i>
+                            <span>Premium Japanese Matcha Powder for the moss effect</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa-solid fa-leaf text-green-500 mt-1"></i>
+                            <span>Hand-sculpted meringue mushrooms</span>
+                        </li>
+                    </ul>
+                    <ul class="space-y-3 font-medium">
+                        <li class="flex items-start gap-3">
+                            <i class="fa-solid fa-check text-fantasy-gold mt-1"></i>
+                            <span>Eggless Options Available</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa-solid fa-check text-fantasy-gold mt-1"></i>
+                            <span>Freshly baked on order day</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa-solid fa-check text-fantasy-gold mt-1"></i>
+                            <span>Keeps fresh for 3 days (Refrigerated)</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reviews Content (Stacked Below Description) -->
+        <div class="py-16">
+            <h3 class="text-3xl font-serif font-bold text-fantasy-brown mb-12 text-center">Customer Reviews (124)</h3>
+
+            <div class="grid md:grid-cols-3 gap-12">
+                <!-- Summary -->
+                <div class="md:col-span-1">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm text-center sticky top-24">
+                        <h4 class="text-5xl font-bold text-fantasy-brown mb-2">4.8</h4>
+                        <div class="text-yellow-400 text-xl mb-2">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star-half-stroke"></i>
+                        </div>
+                        <p class="text-gray-500 text-sm mb-6">Based on 124 reviews</p>
+
+                        <!-- Bars -->
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-center gap-2">
+                                <span class="w-8 text-right text-gray-500">5 <i
+                                        class="fa-solid fa-star text-xs"></i></span>
+                                <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                                    <div class="h-full bg-yellow-400 w-[80%]"></div>
+                                </div>
+                                <span class="w-8 text-gray-400 text-xs">80%</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-8 text-right text-gray-500">4 <i
+                                        class="fa-solid fa-star text-xs"></i></span>
+                                <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                                    <div class="h-full bg-yellow-400 w-[15%]"></div>
+                                </div>
+                                <span class="w-8 text-gray-400 text-xs">15%</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-8 text-right text-gray-500">3 <i
+                                        class="fa-solid fa-star text-xs"></i></span>
+                                <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                                    <div class="h-full bg-yellow-400 w-[3%]"></div>
+                                </div>
+                                <span class="w-8 text-gray-400 text-xs">3%</span>
+                            </div>
+                        </div>
+
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'product_review' %}">
+                        <button onclick="document.getElementById('review-form').classList.remove('hidden')"
+                            class="w-full mt-6 py-2 border border-fantasy-brown text-fantasy-brown font-bold rounded-lg hover:bg-fantasy-brown hover:text-white transition-colors">
+                            Write a Review
+                        </button></a>
+                        {% else %}
+                        <a href="{% url 'login' %}"
+                            class="block w-full mt-6 py-2 border border-gray-300 text-gray-500 font-bold rounded-lg hover:bg-gray-50 transition-colors">
+                            Login into Review
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Review List & Form -->
+                <div class="md:col-span-2 space-y-6">
+
+                    <!-- Review Form (Hidden initially) -->
+                    <div id="review-form"
+                        class="hidden bg-gray-50 p-6 rounded-2xl border border-gray-200 mb-6 animate-fade-in-up">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="font-bold text-fantasy-brown">Write your review</h4>
+                            <button onclick="document.getElementById('review-form').classList.add('hidden')"
+                                class="text-gray-400 function hover:text-gray-600"><i
+                                    class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <form>
+                            <div class="mb-4">
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Rating</label>
+                                <div class="flex gap-2 text-2xl text-gray-300 hover:text-yellow-400 cursor-pointer">
+                                    <i class="fa-solid fa-star hover:text-yellow-400"></i>
+                                    <i class="fa-solid fa-star hover:text-yellow-400"></i>
+                                    <i class="fa-solid fa-star hover:text-yellow-400"></i>
+                                    <i class="fa-solid fa-star hover:text-yellow-400"></i>
+                                    <i class="fa-solid fa-star hover:text-yellow-400"></i>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Your Review</label>
+                                <textarea rows="4"
+                                    class="w-full rounded-lg border-gray-200 p-3 focus:ring-fantasy-brown focus:border-fantasy-brown"
+                                    placeholder="What did you like or dislike?"></textarea>
+                            </div>
+                            <button type="submit"
+                                class="bg-fantasy-brown text-white px-6 py-2 rounded-lg font-bold hover:bg-opacity-90">Submit
+                                Review</button>
+                        </form>
+                    </div>
+
+                    <!-- Review Item 1 -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex items-center gap-4">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-fantasy-gold/20 flex items-center justify-center text-fantasy-brown font-bold">
+                                    JD
+                                </div>
+                                <div>
+                                    <h5 class="font-bold text-gray-800">Jane Doe</h5>
+                                    <div class="text-yellow-400 text-xs">
+                                        <i class="fa-solid fa-star"></i>
+                                        <i class="fa-solid fa-star"></i>
+                                        <i class="fa-solid fa-star"></i>
+                                        <i class="fa-solid fa-star"></i>
+                                        <i class="fa-solid fa-star"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="text-xs text-gray-400">2 days ago</span>
+                        </div>
+                        <p class="text-gray-600">The most beautiful cake I've ever seen! Tastes just as good as it
+                            looks. The matcha works perfectly with the chocolate.</p>
+                    </div>
+
+                    <!-- Review Item 2 -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex items-center gap-4">
+                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User"
+                                    class="w-10 h-10 rounded-full object-cover">
+                                <div>
+                                    <h5 class="font-bold text-gray-800">Michael Smith</h5>
+                                    <div class="text-yellow-400 text-xs">
+                                        <i class="fa-solid fa-star"></i>
+                                        <i class="fa-solid fa-star"></i>
+                                        <i class="fa-solid fa-star"></i>
+                                        <i class="fa-solid fa-star"></i>
+                                        <i class="fa-regular fa-star"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="text-xs text-gray-400">1 week ago</span>
+                        </div>
+                        <p class="text-gray-600">Great taste, but smaller than I expected for the price. Delivery was
+                            super fast though!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Related Products -->
+<section class="py-16 bg-white">
+    <div class="container mx-auto px-6">
+        <h2 class="text-3xl font-serif font-bold text-fantasy-brown mb-8 text-center">You Might also like</h2>
+
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
+            <!-- Card 1 -->
+             {% for latest in latest_products %}
+            <div class="group cursor-pointer">
+                <div class="relative overflow-hidden rounded-xl bg-gray-100 aspect-[4/5] mb-3">
+                    <img src="{{ latest.main_image.url }}"
+                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    <button
+                        class="absolute bottom-3 right-3 bg-white p-2 rounded-full shadow-md text-fantasy-brown hover:text-white hover:bg-fantasy-brown transition-all opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0">
+                        <i class="fa-solid fa-cart-plus"></i>
+                    </button>
+                </div>
+                <h3 class="font-bold text-gray-800 text-sm group-hover:text-fantasy-gold transition-colors">
+                    {{ latest.name }}
+                </h3>
+                <span class="font-bold text-fantasy-brown">₹{{ latest.starting_price}}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Page Specific Scripts -->
+<script>
+    // Image Gallery
+    function updateMainImage(src) {
+        const mainImage = document.getElementById('main-product-image');
+        // Simple fade effect
+        mainImage.style.opacity = '0.5';
+        setTimeout(() => {
+            mainImage.src = src;
+            mainImage.style.opacity = '1';
+        }, 150);
+
+        // Update active state of thumbnails (optional visual enhancement)
+        // ... code to toggle active class on clicked thumb
+    }
+
+    // Variant Selection & Price Update
+function selectVariant(btn) {
+    // Reset all buttons
+    document.querySelectorAll('.variant-btn').forEach(b => {
+        b.classList.remove(
+            'bg-fantasy-brown',
+            'text-white',
+            'border-fantasy-brown',
+            'shadow-md',
+            'scale-105'
+        );
+        b.classList.add('text-gray-600', 'border-gray-200');
+    });
+
+    // Activate selected button
+    btn.classList.remove('text-gray-600', 'border-gray-200');
+    btn.classList.add(
+        'bg-fantasy-brown',
+        'text-white',
+        'border-fantasy-brown',
+        'shadow-md',
+        'scale-105'
+    );
+
+    // Prices
+    selectedPrice = parseFloat(btn.dataset.price);
+    selectedMrp   = parseFloat(btn.dataset.mrp);
+
+    const qty = parseInt(document.getElementById('quantity-input').value, 10);
+    updateTotalPrice(qty);
+
+    // ✅ CART FIX (CRITICAL)
+    const variantId = btn.dataset.variantId;
+
+    // set hidden input
+    document.getElementById('selectedVariantInput').value = variantId;
+
+    // update form action (/cart/toggle/<id>/)
+    const form = document.getElementById('addToCartForm');
+    form.action = `/cart/toggle/${variantId}/`;
+
+    // enable button
+    document.getElementById('addToCartBtn').disabled = false;
+}
+
+    // Quantity Logic
+let selectedMrp   = {{ initial_variant.price|add:29 }};
+let quantity = 1;
+let selectedPrice = {{ initial_variant.price }};   // updated when variant is selected
+let maxQty = 10;         // can be dynamic from stock
+
+function updateQuantity(change) {
+    const input = document.getElementById('quantity-input');
+    let qty = parseInt(input.value, 10);
+
+    qty += change;
+    if (qty < 1) qty = 1;
+    if (qty > maxQty) qty = maxQty;
+
+    input.value = qty;
+
+    // ✅ sync quantity to form
+    document.getElementById('quantityHidden').value = qty;
+
+    updateTotalPrice(qty);
+    toggleQtyButtons(qty);
+}
+
+function updateTotalPrice(qty) {
+    const sellingTotal = selectedPrice * qty;
+    const mrpTotal = selectedMrp * qty;
+
+    document.getElementById('product-price').innerText =
+        `₹${sellingTotal.toFixed(2)}`;
+
+    document.getElementById('product-mrp').innerText =
+        `₹${mrpTotal.toFixed(2)}`;
+}
+
+
+function toggleQtyButtons(qty) {
+    const minusBtn = document.querySelector('[onclick="updateQuantity(-1)"]');
+    const plusBtn  = document.querySelector('[onclick="updateQuantity(1)"]');
+
+    minusBtn.classList.toggle('opacity-40', qty === 1);
+    plusBtn.classList.toggle('opacity-40', qty === maxQty);
+
+    minusBtn.disabled = qty === 1;
+    plusBtn.disabled  = qty === maxQty;
+}
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+    const firstVariantBtn = document.querySelector('.variant-btn');
+
+    if (firstVariantBtn) {
+        selectVariant(firstVariantBtn);
+    }
+});
+    
+    setTimeout(() => {
+        const msg = document.getElementById("cart-success");
+        if (msg) msg.style.display = "none";
+    }, 3000);
+</script>
+{% endblock %}

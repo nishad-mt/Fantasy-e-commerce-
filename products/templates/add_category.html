@@ -1,0 +1,497 @@
+{% extends 'dashboard.html' %}
+
+{% block title %}
+<title>Create Category | Fantasy Bakery Admin
+    </title>{% endblock %}
+
+{% block content %}
+<!-- Page-Specific Styles & Scripts -->
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                fontFamily: {
+                    sans: ['Outfit', 'sans-serif'],
+                    serif: ['Playfair Display', 'serif'],
+                },
+                colors: {
+                    brand: {
+                        50: '#fdf8f6',
+                        100: '#f2e8e5',
+                        200: '#eaddd7',
+                        300: '#e0cec7',
+                        400: '#d2bab0',
+                        500: '#a18072', /* Muted Brown */
+                        600: '#8c6b5d',
+                        700: '#7a5a4d',
+                        800: '#5d4037', /* Dark Brown */
+                        900: '#4e342e',
+                    },
+                    amber: {
+                        50: '#fffbeb',
+                        100: '#fef3c7',
+                        200: '#fde68a',
+                        300: '#fcd34d',
+                        400: '#fbbf24',
+                        500: '#f59e0b',
+                        600: '#d97706',
+                        700: '#b45309', // Deep Amber
+                        800: '#92400e',
+                        900: '#78350f',
+                    }
+                }
+            }
+        }
+    }
+</script>
+
+<style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f5f5f4;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #d6d3d1;
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #a8a29e;
+    }
+</style>
+
+<!-- Cropper.js -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+
+<!-- Main Content -->
+<main class="flex-1 flex flex-col min-w-0 overflow-hidden h-screen bg-[#fafaf9]">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-stone-200 sticky top-0 z-20">
+        <div class="flex items-center justify-between px-6 py-4">
+            <div class="flex items-center gap-4">
+                <button class="md:hidden text-stone-500 hover:text-stone-700">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+                <div>
+                    <div class="flex items-center gap-2 text-sm text-stone-500 mb-1">
+                        <a href="{% url 'categories' %}" class="hover:text-amber-600 transition-colors">Categories</a>
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                        <span class="text-stone-800 font-medium">Create Category</span>
+                    </div>
+                    <h1 class="text-2xl font-bold font-serif text-stone-800">Create Category</h1>
+                </div>
+            </div>
+            <div>
+                <a href="{% url 'categories' %}"
+                    class="bg-white border border-stone-300 text-stone-600 hover:bg-stone-50 hover:text-stone-800 px-5 py-2.5 rounded-lg shadow-sm transition-all flex items-center gap-2 font-medium text-sm">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Categories
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Scrollable Content -->
+    <div class="flex-1 overflow-y-auto p-4 md:p-8">
+
+        <div class="max-w-4xl mx-auto">
+            <form id="createCategoryForm" method="POST" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+                <!-- Main Info Card -->
+                <div class="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden">
+                    <div class="p-6 border-b border-stone-100 bg-stone-50/50">
+                        <h2 class="text-lg font-bold text-stone-800">Basic Information</h2>
+                        <p class="text-sm text-stone-500">General details about the category</p>
+                    </div>
+                    <div class="p-6 space-y-6">
+
+                        <!-- Image Upload Section -->
+                        <div>
+                            <label class="block text-sm font-semibold text-stone-700 mb-2">Category Image</label>
+
+                            <!-- Container -->
+                            <div class="relative w-full max-w-2xl h-96 border-2 border-dashed border-stone-300 rounded-xl bg-stone-50 overflow-hidden transition-all hover:border-amber-400 group"
+                                id="uploadContainer">
+
+                                <!-- Hidden File Input -->
+                                <input type="file" id="catImageInput" name="image" class="hidden" accept="image/*"
+                                    onchange="handleFileSelect(event)">
+
+                                <!-- STATE 1: EMPTY / PLACEHOLDER -->
+                                <div id="state-empty"
+                                    class="absolute inset-0 flex flex-col items-center justify-center cursor-pointer"
+                                    onclick="triggerUpload()">
+                                    <div
+                                        class="w-16 h-16 bg-stone-200/50 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                                        <i
+                                            class="fa-solid fa-image text-2xl text-stone-400 group-hover:text-amber-500 transition-colors"></i>
+                                    </div>
+                                    <p class="text-sm font-medium text-stone-700">Click to upload image</p>
+                                    <p class="text-xs text-stone-500 mt-1">PNG, JPG up to 10MB</p>
+                                </div>
+
+                                <!-- STATE 2: CROPPER (Hidden by default) -->
+                                <div id="state-cropper" class="absolute inset-0 z-20 bg-stone-900 hidden">
+                                    <div class="absolute inset-0 bottom-16">
+                                        <img id="cropperImage" class="max-w-full max-h-full">
+                                    </div>
+
+                                    <!-- Editor Toolbar -->
+                                    <div
+                                        class="absolute bottom-0 left-0 right-0 h-16 bg-white/10 backdrop-blur-md flex items-center justify-center gap-4 px-4 border-t border-white/10">
+                                        <button type="button" onclick="rotateImage(-90)"
+                                            class="p-2 text-white hover:text-amber-400 transition-colors"
+                                            title="Rotate Left">
+                                            <i class="fa-solid fa-rotate-left"></i>
+                                        </button>
+                                        <button type="button" onclick="rotateImage(90)"
+                                            class="p-2 text-white hover:text-amber-400 transition-colors"
+                                            title="Rotate Right">
+                                            <i class="fa-solid fa-rotate-right"></i>
+                                        </button>
+                                        <div class="w-px h-6 bg-white/20 mx-2"></div>
+                                        <button type="button" onclick="cancelCrop()"
+                                            class="px-4 py-1.5 text-sm font-medium text-white hover:bg-white/10 rounded-lg transition-colors">
+                                            Cancel
+                                        </button>
+                                        <button type="button" onclick="doneCrop()"
+                                            class="px-6 py-1.5 text-sm font-bold text-white bg-green-600 hover:bg-green-700 rounded-lg shadow-sm transition-all flex items-center gap-2">
+                                            <i class="fa-solid fa-check"></i> Done
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- STATE 3: PREVIEW (Hidden by default) -->
+                                <div id="state-preview" class="absolute inset-0 z-10 bg-white hidden group/preview">
+                                    <div class="w-full h-full flex items-center justify-center bg-stone-100">
+                                        <img id="finalPreview" class="max-w-full max-h-full object-contain">
+                                    </div>
+
+                                    <!-- Overlay Actions -->
+                                    <div
+                                        class="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover/preview:opacity-100 transition-opacity duration-200">
+                                        <button type="button" onclick="enterEditMode()"
+                                            class="px-3 py-2 bg-white/90 backdrop-blur shadow-sm border border-stone-200 rounded-lg text-sm font-medium text-stone-700 hover:text-amber-600 hover:bg-amber-50 transition-colors flex items-center gap-2">
+                                            <i class="fa-solid fa-crop-simple"></i> Edit/Crop
+                                        </button>
+                                        <button type="button" onclick="triggerUpload()"
+                                            class="px-3 py-2 bg-white/90 backdrop-blur shadow-sm border border-stone-200 rounded-lg text-sm font-medium text-stone-700 hover:text-blue-600 hover:bg-blue-50 transition-colors flex items-center gap-2">
+                                            <i class="fa-solid fa-camera"></i> Change
+                                        </button>
+                                        <button type="button" onclick="deleteImage()"
+                                            class="px-3 py-2 bg-white/90 backdrop-blur shadow-sm border border-stone-200 rounded-lg text-sm font-medium text-stone-700 hover:text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2">
+                                            <i class="fa-solid fa-trash"></i> Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Name -->
+                            <div>
+                                <label for="catName" class="block text-sm font-medium text-stone-700 mb-1">Category Name
+                                    <span class="text-red-500">*</span></label>
+                                <input type="text" id="catName" name="name" value="{{ form.name.value|default:'' }}"
+                                    onkeyup="generateSlug()"
+                                    class="w-full px-4 py-2 bg-white border border-stone-200 rounded-lg text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-400 transition-all placeholder-stone-400"
+                                    placeholder="e.g. Artisanal Breads" required>
+                            </div>
+
+                            <!-- Slug -->
+                            <div>
+                                <label for="catSlug" class="block text-sm font-medium text-stone-700 mb-1">Slug</label>
+                                <div class="flex shadow-sm rounded-lg">
+                                    <span
+                                        class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-stone-200 bg-stone-50 text-stone-500 text-sm">/categories/</span>
+                                    <input type="text" id="catSlug" name="slug" value="{{ form.slug.value|default:'' }}"
+                                        class="flex-1 min-w-0 block w-full px-4 py-2 border border-stone-200 rounded-r-lg text-sm text-stone-500 bg-stone-50 focus:outline-none cursor-not-allowed"
+                                        readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div>
+                            <label for="catDesc"
+                                class="block text-sm font-medium text-stone-700 mb-1">Description</label>
+                            <textarea id="catDesc" rows="4" name="description"
+                                class="w-full px-4 py-2 bg-white border border-stone-200 rounded-lg text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-400 transition-all resize-none placeholder-stone-400"
+                                placeholder="Brief description...">{{ form.description.value|default:'' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <div class="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden max-w-sm">
+                    <div class="p-6 border-b border-stone-100 bg-stone-50/50">
+                        <h2 class="text-lg font-bold text-stone-800">Status</h2>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-stone-800">Visibility</p>
+                                <p class="text-xs text-stone-500">Show in store</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input name="is_active" type="checkbox" id="catStatus" class="sr-only peer" 
+                                {% if form.is_active.value %}checked{% endif %}>
+                                <div
+                                    class="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500">
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center justify-end gap-4 pt-4 border-t border-stone-200">
+                   <a href="{% url 'categories' %}" 
+   class="px-6 py-2.5 text-sm font-medium text-stone-600 hover:text-stone-800 hover:bg-stone-100 rounded-lg transition-colors inline-block">
+   Cancel</a>
+                    <button type="submit"
+                        class="px-6 py-2.5 text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 rounded-lg shadow-sm hover:shadow-md transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-check"></i> Save Category
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+</main>
+{% if form.instance.pk and form.instance.image and form.instance.image.name %}
+<script>
+    var existingUrl = "{{ form.instance.image.url }}";
+    var hasExisting = true;
+</script>
+{% else %}
+<script>
+    var existingUrl = "";
+    var hasExisting = false;
+</script>
+{% endif %}
+<script>
+    // State Variables
+    let cropper = null;
+    let originalFile = null; // The initial file from input
+    let currentBlob = null;  // The current blob after cropping
+
+    // --- Initialization ---
+    document.addEventListener('DOMContentLoaded', function () {
+        initSlugGeneration();
+
+        
+        if (existingUrl && existingUrl.trim() !== '') {
+            showPreviewState(existingUrl);
+        }
+    });
+
+    // --- Core Functions ---
+
+    function triggerUpload() {
+        document.getElementById('catImageInput').click();
+    }
+
+    function handleFileSelect(e) {
+        const file = e.target.files[0];
+        if (!file || !file.type.startsWith('image/')) return;
+
+        originalFile = file;
+        startCropper(file);
+    }
+
+    function startCropper(fileOrBlob) {
+        // Hide others, show cropper
+        toggleState('cropper');
+
+        const img = document.getElementById('cropperImage');
+
+        // If it's a string URL (re-editing server image), we can set src directly,
+        // but for files/blobs we need FileReader to get a base64 or object URL.
+        // However, Cropper's 'src' needs to be loaded.
+
+        // Destroy old instance if exists
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+
+        if (fileOrBlob instanceof Blob || fileOrBlob instanceof File) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                img.src = e.target.result;
+                // We must wait for image to load in DOM? 
+                // Usually setting src on an img tag is enough, but let's be safe.
+                initCropperInstance(img);
+            };
+            reader.readAsDataURL(fileOrBlob);
+        } else if (typeof fileOrBlob === 'string') {
+            img.src = fileOrBlob;
+            // For cross-origin images (if distinct domain), we might need settings.
+            // Assuming same domain or proxy for now.
+            img.crossOrigin = 'anonymous';
+            initCropperInstance(img);
+        }
+    }
+
+    function initCropperInstance(imgElement) {
+        // Small timeout to ensure image paint
+        setTimeout(() => {
+            cropper = new Cropper(imgElement, {
+                viewMode: 1,
+                dragMode: 'move',
+                aspectRatio: NaN, // Free crop
+                autoCropArea: 0.9,
+                restore: false,
+                guides: true,
+                center: true,
+                highlight: false,
+                cropBoxMovable: true,
+                cropBoxResizable: true,
+                toggleDragModeOnDblclick: true,
+                background: false, // handled by container
+            });
+        }, 50);
+    }
+
+    function rotateImage(deg) {
+        if (cropper) cropper.rotate(deg);
+    }
+
+    function doneCrop() {
+        if (!cropper) return;
+
+        // Get cropped canvas
+        const canvas = cropper.getCroppedCanvas({
+            maxWidth: 1200,
+            maxHeight: 1200,
+            fillColor: '#fff',
+        });
+
+        // Convert to blob and store
+        canvas.toBlob((blob) => {
+            currentBlob = blob;
+            const url = URL.createObjectURL(blob);
+
+            // Update File Input (Important for Form Submission)
+            updateFileInput(blob);
+
+            // Show Preview
+            showPreviewState(url);
+
+            // Cleanup
+            cropper.destroy();
+            cropper = null;
+        }, 'image/jpeg', 0.9);
+    }
+
+    function cancelCrop() {
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
+    
+
+    if (currentBlob || hasExisting) {
+        const previewImg = document.getElementById('finalPreview');
+        if (previewImg.src && previewImg.src !== window.location.href) {
+            toggleState('preview');
+        } else {
+            deleteImage();
+        }
+    }
+}
+
+    function enterEditMode() {
+        // Priority: Current Blob > Original File > Existing URL
+        if (currentBlob) {
+            startCropper(currentBlob);
+        } else if (originalFile) {
+            startCropper(originalFile);
+        } else {
+            // Editing existing server image
+            const src = document.getElementById('finalPreview').src;
+            if (src) startCropper(src);
+        }
+    }
+
+    function deleteImage() {
+        // Reset everything
+        document.getElementById('catImageInput').value = '';
+        originalFile = null;
+        currentBlob = null;
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        document.getElementById('finalPreview').removeAttribute('src');
+        toggleState('empty');
+    }
+
+    // --- Helpers ---
+
+    function toggleState(state) {
+        const empty = document.getElementById('state-empty');
+        const cropperDiv = document.getElementById('state-cropper');
+        const preview = document.getElementById('state-preview');
+
+        empty.classList.add('hidden');
+        cropperDiv.classList.add('hidden');
+        preview.classList.add('hidden');
+
+        if (state === 'empty') empty.classList.remove('hidden');
+        if (state === 'cropper') cropperDiv.classList.remove('hidden');
+        if (state === 'preview') preview.classList.remove('hidden');
+    }
+
+    function showPreviewState(url) {
+        if (!url || (!url.startsWith('/media/') && !url.startsWith('blob:'))) {
+            console.warn('Blocked invalid image URL:', url);
+            return;
+        }
+        const previewImg = document.getElementById('finalPreview');
+        previewImg.src = url;
+        toggleState('preview');
+    }
+
+    function updateFileInput(blob) {
+        // Create a new File object from the blob
+        const fileName = originalFile ? originalFile.name : 'cropped_image.jpg';
+        const file = new File([blob], fileName, { type: 'image/jpeg' });
+
+        // Create DataTransfer to update the input
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        document.getElementById('catImageInput').files = dt.files;
+    }
+
+    // Slug Logic
+    function initSlugGeneration() {
+        const nameInput = document.getElementById('catName');
+        if (nameInput) {
+            // nameInput.addEventListener('input', generateSlug); // Already using onkeyup
+            generateSlug();
+        }
+    }
+
+    function generateSlug() {
+        const name = document.getElementById('catName');
+        const slug = document.getElementById('catSlug');
+        if (!name || !slug) return;
+
+        const val = name.value.toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-');
+        slug.value = val;
+    }
+</script>
+{% endblock %}

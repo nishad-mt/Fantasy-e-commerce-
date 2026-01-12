@@ -1,0 +1,459 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantasy Bakery | Where Taste Meets Fantasy</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'fantasy-cream': '#FDFBF7',
+                        'fantasy-pink': '#FCE7E7',
+                        'fantasy-pink-dark': '#F4C2C2',
+                        'fantasy-brown': '#5D4037',
+                        'fantasy-gold': '#D4AF37',
+                        'fantasy-gold-light': '#F4E5B2',
+                    },
+                    fontFamily: {
+                        serif: ['"Playfair Display"', 'serif'],
+                        sans: ['"Lato"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="bg-fantasy-cream text-gray-800 font-sans antialiased">
+<div id="homepage-content">
+    <!-- Navigation -->
+    <nav id="navbar"
+        class="fixed w-full z-50 transition-all duration-300 bg-fantasy-cream/90 backdrop-blur-md shadow-sm py-4">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <!-- Logo -->
+            <a href="#" class="text-3xl font-serif font-bold text-fantasy-brown flex items-center gap-2">
+            <i class="fa-solid fa-basket-shopping text-fantasy-gold"></i>
+                Fantasy Bakery
+            </a>
+
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex items-center space-x-8 font-medium text-fantasy-brown">
+                <a href="{% url 'home' %}" class="hover:text-fantasy-gold transition-colors">Home</a>
+                <a href="{% url 'products' %}" class="hover:text-fantasy-gold transition-colors">Products</a>
+                <a href="{% url 'contact' %}" class="hover:text-fantasy-gold transition-colors">Contact</a>
+                <a href="{% url 'aboutus' %}" class="hover:text-fantasy-gold transition-colors">About Us</a>
+                <a href="{% url 'order' %}" class="hover:text-fantasy-gold transition-colors">My orders</a>
+               
+            </div>
+
+            <!-- Icons -->
+            <div class="flex items-center space-x-6 text-fantasy-brown">
+                
+<form method="GET" action="{% url 'products' %}" class="flex items-center gap-2">
+    <input
+        type="text"
+        name="q"
+        placeholder="Search products..."
+        value="{{ request.GET.q }}"
+        class="border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-fantasy-gold"
+    />
+
+    <button type="submit" class="hover:text-fantasy-gold transition-colors">
+        <i class="fa-solid fa-magnifying-glass text-xl"></i>
+    </button>
+</form>
+                        
+                <a href="{% url 'wishlist:wishlist'  %}" class="hover:text-fantasy-gold transition-colors relative">
+                    <i class="fa-regular fa-heart text-xl"></i></a>
+
+                <a href="{% url 'cart:cart' %}"
+                class="hover:text-fantasy-gold transition-colors relative inline-block">
+                    <i class="fa-solid fa-cart-shopping text-xl"></i></a>
+
+                {% if user.is_authenticated and not user.is_staff %}
+                    <a href="{% url 'profile' %}" class="hover:text-fantasy-gold transition-colors">
+                    <i class="fa-regular fa-user text-xl"></i></a>
+                {% else %}
+                    <a href="{% url 'signup' %}" class="hover:text-fantasy-gold transition-colors">
+                     Sign up</a>
+                {% endif %}
+
+
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-btn" class="md:hidden hover:text-fantasy-gold transition-colors">
+                    <i class="fa-solid fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu (Hidden by default) -->
+        <div id="mobile-menu"
+            class="hidden md:hidden bg-white border-t border-gray-100 absolute w-full left-0 top-full shadow-lg">
+            <div class="flex flex-col p-4 space-y-4 font-medium text-fantasy-brown">
+                <a href="{% url 'home' %}" class="hover:text-fantasy-gold">Home</a>
+                <a href="#categories" class="hover:text-fantasy-gold">Categories</a>
+                <a href="#track" class="hover:text-fantasy-gold">Track Order</a>
+                <a href="#about" class="hover:text-fantasy-gold">About</a>
+                <a href="#contact" class="hover:text-fantasy-gold">Contact</a>             
+                <a href="#offers" class="hover:text-fantasy-gold">Sign up</a>               
+            </div>
+        </div>
+    </nav>
+{% block content %}
+    <!-- Hero Section -->
+    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <!-- Placeholder for Hero Image -->
+            <img src="{% static 'images/potati.jpg' %}"
+                alt="Fantasy Bakery Hero" class="w-full h-full object-cover opacity-40">
+            <div class="absolute inset-0 bg-gradient-to-b from-fantasy-cream/50 to-fantasy-cream"></div>
+        </div>
+
+        <div class="container mx-auto px-6 relative z-10 text-center">
+            
+            <h1
+                class="text-5xl md:text-7xl font-serif font-bold text-fantasy-brown mb-6 leading-tight animate-fade-in-up delay-100">
+                Where Taste Meets <span class="text-fantasy-gold">Fantasy</span>
+            </h1>
+            <p class="text-lg md:text-xl text-gray-600 mb-10 max-w-2xl mx-auto animate-fade-in-up delay-200">
+                Handcrafted delights,experience the real taste of our moms bakes,
+                Experience the sweetness of imagination.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4 animate-fade-in-up delay-300">
+                <a href="{% url 'products' %}"
+                    class="px-8 py-4 bg-fantasy-brown text-white rounded-full font-bold shadow-lg hover:bg-opacity-90 hover:shadow-xl transition-all transform hover:-translate-y-1">
+                    Shop Now
+                </a>
+                <a href="#offers"
+                    class="px-8 py-4 bg-white text-fantasy-brown border-2 border-fantasy-brown rounded-full font-bold shadow-md hover:bg-fantasy-pink transition-all transform hover:-translate-y-1">
+                    Browse Offers
+                </a>
+            </div>
+        </div>
+
+        <!-- Floating Elements (Decorative) -->
+        <div class="absolute top-1/4 left-10 hidden lg:block animate-float">
+            <i class="fa-solid fa-star text-fantasy-gold text-2xl opacity-50"></i>
+        </div>
+        <div class="absolute bottom-1/4 right-10 hidden lg:block animate-float-delayed">
+            <i class="fa-solid fa-wand-magic-sparkles text-fantasy-pink-dark text-3xl opacity-50"></i>
+        </div>
+    </section>
+
+    <!-- Category Highlights -->
+    <section id="categories" class="py-16 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="mb-12">
+                <h2 class="text-3xl md:text-4xl font-serif font-bold text-fantasy-brown mb-4">Our Categories</h2>
+                <div class="w-30 h-1 bg-fantasy-gold ms-3 rounded-full"></div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+    <!-- Category Item -->
+     {% for cat in category %}
+    <a href="{% url 'products_by_category' cat.slug %}" class="group text-center">
+        <div
+            class="w-full aspect-square rounded-2xl overflow-hidden mb-4 shadow-md group-hover:shadow-xl transition-all duration-300 relative">
+            <img src="{{ cat.image.url }}"
+                alt="whaeat flakes"
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+            <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
+        </div>
+        <h3
+            class="font-serif font-bold text-lg text-fantasy-brown group-hover:text-fantasy-gold transition-colors">
+            {{ cat.name }}
+        </h3>
+    </a>
+    {% endfor %}
+    
+</div>
+    </div>
+    </section>
+
+    <!-- Featured Products -->
+    <section id="products" class="py-16 bg-fantasy-cream">
+        <div class="container mx-auto px-6">
+            <div class="flex justify-between items-end mb-12">
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-serif font-bold text-fantasy-brown mb-2">Latest ones
+                    </h2>
+                    <p class="text-gray-600">Discover our most loved new creations.</p>
+                </div>
+                <a href="{% url 'products' %}" class="hidden md:block text-fantasy-brown font-bold hover:text-fantasy-gold transition-colors">
+                    View All <i class="fa-solid fa-arrow-right ml-2"></i></a>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                <!-- Product Card 1 -->
+                 {% for pdc in products %}
+                <a href="{% url 'user_product' pdc.slug %}"
+                    class="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 group overflow-hidden border border-gray-100">
+                    <div class="relative aspect-[4/5] overflow-hidden">
+                        <img src="{{ pdc.main_image.url }}"
+                            alt="Product"
+                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <!-- <span
+                            class="absolute top-3 left-3 bg-fantasy-gold text-white text-xs font-bold px-3 py-1 rounded-full">🔥
+                            Trending</span> -->
+                        <!-- <button
+                            class="absolute top-3 right-3 bg-white/80 hover:bg-white p-2 rounded-full text-fantasy-brown hover:text-red-500 transition-colors shadow-sm opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 duration-300">
+                            <i class="fa-regular fa-heart"></i>
+                        </button> -->
+                        <!-- <div
+                            class="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                            <button
+                                class="w-full bg-fantasy-brown text-white py-3 rounded-xl font-bold hover:bg-opacity-90 shadow-lg flex justify-center items-center gap-2">
+                                <i class="fa-solid fa-cart-plus"></i> Add to Cart
+                            </button>
+                        </div> -->
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-serif font-bold text-lg text-fantasy-brown">{{ pdc.name }}</h3>
+                            <div class="flex items-center text-yellow-400 text-sm">
+                                <i class="fa-solid fa-star"></i>
+                                <span class="text-gray-400 ml-1">4.9</span>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-500 mb-3 line-clamp-2">{{pdc.description}}</p>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-xl font-bold text-fantasy-brown">{{ pdc.base_price }}</span>
+                            <!-- <span class="text-sm text-gray-400 line-through">$55.00</span> -->
+                        </div>
+                    </div>
+                </a>
+            {% endfor %}
+            <div class="text-center mt-12 md:hidden">
+                <a href="{% url 'products' %}" class="inline-block px-8 py-3 border-2 border-fantasy-brown text-fantasy-brown rounded-full font-bold hover:bg-fantasy-brown hover:text-white transition-colors">
+                    View All Products</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Offer Highlight -->
+    <section id="offers" class="py-16 bg-fantasy-pink/30">
+        <div class="container mx-auto px-6">
+            <div
+                class="bg-white rounded-3xl p-8 md:p-12 shadow-xl relative overflow-hidden flex flex-col md:flex-row items-center gap-8 md:gap-16">
+                <!-- Decorative Background -->
+                <div class="absolute -top-20 -right-20 w-64 h-64 bg-fantasy-pink rounded-full opacity-50 blur-3xl">
+                </div>
+                <div
+                    class="absolute -bottom-20 -left-20 w-64 h-64 bg-fantasy-gold-light rounded-full opacity-50 blur-3xl">
+                </div>
+
+                <div class="w-full md:w-1/2 relative z-10">
+                    <span class="text-fantasy-brown font-bold tracking-widest uppercase text-sm mb-2 block">Limited Time
+                        Offer</span>
+                    <h2 class="text-3xl md:text-5xl font-serif font-bold text-fantasy-brown mb-4">Sweet Dreams Discount
+                    </h2>
+                    <p class="text-gray-600 mb-6 text-lg">Get 20% off on all custom hampers and gift boxes. Perfect for
+                        sharing the magic with loved ones.</p>
+
+                    <div
+                        class="bg-fantasy-cream border-2 border-dashed border-fantasy-brown p-4 rounded-xl inline-flex items-center gap-4 mb-2">
+                        <span class="font-mono text-xl font-bold text-fantasy-brown tracking-wider">SWEET20</span>
+                        <button class="text-sm text-fantasy-gold font-bold hover:underline"
+                            onclick="navigator.clipboard.writeText('SWEET20')">COPY</button>
+                    </div>
+                    <p class="text-xs text-red-400 font-medium"><i class="fa-regular fa-clock mr-1"></i> Expires in 24
+                        hours</p>
+                </div>
+
+                <div class="w-full md:w-1/2 relative z-10">
+                    <img src="{% static 'images/wheat3.jpg' %}"
+                        alt="Gift Hamper"
+                        class="rounded-2xl shadow-lg transform rotate-2 hover:rotate-0 transition-transform duration-500">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose Us -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="text-center p-6 rounded-2xl hover:bg-fantasy-cream transition-colors">
+                    <div
+                        class="w-16 h-16 bg-fantasy-pink/50 rounded-full flex items-center justify-center mx-auto mb-4 text-fantasy-brown text-2xl">
+                        <i class="fa-solid fa-bread-slice"></i>
+                    </div>
+                    <h3 class="font-serif font-bold text-lg text-fantasy-brown mb-2">Fresh Daily</h3>
+                    <p class="text-gray-500 text-sm">Baked fresh every morning with premium ingredients.</p>
+                </div>
+
+                <div class="text-center p-6 rounded-2xl hover:bg-fantasy-cream transition-colors">
+                    <div
+                        class="w-16 h-16 bg-fantasy-gold-light/50 rounded-full flex items-center justify-center mx-auto mb-4 text-fantasy-brown text-2xl">
+                        <i class="fa-solid fa-truck-fast"></i>
+                    </div>
+                    <h3 class="font-serif font-bold text-lg text-fantasy-brown mb-2">Fast Delivery</h3>
+                    <p class="text-gray-500 text-sm">Magical delivery to your doorstep within 2 hours.</p>
+                </div>
+
+                <div class="text-center p-6 rounded-2xl hover:bg-fantasy-cream transition-colors">
+                    <div
+                        class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-fantasy-brown text-2xl">
+                        <i class="fa-solid fa-leaf"></i>
+                    </div>
+                    <h3 class="font-serif font-bold text-lg text-fantasy-brown mb-2">Eco-Friendly</h3>
+                    <p class="text-gray-500 text-sm">Sustainable packaging that loves the planet.</p>
+                </div>
+
+                <div class="text-center p-6 rounded-2xl hover:bg-fantasy-cream transition-colors">
+                    <div
+                        class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 text-fantasy-brown text-2xl">
+                        <i class="fa-solid fa-gift"></i>
+                    </div>
+                    <h3 class="font-serif font-bold text-lg text-fantasy-brown mb-2">Custom Gifting</h3>
+                    <p class="text-gray-500 text-sm">Personalized notes and wrapping for special moments.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+{% endblock %}
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white pt-16 pb-8">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div>
+                    <a href="#" class="text-2xl font-serif font-bold text-fantasy-gold flex items-center gap-2 mb-4">
+                        <i class="fa-solid fa-cookie-bite"></i>
+                        Fantasy Bakery
+                    </a>
+                    <p class="text-gray-400 text-sm leading-relaxed">Crafted with love, baked with imagination. Bringing
+                        a touch of magic to your daily treats.</p>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Quick Links</h4>
+                    <ul class="space-y-2 text-gray-400 text-sm">
+                        <li><a href="#" class="hover:text-fantasy-gold transition-colors">Home</a></li>
+                        <li><a href="#categories" class="hover:text-fantasy-gold transition-colors">Categories</a></li>
+                        <li><a href="#offers" class="hover:text-fantasy-gold transition-colors">Offers</a></li>
+                        <li><a href="#about" class="hover:text-fantasy-gold transition-colors">About Us</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Customer Care</h4>
+                    <ul class="space-y-2 text-gray-400 text-sm">
+                        <li><a href="#" class="hover:text-fantasy-gold transition-colors">Track Order</a></li>
+                        <li><a href="#" class="hover:text-fantasy-gold transition-colors">Shipping Policy</a></li>
+                        <li><a href="#" class="hover:text-fantasy-gold transition-colors">Refunds & Returns</a></li>
+                        <li><a href="#" class="hover:text-fantasy-gold transition-colors">FAQ</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Stay Magical</h4>
+                    <p class="text-gray-400 text-sm mb-4">Subscribe for exclusive offers and fairy tales.</p>
+                    <div class="flex gap-2">
+                        <input type="email" placeholder="Email Address"
+                            class="bg-gray-800 text-white px-4 py-2 rounded-lg flex-1 focus:outline-none focus:ring-1 focus:ring-fantasy-gold">
+                        <button
+                            class="bg-fantasy-gold text-fantasy-brown px-4 py-2 rounded-lg font-bold hover:bg-yellow-400 transition-colors"><i
+                                class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-gray-500 text-sm">© 2025 Fantasy Bakery. All rights reserved.</p>
+                <div class="flex gap-4 text-gray-400">
+                    <a href="#" class="hover:text-fantasy-gold transition-colors"><i
+                            class="fa-brands fa-instagram text-xl"></i></a>
+                    <a href="#" class="hover:text-fantasy-gold transition-colors"><i
+                            class="fa-brands fa-facebook text-xl"></i></a>
+                    <a href="#" class="hover:text-fantasy-gold transition-colors"><i
+                            class="fa-brands fa-twitter text-xl"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cart Drawer (Hidden) -->
+    <div id="cart-drawer"
+        class="fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50 flex flex-col">
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-fantasy-cream">
+            <h2 class="font-serif font-bold text-xl text-fantasy-brown">Your Basket (3)</h2>
+            <button id="close-cart" class="text-gray-500 hover:text-fantasy-brown"><i
+                    class="fa-solid fa-xmark text-xl"></i></button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-6 space-y-6">
+            <!-- Cart Item -->
+            <div class="flex gap-4">
+                <img src="https://images.unsplash.com/photo-1535141192574-5d4897c12636?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+                    class="w-20 h-20 rounded-lg object-cover">
+                <div class="flex-1">
+                    <h4 class="font-bold text-fantasy-brown text-sm">Enchanted Forest Cake</h4>
+                    <p class="text-gray-500 text-xs mb-2">1kg • Eggless</p>
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center border rounded-lg">
+                            <button class="px-2 py-1 text-gray-500 hover:text-fantasy-brown">-</button>
+                            <span class="px-2 text-sm font-bold">1</span>
+                            <button class="px-2 py-1 text-gray-500 hover:text-fantasy-brown">+</button>
+                        </div>
+                        <span class="font-bold text-fantasy-brown">$45.00</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Cart Item -->
+            <div class="flex gap-4">
+                <img src="https://images.unsplash.com/photo-1603532648955-039310d9ed75?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+                    class="w-20 h-20 rounded-lg object-cover">
+                <div class="flex-1">
+                    <h4 class="font-bold text-fantasy-brown text-sm">Unicorn Cupcakes</h4>
+                    <p class="text-gray-500 text-xs mb-2">Box of 6</p>
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center border rounded-lg">
+                            <button class="px-2 py-1 text-gray-500 hover:text-fantasy-brown">-</button>
+                            <span class="px-2 text-sm font-bold">1</span>
+                            <button class="px-2 py-1 text-gray-500 hover:text-fantasy-brown">+</button>
+                        </div>
+                        <span class="font-bold text-fantasy-brown">$12.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-6 border-t border-gray-100 bg-fantasy-cream">
+            <div class="flex justify-between mb-2 text-sm">
+                <span class="text-gray-600">Subtotal</span>
+                <span class="font-bold text-fantasy-brown">$57.00</span>
+            </div>
+            <div class="flex justify-between mb-4 text-sm text-green-600">
+                <span>Discount (SWEET20)</span>
+                <span>-$11.40</span>
+            </div>
+            <div class="flex justify-between mb-6 text-lg font-bold text-fantasy-brown">
+                <span>Total</span>
+                <span>$45.60</span>
+            </div>
+            <button
+                class="w-full bg-fantasy-brown text-white py-3 rounded-xl font-bold hover:bg-opacity-90 shadow-lg">Checkout</button>
+        </div>
+    </div>
+
+    <!-- Overlay for Cart/Mobile Menu -->
+    <div id="overlay" class="fixed inset-0 bg-black/50 hidden z-40 backdrop-blur-sm"></div>
+</div>
+    <script src="{% static 'script/script.js' %}"></script>
+</body>
+
+</html>

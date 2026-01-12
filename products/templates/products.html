@@ -1,0 +1,266 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block title %} <title>Fantasy Products</title>{% endblock %}
+{% block content %}
+<head><meta name="csrf-token" content="{{ csrf_token }}">
+</head>
+    <!-- Header / Breadcrumb -->
+    <header class="pt-32 pb-8 bg-fantasy-cream border-b border-gray-100">
+        <div class="container mx-auto px-3">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                {% if selected_category %}
+                    <div class="flex items-center gap-5">
+                        {% if selected_category.image %}
+                            <img
+                                src="{{ selected_category.image.url }}"
+                                alt="{{ selected_category.name }}"
+                                class="w-28 h-20 rounded-xl object-cover shadow-sm border border-gray-200">
+                        {% endif %}
+                        <div>
+                            <h1 class="text-3xl font-serif font-bold text-fantasy-brown">
+                                {{ selected_category.name }}
+                            </h1>
+                            <p class="text-gray-500 text-md mt-1">
+                                {{ selected_category.description }}
+                            </p>
+                        </div>
+                    </div>
+                {% else %}
+                    <div>
+                        <h1 class="text-3xl font-serif font-bold text-fantasy-brown">
+                            Fresh Provisions
+                        </h1>
+                        <p class="text-gray-500 text-sm mt-1">
+                            Home made foods and crispy snacks.
+                        </p>
+                    </div>
+                {% endif %}
+                
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-6 py-8">
+        <div class="flex flex-col lg:flex-row gap-8">
+
+            <!-- Sidebar / Filters -->
+            <aside class="w-full lg:w-1/4 shrink-0">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 sticky top-28">
+
+                    <!-- Categories -->
+                    <div class="mb-8">
+                        <h3 class="font-bold text-fantasy-brown mb-4 flex justify-between items-center">
+                            Categories
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
+                        </h3>
+                        <ul class="space-y-3 text-sm text-gray-600">
+                            <li>
+                                <a href="{% url 'products' %}"
+                                    class="flex items-center gap-3 hover:text-fantasy-gold transition-colors text-fantasy-gold font-bold bg-fantasy-cream p-2 rounded-lg -mx-2">
+                                    <span class="w-6 text-center"><i class="fa-solid fa-basket-shopping text-fantasy-gold"></i>
+                                    </span> All Products
+                                    <span class="ml-auto text-xs text-gray-400 font-normal">124</span>
+                                </a>
+                            </li>
+                            {% for cat in category %}
+                            <li>
+                                <a href="{% url 'products_by_category' cat.slug %}"
+                                    class="flex items-center gap-3 hover:text-fantasy-brown hover:bg-gray-50 p-2 rounded-lg -mx-2 transition-colors">
+                                    {% if selected_category == cat %}  {% endif %}
+                                    <span>{{forloop.counter}}</span> {{ cat.name }}
+                                    <span class="ml-auto text-xs text-gray-400">26</span>
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <!-- Price Filter -->
+<form method="GET" class="mb-8">
+    <h3 class="font-bold text-fantasy-brown mb-4">Price Range</h3>
+
+    <div class="flex items-center gap-4 mb-4">
+        <input
+            type="number"
+            name="min_price"
+            placeholder="Min"
+            value="{{ request.GET.min_price }}"
+            class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-fantasy-gold"
+        >
+
+        <span class="text-gray-400">-</span>
+
+        <input
+            type="number"
+            name="max_price"
+            placeholder="Max"
+            value="{{ request.GET.max_price }}"
+            class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-fantasy-gold"
+        >
+    </div>
+
+    <!-- keep search -->
+    {% if request.GET.q %}
+        <input type="hidden" name="q" value="{{ request.GET.q }}">
+    {% endif %}
+
+    <!-- keep sort -->
+    {% if request.GET.sort %}
+        <input type="hidden" name="sort" value="{{ request.GET.sort }}">
+    {% endif %}
+
+    <button
+        type="submit"
+        class="w-full bg-fantasy-gold text-white py-2 rounded-lg text-sm hover:opacity-90 transition"
+    >
+        Apply Filter
+    </button>
+</form>
+
+
+                    <!-- Dietary -->
+                    <div>
+                        <h3 class="font-bold text-fantasy-brown mb-4">Preferences</h3>
+                        <div class="space-y-3">
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <div class="relative flex items-center">
+                                    <input type="checkbox"
+                                        class="peer h-5 w-5 cursor-pointer appearance-none rounded border border-gray-300 shadow-sm checked:border-fresh-green checked:bg-fresh-green transition-all">
+                                    <i
+                                        class="fa-solid fa-check text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xs opacity-0 peer-checked:opacity-100"></i>
+                                </div>
+                                <span class="text-sm text-gray-600 group-hover:text-fantasy-brown">Vegetarian</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <div class="relative flex items-center">
+                                    <input type="checkbox"
+                                        class="peer h-5 w-5 cursor-pointer appearance-none rounded border border-gray-300 shadow-sm checked:border-fresh-red checked:bg-fresh-red transition-all">
+                                    <i
+                                        class="fa-solid fa-check text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xs opacity-0 peer-checked:opacity-100"></i>
+                                </div>
+                                <span class="text-sm text-gray-600 group-hover:text-fantasy-brown">Non-Vegetarian</span>
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+            </aside>
+
+            <!-- Product Grid Area -->
+            <main class="flex-1">
+
+                <!-- Toolbar -->
+                <form method="GET" class="flex flex-col sm:flex-row items-center mb-6 gap-4">
+                    <div class="flex items-center gap-3 ml-auto">
+                        <select name="sort" onchange="this.form.submit()"
+                            class="bg-white border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-600 focus:outline-none focus:border-fantasy-gold shadow-sm cursor-pointer">
+                            <option value="">Sort: --------</option>
+                            <option value="price_low" {% if request.GET.sort == 'price_low' %}selected{% endif %}>
+                                Price: Low to High
+                            </option>
+                            <option value="price_high" {% if request.GET.sort == 'price_high' %}selected{% endif %}>
+                                Price: High to Low
+                            </option>
+                            <option value="newest" {% if request.GET.sort == 'newest' %}selected{% endif %}>
+                                Newest First
+                            </option>
+                        </select>
+
+                        <!-- keep search query -->
+                        {% if request.GET.q %}
+                            <input type="hidden" name="q" value="{{ request.GET.q }}">
+                        {% endif %}
+                    </div>
+                </form>
+
+
+                <!-- Grid -->
+                <!-- Note: Using local images provided in the file list -->
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+
+                    {% for pdc in products %}
+                    <a href="{% url 'user_product' pdc.slug %}">
+                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 group flex flex-col relative overflow-hidden">
+                    <form method="POST" action="{% url 'wishlist:toggle_wishlist' pdc.product_id %}">
+                        {% csrf_token %}
+                        <button
+                            type="submit"
+                            class="absolute top-3 right-3 z-10 w-8 h-8 bg-white/80 backdrop-blur
+                            rounded-full flex items-center justify-center transition-all shadow-sm
+                            {% if pdc.product_id in wishlist_product_ids %}
+                                text-red-500
+                            {% else %}
+                                text-gray-400 hover:text-red-500
+                            {% endif %}">
+                            <i class="fa-solid fa-heart"></i>
+                        </button>
+                    </form>
+
+
+                        <!-- Image -->
+                        <div class="h-48 overflow-hidden bg-gray-50 relative">
+                            <img src="{{ pdc.main_image.url }}" alt="Fresh Onions"
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        </div>
+
+                        <!-- Content -->
+                        <div class="p-4 flex-1 flex flex-col">
+                            <div class="text-xs text-gray-400 mb-1">{{ pdc.category }}</div>
+                            <h3
+                                class="font-bold text-gray-800 mb-1 text-lg group-hover:text-fantasy-brown transition-colors">
+                                {{ pdc.name }}</h3>
+                            <div class="flex items-center gap-1 mb-3">
+                                <div class="flex text-yellow-400 text-xs">
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-regular fa-star"></i>
+                                </div>
+                                <span class="text-xs text-gray-400">(4 reviews)</span>
+                            </div>
+                            <div>
+                                {% if pdc.is_active == False %}
+                                <span class="text-red-800">Out Of Stock</span>
+                                {% endif %}
+                            </div>
+                            <div class="mt-auto flex items-center justify-between gap-4">
+                            <div>
+                                <span class="text-lg font-bold text-fantasy-brown">
+                                    ₹{{ pdc.min_price }}
+                                </span>
+                                <span class="text-xs text-gray-500">
+                                    starting
+                                </span>
+                            </div>
+
+                            </div>
+                        </div>
+                    </div></a>
+                     {% empty %}
+                        <div class="col-span-full flex flex-col items-center justify-center py-16 text-center">
+                            <img
+                                src="{% static 'images/unnamed.png' %}"
+                                alt="No products"
+                                class="w-32 mb-6 opacity-20"
+                            />
+
+                            <h3 class="text-lg font-semibold text-gray-700">
+                                Products not added yet
+                            </h3>
+
+                            <p class="text-sm text-gray-500 mt-2">
+                                We’re getting things ready. Check back soon!
+                            </p>
+                        </div>
+                   {% endfor %}
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+
+{% endblock %}

@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  {% block title %}
+  <title>Fantasy Food — Admin Dashboard</title>
+  {% endblock %}
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Heroicons (optional) -->
+  <script src="https://unpkg.com/feather-icons"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+    rel="stylesheet">
+  <!-- Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
+
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Outfit', 'sans-serif'],
+            serif: ['Playfair Display', 'serif'],
+          },
+          colors: {
+            stone: {
+              50: '#fafaf9',
+              100: '#f5f5f4',
+              200: '#e7e5e4',
+              300: '#d6d3d1',
+              400: '#a8a29e',
+              500: '#78716c',
+              600: '#57534e',
+              700: '#44403c',
+              800: '#292524',
+              900: '#1c1917',
+            },
+            amber: {
+              50: '#fffbeb',
+              100: '#fef3c7',
+              200: '#fde68a',
+              300: '#fcd34d',
+              400: '#fbbf24',
+              500: '#f59e0b',
+              600: '#d97706',
+              700: '#b45309',
+              800: '#92400e',
+              900: '#78350f',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f5f5f4;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #d6d3d1;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #a8a29e;
+    }
+
+    /* Utilities mirroring admin_categories */
+    .card {
+      background-color: white;
+      border: 1px solid #e7e5e4;
+      /* stone-200 */
+      border-radius: 0.75rem;
+      /* rounded-xl */
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+    }
+
+    .btn-primary {
+      background-color: #d97706;
+      /* amber-600 */
+      color: white;
+      transition: all 0.2s;
+    }
+
+    .btn-primary:hover {
+      background-color: #b45309;
+      /* amber-700 */
+    }
+  </style>
+</head>
+
+<body class="bg-[#fafaf9] text-stone-800 font-sans antialiased min-h-screen flex text-sm">
+
+  <!-- SIDEBAR -->
+  <aside class="w-64 bg-white border-r border-stone-200 hidden md:flex flex-col h-screen sticky top-0 shrink-0">
+    <div class="p-6 border-b border-stone-100 flex items-center gap-3">
+      <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-700">
+        <span class="font-serif font-bold text-lg">F</span>
+      </div>
+      <div>
+        <h1 class="font-serif font-bold text-xl text-stone-800">Fantasy Admin</h1>
+        <p class="text-xs text-stone-500">Admin Panel</p>
+      </div>
+    </div>
+
+    <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+      <a href="{% url 'dashboard' %}"
+        class="w-full text-left nav-btn px-3 py-2 rounded-lg hover:bg-stone-50 hover:text-amber-700 transition-colors flex items-center gap-3 text-stone-600"
+        data-tab="dashboard">
+        <i class="fa-solid fa-chart-line w-5"></i> Dashboard
+    </a>
+
+      <a href="{% url 'user' %}"
+        class="w-full text-left nav-btn px-3 py-2 rounded-lg hover:bg-stone-50 hover:text-amber-700 transition-colors flex items-center gap-3 text-stone-600"
+        data-tab="users">
+        <i class="fa-solid fa-users w-5"></i> Users
+  </a>
+
+      <a href="{% url 'admin_products' %}"
+        class="w-full text-left nav-btn px-3 py-2 rounded-lg hover:bg-stone-50 hover:text-amber-700 transition-colors flex items-center gap-3 text-stone-600"
+        data-tab="products">
+        <i class="fa-solid fa-box-open w-5"></i> Products
+  </a>
+
+      <a href="{% url 'offers' %}"
+        class="w-full text-left nav-btn px-3 py-2 rounded-lg hover:bg-stone-50 hover:text-amber-700 transition-colors flex items-center gap-3 text-stone-600"
+        data-tab="offers">
+        <i class="fa-solid fa-ticket w-5"></i> Offers
+  </a>
+
+      <a href="{% url 'categories' %}"
+        class="w-full text-left nav-btn px-3 py-2 rounded-lg hover:bg-stone-50 hover:text-amber-700 transition-colors flex items-center gap-3 text-stone-600"
+        data-tab="categories">
+        <i class="fa-solid fa-layer-group w-5"></i> Categories
+</a>
+      <a href="{% url 'orders' %}"
+        class="w-full text-left nav-btn px-3 py-2 rounded-lg hover:bg-stone-50 hover:text-amber-700 transition-colors flex items-center gap-3 text-stone-600"
+        data-tab="categories">
+        <i class="fa-solid fa-cart-shopping"></i> Orders
+</a>
+      <a href="{% url 'payments' %}"
+        class="w-full text-left nav-btn px-3 py-2 rounded-lg hover:bg-stone-50 hover:text-amber-700 transition-colors flex items-center gap-3 text-stone-600"
+        data-tab="categories">
+        <i class="fa-solid fa-credit-card"></i> Payments
+</a>
+
+      <a href="{% url 'delivery' %}"
+        class="w-full text-left nav-btn px-3 py-2 rounded-lg hover:bg-stone-50 hover:text-amber-700 transition-colors flex items-center gap-3 text-stone-600"
+        data-tab="deliveries">
+        <i class="fa-solid fa-truck-fast w-5"></i> Deliveries
+</a>
+
+      <a href="{% url 'reviews' %}"
+        class="w-full text-left nav-btn px-3 py-2 rounded-lg hover:bg-stone-50 hover:text-amber-700 transition-colors flex items-center gap-3 text-stone-600"
+        data-tab="refunds">
+        <i class="fa-solid fa-star"></i> Reviews
+    </a>
+
+      <a href="{% url 'admin_products' %}"
+        class="w-full text-left nav-btn px-3 py-2 rounded-lg hover:bg-stone-50 hover:text-amber-700 transition-colors flex items-center gap-3 text-stone-600"
+        data-tab="site">
+        <i class="fa-solid fa-gear w-5"></i> Site Info
+    </a>
+
+      <a href="{% url 'admin_products' %}"
+        class="w-full text-left nav-btn px-3 py-2 rounded-lg hover:bg-stone-50 hover:text-amber-700 transition-colors flex items-center gap-3 text-stone-600"
+        data-tab="activity">
+        <i class="fa-solid fa-clock-rotate-left w-5"></i> Activity Log
+    </a>
+    </nav>
+
+    <div class="p-4 border-t border-stone-100">
+      <button id="resetBtn"
+        class="w-full py-2 bg-amber-700 text-white rounded-lg text-sm hover:bg-amber-800 transition-colors shadow-sm">Reset
+        Demo Data</button>
+    </div>
+  </aside>
+{% block content %}
+  <!-- MAIN -->
+  <main class="flex-1 flex flex-col min-w-0 overflow-hidden h-screen bg-[#fafaf9]">
+    <!-- top -->
+    <header class="bg-white border-b border-stone-200 sticky top-0 z-20 px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <button id="mobileMenuBtn" class="md:hidden text-stone-500 hover:text-stone-700"><i
+            class="fa-solid fa-bars text-xl"></i></button>
+        <div>
+          <h2 id="pageTitle" class="text-2xl font-bold font-serif text-stone-800">Dashboard</h2>
+          <div class="text-xs text-stone-500 hidden md:block" id="subTitle">Overview & quick actions</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="{% url 'admin_logout' %}"
+          class="py-2 px-3 rounded-lg border border-stone-200 text-stone-600 hover:bg-red-600 hover:text-white text-xs font-medium">
+          Logout</a>
+        <div class="flex items-center gap-3 pl-3 border-l border-stone-200">
+          <div class="w-8 h-8 rounded-full bg-amber-600 text-white flex items-center justify-center font-bold text-xs">A
+          </div>
+          <div class="hidden sm:block">
+            <div class="text-sm font-medium text-stone-800">Admin</div>
+            <div class="text-[10px] text-stone-500">fantasy@example.com</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT AREA -->
+    <section id="contentArea" class="flex-1 overflow-y-auto p-4 md:p-8 space-y-6">
+
+      <!-- Dashboard -->
+      <div id="tab-dashboard" class="tab-panel">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="p-5 card flex flex-col justify-between">
+            <div class="text-xs font-bold text-stone-400 uppercase tracking-wider">Users</div>
+            <div id="statUsers" class="text-3xl font-bold text-stone-800 mt-2">{{ total_users }}</div>
+          </div>
+          <div class="p-5 card flex flex-col justify-between">
+            <div class="text-xs font-bold text-stone-400 uppercase tracking-wider">Products</div>
+            <div id="statProducts" class="text-3xl font-bold text-stone-800 mt-2">{{ total_products }}</div>
+          </div>
+          <div class="p-5 card flex flex-col justify-between">
+            <div class="text-xs font-bold text-stone-400 uppercase tracking-wider">Pending Refunds</div>
+            <div id="statRefunds" class="text-3xl font-bold text-amber-600 mt-2">0</div>
+          </div>
+        </div>
+
+        <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="p-5 card">
+            <div class="flex items-center justify-between mb-4 border-b border-stone-100 pb-2">
+              <div>
+                <h3 class="font-bold text-stone-800">Recent Users</h3>
+                <div class="text-[10px] text-stone-400 uppercase">Latest signups</div>
+              </div>
+              <button id="addUserQuick" class="text-xs font-medium text-amber-700 hover:underline">+ Add user</button>
+            </div>
+            <div class="table-scroll">
+              <table class="w-full text-sm text-left">
+                <thead class="text-xs text-stone-400 uppercase bg-stone-50">
+                  <tr>
+                    <th class="p-2 rounded-l">Name</th>
+                    <th class="p-2">Email</th>
+                    <th class="p-2 rounded-r">Joined</th>
+                  </tr>
+                </thead>
+                <tbody id="recentUsersTbody" class="divide-y divide-stone-50">
+                  {% for rec in rec_users %}
+                  <tr class="hover:bg-amber-200 transition-colors">
+                    <td>{{ rec.username }}</td>
+                  <td >{{ rec.email }}</td>
+                  <td>
+                    {% if rec.joined_at %}
+                      {{ rec.joined_at|date:"d M Y" }}
+                    {% else %}
+                      —
+                    {% endif %}
+                  </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="p-5 card">
+            <h3 class="font-bold text-stone-800 mb-1">Recent Activities</h3>
+            <div class="text-[10px] text-stone-400 uppercase mb-4 border-b border-stone-100 pb-2">Actions by admin /
+              system</div>
+            <ul id="activityList" class="max-h-64 overflow-auto text-sm space-y-2"></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- USERS -->
+      <div id="tab-users" class="tab-panel hidden">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-bold font-serif text-stone-800">Users</h3>
+          <div class="flex items-center gap-2">
+            <input id="userSearch" placeholder="Search users..."
+              class="px-3 py-2 rounded-lg border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-100" />
+            <button id="openUserForm"
+              class="px-4 py-2 bg-amber-600 text-white rounded-lg text-sm hover:bg-amber-700 shadow-sm transition-colors">+
+              New User</button>
+          </div>
+        </div>
+
+        <div class="card overflow-hidden">
+          <div class="table-scroll">
+            <table class="w-full text-sm text-left border-collapse">
+              <thead class="text-xs text-stone-500 uppercase bg-stone-50 border-b border-stone-200">
+                <tr>
+                  <th class="p-3">Name</th>
+                  <th class="p-3">Email</th>
+                  <th class="p-3">Phone</th>
+                  <th class="p-3">Status</th>
+                  <th class="p-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="usersTbody" class="divide-y divide-stone-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRODUCTS -->
+      <div id="tab-products" class="tab-panel hidden">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-bold font-serif text-stone-800">Products</h3>
+          <div class="flex items-center gap-2">
+            <input id="productSearch" placeholder="Search products..."
+              class="px-3 py-2 rounded-lg border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-100" />
+            <button id="openProductForm"
+              class="px-4 py-2 bg-amber-600 text-white rounded-lg text-sm hover:bg-amber-700 shadow-sm transition-colors">+
+              New Product</button>
+          </div>
+        </div>
+
+        <div class="card overflow-hidden">
+          <div class="table-scroll">
+            <table class="w-full text-sm text-left border-collapse">
+              <thead class="text-xs text-stone-500 uppercase bg-stone-50 border-b border-stone-200">
+                <tr>
+                  <th class="p-3">Title</th>
+                  <th class="p-3">Category</th>
+                  <th class="p-3">Price</th>
+                  <th class="p-3">Stock</th>
+                  <th class="p-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="productsTbody" class="divide-y divide-stone-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- OFFERS -->
+      <div id="tab-offers" class="tab-panel hidden">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-bold font-serif text-stone-800">Offers</h3>
+          <button id="openOfferForm"
+            class="px-4 py-2 bg-amber-600 text-white rounded-lg text-sm hover:bg-amber-700 shadow-sm transition-colors">+
+            New Offer</button>
+        </div>
+
+        <div class="card overflow-hidden">
+          <table class="w-full text-sm text-left border-collapse">
+            <thead class="text-xs text-stone-500 uppercase bg-stone-50 border-b border-stone-200">
+              <tr>
+                <th class="p-3">Title</th>
+                <th class="p-3">Type</th>
+                <th class="p-3">Discount</th>
+                <th class="p-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="offersTbody" class="divide-y divide-stone-100"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CATEGORIES -->
+      <div id="tab-categories" class="tab-panel hidden">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-bold font-serif text-stone-800">Categories</h3>
+          <button id="openCategoryForm"
+            class="px-4 py-2 bg-amber-600 text-white rounded-lg text-sm hover:bg-amber-700 shadow-sm transition-colors">+
+            New Category</button>
+        </div>
+
+        <div class="card p-4">
+          <ul id="categoriesList" class="space-y-2"></ul>
+        </div>
+      </div>
+
+      <!-- DELIVERIES -->
+      <div id="tab-deliveries" class="tab-panel hidden">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-bold font-serif text-stone-800">Deliveries</h3>
+          <button id="openDeliveryForm"
+            class="px-4 py-2 bg-amber-600 text-white rounded-lg text-sm hover:bg-amber-700 shadow-sm transition-colors">+
+            Add Delivery</button>
+        </div>
+
+        <div class="card overflow-hidden">
+          <table class="w-full text-sm text-left border-collapse">
+            <thead class="text-xs text-stone-500 uppercase bg-stone-50 border-b border-stone-200">
+              <tr>
+                <th class="p-3">Order ID</th>
+                <th class="p-3">Customer</th>
+                <th class="p-3">Address</th>
+                <th class="p-3">Status</th>
+                <th class="p-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="deliveriesTbody" class="divide-y divide-stone-100"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- REFUNDS -->
+      <div id="tab-refunds" class="tab-panel hidden">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-bold font-serif text-stone-800">Refund Requests</h3>
+        </div>
+
+        <div class="card overflow-hidden">
+          <table class="w-full text-sm text-left border-collapse">
+            <thead class="text-xs text-stone-500 uppercase bg-stone-50 border-b border-stone-200">
+              <tr>
+                <th class="p-3">Refund ID</th>
+                <th class="p-3">Order</th>
+                <th class="p-3">Customer</th>
+                <th class="p-3">Amount</th>
+                <th class="p-3">Status</th>
+                <th class="p-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="refundsTbody" class="divide-y divide-stone-100"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SITE INFO -->
+      <div id="tab-site" class="tab-panel hidden">
+        <h3 class="text-xl font-bold font-serif text-stone-800 mb-4">Site & Contact Info</h3>
+        <div class="card p-6 max-w-2xl">
+          <label class="text-xs font-bold text-stone-500 uppercase">Site Title</label>
+          <input id="siteTitle"
+            class="w-full px-4 py-2 border border-stone-200 rounded-lg mt-1 mb-4 focus:ring-2 focus:ring-amber-100 focus:outline-none" />
+
+          <label class="text-xs font-bold text-stone-500 uppercase block">Contact Email</label>
+          <input id="siteEmail"
+            class="w-full px-4 py-2 border border-stone-200 rounded-lg mt-1 mb-4 focus:ring-2 focus:ring-amber-100 focus:outline-none" />
+
+          <label class="text-xs font-bold text-stone-500 uppercase block">Phone</label>
+          <input id="sitePhone"
+            class="w-full px-4 py-2 border border-stone-200 rounded-lg mt-1 mb-4 focus:ring-2 focus:ring-amber-100 focus:outline-none" />
+
+          <label class="text-xs font-bold text-stone-500 uppercase block">Address</label>
+          <textarea id="siteAddress" rows="3"
+            class="w-full px-4 py-2 border border-stone-200 rounded-lg mt-1 focus:ring-2 focus:ring-amber-100 focus:outline-none"></textarea>
+
+          <div class="mt-6 flex gap-3">
+            <button id="saveSiteInfo"
+              class="px-5 py-2 bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-700 shadow-sm transition-colors">Save
+              Changes</button>
+            <button id="resetSiteInfo"
+              class="px-5 py-2 border border-stone-200 text-stone-600 rounded-lg text-sm font-medium hover:bg-stone-50 transition-colors">Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTIVITY -->
+      <div id="tab-activity" class="tab-panel hidden">
+        <h3 class="text-xl font-bold font-serif text-stone-800 mb-4">Activity Log</h3>
+        <div class="card p-6">
+          <ul id="fullActivityList" class="space-y-3 max-h-[600px] overflow-auto text-sm"></ul>
+          <div class="mt-6 pt-6 border-t border-stone-100">
+            <button id="clearActivity"
+              class="px-4 py-2 bg-red-50 text-red-600 border border-red-100 rounded-lg text-sm font-medium hover:bg-red-100 transition-colors">Clear
+              Log</button>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+{% endblock %}
+  <!-- MODALS -->
+  <div id="modalRoot"></div>
+
+</body>
+
+</html>

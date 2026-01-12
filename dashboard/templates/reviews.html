@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reviews Management | Fantasy Bakery Admin</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        stone: {
+                            50: '#fafaf9',
+                            100: '#f5f5f4',
+                            200: '#e7e5e4',
+                            300: '#d6d3d1',
+                            400: '#a8a29e',
+                            500: '#78716c',
+                            600: '#57534e',
+                            700: '#44403c',
+                            800: '#292524',
+                            900: '#1c1917',
+                        },
+                        amber: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            200: '#fde68a',
+                            300: '#fcd34d',
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                            700: '#b45309',
+                            800: '#92400e',
+                            900: '#78350f',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f5f5f4;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #d6d3d1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a29e;
+        }
+
+        /* Modal Transitions */
+        .modal {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            transform: scale(0.95);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+    </style>
+</head>
+
+<body class="bg-[#fafaf9] text-stone-800 font-sans antialiased min-h-screen flex">
+
+    <!-- Sidebar -->
+    <aside class="hidden md:flex flex-col w-64 bg-white border-r border-stone-200 h-screen sticky top-0 shrink-0">
+        <div class="p-6 border-b border-stone-100 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-700">
+                <span class="font-serif font-bold text-lg">F</span>
+            </div>
+            <div>
+                <h1 class="font-serif font-bold text-xl text-stone-800">Fantasy Bakery</h1>
+                <p class="text-xs text-stone-500">Admin Panel</p>
+            </div>
+        </div>
+
+        <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+            <a href="admin_dash.html"
+                class="flex items-center gap-3 px-3 py-2 text-stone-600 rounded-lg hover:bg-stone-50 hover:text-amber-700 transition-colors">
+                <i class="fa-solid fa-chart-pie w-5"></i> Dashboard
+            </a>
+            <a href="admin_orders.html"
+                class="flex items-center gap-3 px-3 py-2 text-stone-600 rounded-lg hover:bg-stone-50 hover:text-amber-700 transition-colors">
+                <i class="fa-solid fa-cart-shopping w-5"></i> Orders
+            </a>
+            <a href="admin_payments.html"
+                class="flex items-center gap-3 px-3 py-2 text-stone-600 rounded-lg hover:bg-stone-50 hover:text-amber-700 transition-colors">
+                <i class="fa-solid fa-credit-card w-5"></i> Payments
+            </a>
+            <a href="admin_deliveries.html"
+                class="flex items-center gap-3 px-3 py-2 text-stone-600 rounded-lg hover:bg-stone-50 hover:text-amber-700 transition-colors">
+                <i class="fa-solid fa-truck-fast w-5"></i> Deliveries
+            </a>
+            <a href="#"
+                class="flex items-center gap-3 px-3 py-2 bg-amber-50 text-amber-700 rounded-lg transition-colors font-medium">
+                <i class="fa-solid fa-star w-5"></i> Reviews
+            </a>
+            <a href="admin_categories.html"
+                class="flex items-center gap-3 px-3 py-2 text-stone-600 rounded-lg hover:bg-stone-50 hover:text-amber-700 transition-colors">
+                <i class="fa-solid fa-layer-group w-5"></i> Categories
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden h-screen bg-[#fafaf9]">
+
+        <!-- Header -->
+        <header class="bg-white border-b border-stone-200 sticky top-0 z-20">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center gap-4">
+                    <button class="md:hidden text-stone-500 hover:text-stone-700"><i
+                            class="fa-solid fa-bars text-xl"></i></button>
+                    <div>
+                        <div class="flex items-center gap-2 text-xs text-stone-400 mb-1">
+                            <span>Dashboard</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                            <span>Reviews</span>
+                        </div>
+                        <h1 class="text-2xl font-bold font-serif text-stone-800">Reviews & Ratings</h1>
+                    </div>
+                </div>
+                <!-- User Profile -->
+                <div class="flex items-center gap-3">
+                    <button
+                        class="w-9 h-9 rounded-full bg-stone-50 flex items-center justify-center text-stone-500 hover:text-amber-700 transition-colors">
+                        <i class="fa-solid fa-bell"></i>
+                    </button>
+                    <div
+                        class="w-9 h-9 rounded-full bg-amber-600 text-white flex items-center justify-center font-bold text-sm">
+                        A</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="flex-1 overflow-y-auto p-4 md:p-8 space-y-6">
+
+            <!-- Summary Cards -->
+            <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-5 rounded-xl border border-stone-200 shadow-sm flex items-start justify-between">
+                    <div>
+                        <p class="text-xs font-bold text-stone-400 uppercase tracking-wider">Total Reviews</p>
+                        <h3 class="text-2xl font-bold text-stone-800 mt-1">842</h3>
+                        <p class="text-xs text-stone-500 mt-2">Lifetime</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-lg bg-stone-100 text-stone-600 flex items-center justify-center">
+                        <i class="fa-solid fa-comments text-lg"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl border border-stone-200 shadow-sm flex items-start justify-between">
+                    <div>
+                        <p class="text-xs font-bold text-stone-400 uppercase tracking-wider">Avg Rating</p>
+                        <h3 class="text-2xl font-bold text-stone-800 mt-1">4.8 <span
+                                class="text-sm font-normal text-stone-400">/ 5.0</span></h3>
+                        <div class="flex text-amber-400 text-xs mt-2">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                                class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                                class="fa-solid fa-star-half-stroke"></i>
+                        </div>
+                    </div>
+                    <div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-500 flex items-center justify-center">
+                        <i class="fa-solid fa-star text-lg"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl border border-stone-200 shadow-sm flex items-start justify-between">
+                    <div>
+                        <p class="text-xs font-bold text-stone-400 uppercase tracking-wider">Pending</p>
+                        <h3 class="text-2xl font-bold text-stone-800 mt-1">15</h3>
+                        <p class="text-xs text-amber-600 mt-2 font-medium">Needs Approval</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+                        <i class="fa-solid fa-clock text-lg"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl border border-stone-200 shadow-sm flex items-start justify-between">
+                    <div>
+                        <p class="text-xs font-bold text-stone-400 uppercase tracking-wider">Reported</p>
+                        <h3 class="text-2xl font-bold text-stone-800 mt-1">2</h3>
+                        <p class="text-xs text-red-500 mt-2 font-medium">Flagged by users</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
+                        <i class="fa-solid fa-flag text-lg"></i>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Filters -->
+            <section class="bg-white p-4 rounded-xl border border-stone-200 shadow-sm space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="relative">
+                        <i
+                            class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-sm"></i>
+                        <input id="searchInput" type="text" placeholder="Search Product or Customer..."
+                            class="w-full pl-9 pr-4 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-100">
+                    </div>
+
+                    <select id="statusFilter"
+                        class="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-amber-100">
+                        <option value="all">All Statuses</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Approved">Approved</option>
+                        <option value="Hidden">Hidden</option>
+                        <option value="Reported">Reported</option>
+                    </select>
+
+                    <select id="ratingFilter"
+                        class="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-amber-100">
+                        <option value="all">All Ratings</option>
+                        <option value="5">5 Stars</option>
+                        <option value="4">4 Stars & Up</option>
+                        <option value="3">3 Stars & Up</option>
+                        <option value="low">Low Rating (1-2)</option>
+                    </select>
+                </div>
+            </section>
+
+            <!-- Reviews Table -->
+            <section class="bg-white rounded-xl border border-stone-200 shadow-sm overflow-hidden flex flex-col">
+                <div class="overflow-x-auto min-h-[400px]">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-stone-50 text-xs font-semibold text-stone-500 uppercase tracking-wider">
+                            <tr>
+                                <th class="p-4 border-b border-stone-200">Review ID</th>
+                                <th class="p-4 border-b border-stone-200">Product</th>
+                                <th class="p-4 border-b border-stone-200">Customer</th>
+                                <th class="p-4 border-b border-stone-200">Rating</th>
+                                <th class="p-4 border-b border-stone-200 w-1/3">Comment</th>
+                                <th class="p-4 border-b border-stone-200">Status</th>
+                                <th class="p-4 border-b border-stone-200 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reviewsTableBody" class="divide-y divide-stone-100 text-sm">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                    <div id="emptyState" class="hidden flex-col items-center justify-center py-16 text-center">
+                        <div
+                            class="w-16 h-16 bg-stone-50 rounded-full flex items-center justify-center mb-4 text-stone-400">
+                            <i class="fa-solid fa-comment-slash text-2xl"></i>
+                        </div>
+                        <p class="text-stone-600 font-medium">No reviews found</p>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="p-4 border-t border-stone-200 bg-stone-50 flex justify-between items-center text-sm">
+                    <span class="text-stone-500">Showing <span class="font-bold text-stone-800"
+                            id="showingCount">0</span> reviews</span>
+                    <div class="flex gap-2">
+                        <button
+                            class="px-3 py-1 border border-stone-200 rounded bg-white text-stone-400 cursor-not-allowed">Previous</button>
+                        <button
+                            class="px-3 py-1 border border-stone-200 rounded bg-white text-stone-600 hover:text-amber-700 hover:border-amber-300">Next</button>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Review Detail Modal -->
+    <div id="reviewModal" class="modal fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-stone-900/40 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div
+            class="modal-content bg-white w-full max-w-2xl rounded-xl shadow-2xl relative z-10 flex flex-col max-h-[90vh]">
+
+            <div class="p-6 border-b border-stone-100 flex justify-between items-start">
+                <div>
+                    <h3 class="text-xl font-bold font-serif text-stone-800">Review Details</h3>
+                    <div class="mt-2 flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded bg-stone-100 border border-stone-200 flex items-center justify-center text-stone-400">
+                            <i class="fa-solid fa-image"></i></div>
+                        <div>
+                            <p class="text-sm font-medium text-stone-800" id="mProduct">Product Name</p>
+                            <p class="text-xs text-stone-500" id="mDate">Oct 24, 2025</p>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="closeModal()" class="text-stone-400 hover:text-stone-600"><i
+                        class="fa-solid fa-times text-lg"></i></button>
+            </div>
+
+            <div class="p-6 flex-1 overflow-y-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex flex-col">
+                        <span class="text-xs font-bold text-stone-400 uppercase">Customer</span>
+                        <span class="font-medium text-stone-800" id="mCustomer">Customer Name</span>
+                    </div>
+                    <div id="mRatingStars" class="text-amber-400 text-lg"></div>
+                </div>
+
+                <div class="bg-stone-50 p-4 rounded-lg border border-stone-100 mb-6">
+                    <p class="text-stone-700 italic" id="mComment">"Review content..."</p>
+                </div>
+
+                <!-- Admin Reply Section -->
+                <div class="border-t border-stone-100 pt-6">
+                    <h4 class="text-sm font-bold text-stone-800 mb-2">Admin Reply</h4>
+                    <textarea id="replyInput"
+                        class="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-100 min-h-[100px]"
+                        placeholder="Type your response here..."></textarea>
+                    <div class="flex justify-end mt-2">
+                        <button onclick="sendReply()"
+                            class="px-4 py-2 bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-700">Send
+                            Reply</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 bg-stone-50 border-t border-stone-200 rounded-b-xl flex justify-between items-center">
+                <span id="mStatusBadge"
+                    class="px-3 py-1 rounded-full text-xs font-medium border bg-amber-50 text-amber-700 border-amber-100">Pending</span>
+                <div class="flex gap-2">
+                    <button onclick="updateReviewStatus('Approved')"
+                        class="px-3 py-1.5 bg-white border border-stone-200 text-emerald-600 rounded hover:bg-emerald-50 text-sm font-medium">Approve</button>
+                    <button onclick="updateReviewStatus('Hidden')"
+                        class="px-3 py-1.5 bg-white border border-stone-200 text-stone-600 rounded hover:bg-stone-100 text-sm font-medium">Hide</button>
+                    <button onclick="updateReviewStatus('Reported')"
+                        class="px-3 py-1.5 bg-white border border-stone-200 text-red-600 rounded hover:bg-red-50 text-sm font-medium">Flag</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Dummy Data ---
+        let reviews = [
+            { id: 'REV-001', product: 'Chocolate Truffle Cake', customer: 'Aisha Khan', rating: 5, comment: 'Absolutely delicious! The best cake I have ever had. Highly recommended.', status: 'Approved', date: '2025-10-24' },
+            { id: 'REV-002', product: 'Cinnamon Rolls', customer: 'Rahul Nair', rating: 4, comment: 'Taste was good but delivery was a bit late. Packaging was excellent though.', status: 'Pending', date: '2025-10-23' },
+            { id: 'REV-003', product: 'Red Velvet Cupcake', customer: 'Sarah John', rating: 5, comment: 'Perfect sweetness and very soft. Will order again!', status: 'Approved', date: '2025-10-22' },
+            { id: 'REV-004', product: 'Chicken Puffs', customer: 'Arjun K', rating: 2, comment: 'Too oily for my taste. Disappointed.', status: 'Reported', date: '2025-10-21' },
+            { id: 'REV-005', product: 'Plum Cake', customer: 'Deepa Thomas', rating: 5, comment: 'Just like homemade! Loved it.', status: 'Approved', date: '2025-10-20' },
+            { id: 'REV-006', product: 'Donut Box', customer: 'Manu P', rating: 1, comment: 'Stale donuts sent. Very bad experience.', status: 'Hidden', date: '2025-10-19' },
+            { id: 'REV-007', product: 'Burger Bun', customer: 'Fathima S', rating: 4, comment: 'Soft and fresh.', status: 'Pending', date: '2025-10-24' },
+        ];
+
+        const statusColors = {
+            'Pending': 'bg-amber-50 text-amber-700 border-amber-100',
+            'Approved': 'bg-emerald-50 text-emerald-700 border-emerald-100',
+            'Hidden': 'bg-stone-100 text-stone-500 border-stone-200',
+            'Reported': 'bg-red-50 text-red-700 border-red-100'
+        };
+
+        let currentReviewId = null;
+
+        // --- Helper: Render Stars ---
+        function getStarHtml(rating) {
+            let html = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= rating) html += '<i class="fa-solid fa-star"></i>';
+                else html += '<i class="fa-regular fa-star text-stone-300"></i>';
+            }
+            return html;
+        }
+
+        // --- Render Table ---
+        function renderTable(data) {
+            const tbody = document.getElementById('reviewsTableBody');
+            tbody.innerHTML = '';
+            document.getElementById('showingCount').innerText = data.length;
+
+            if (data.length === 0) {
+                document.getElementById('emptyState').classList.remove('hidden');
+                document.getElementById('emptyState').classList.add('flex');
+            } else {
+                document.getElementById('emptyState').classList.add('hidden');
+                document.getElementById('emptyState').classList.remove('flex');
+            }
+
+            data.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-stone-50 transition-colors border-b border-stone-100 last:border-0 group';
+
+                const badge = `<span class="inline-flex px-2 py-1 rounded text-xs font-medium border ${statusColors[r.status]}">${r.status}</span>`;
+                const stars = `<div class="text-amber-400 text-xs">${getStarHtml(r.rating)}</div>`;
+
+                tr.innerHTML = `
+                    <td class="p-4 indent-0"><span class="font-mono text-xs font-medium text-stone-600 bg-stone-100 px-1.5 py-0.5 rounded">${r.id}</span></td>
+                    <td class="p-4"><span class="font-medium text-stone-800 text-sm">${r.product}</span></td>
+                    <td class="p-4 text-sm text-stone-600">${r.customer}</td>
+                    <td class="p-4">${stars}</td>
+                    <td class="p-4 text-sm text-stone-500 truncate max-w-xs" title="${r.comment}">${r.comment}</td>
+                    <td class="p-4">${badge}</td>
+                    <td class="p-4 text-right">
+                        <div class="flex items-center justify-end gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                            <button onclick="openModal('${r.id}')" class="text-amber-600 bg-amber-50 hover:bg-amber-100 px-3 py-1 rounded text-xs font-medium">View / Reply</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // --- Filters ---
+        function applyFilters() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const status = document.getElementById('statusFilter').value;
+            const rating = document.getElementById('ratingFilter').value;
+
+            const filtered = reviews.filter(r => {
+                const matchSearch = r.product.toLowerCase().includes(search) || r.customer.toLowerCase().includes(search);
+                const matchStatus = status === 'all' || r.status === status;
+
+                let matchRating = true;
+                if (rating === '5') matchRating = r.rating === 5;
+                if (rating === '4') matchRating = r.rating >= 4;
+                if (rating === '3') matchRating = r.rating >= 3;
+                if (rating === 'low') matchRating = r.rating <= 2;
+
+                return matchSearch && matchStatus && matchRating;
+            });
+            renderTable(filtered);
+        }
+
+        ['searchInput', 'statusFilter', 'ratingFilter'].forEach(id => document.getElementById(id).addEventListener('input', applyFilters));
+
+        // --- Modal Logic ---
+        function openModal(id) {
+            const r = reviews.find(x => x.id === id);
+            if (!r) return;
+            currentReviewId = r.id;
+
+            document.getElementById('mProduct').innerText = r.product;
+            document.getElementById('mCustomer').innerText = r.customer;
+            document.getElementById('mDate').innerText = r.date;
+            document.getElementById('mComment').innerText = `"${r.comment}"`;
+            document.getElementById('mRatingStars').innerHTML = getStarHtml(r.rating);
+
+            const badge = document.getElementById('mStatusBadge');
+            badge.className = `px-3 py-1 rounded-full text-xs font-medium border ${statusColors[r.status]}`;
+            badge.innerText = r.status;
+
+            document.getElementById('replyInput').value = ''; // Reset reply
+            document.getElementById('reviewModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('reviewModal').classList.remove('active');
+            currentReviewId = null;
+        }
+
+        function sendReply() {
+            const text = document.getElementById('replyInput').value.trim();
+            if (!text) { alert('Please enter a reply'); return; }
+            alert(`Reply sent to ${document.getElementById('mCustomer').innerText}`);
+            closeModal();
+        }
+
+        function updateReviewStatus(newStatus) {
+            if (!currentReviewId) return;
+            const r = reviews.find(x => x.id === currentReviewId);
+            if (r) {
+                r.status = newStatus;
+                renderTable(reviews); // Re-render table
+                applyFilters(); // Apply active filters
+
+                // Update Badge in Modal
+                const badge = document.getElementById('mStatusBadge');
+                badge.className = `px-3 py-1 rounded-full text-xs font-medium border ${statusColors[newStatus]}`;
+                badge.innerText = newStatus;
+            }
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTable(reviews);
+        });
+    </script>
+</body>
+
+</html>

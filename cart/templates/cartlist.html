@@ -1,0 +1,159 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block title %}
+  <title>Cart - Fantasy Foods</title>
+{% endblock %}
+{% block content%}
+  <!-- Bootstrap -->
+  
+
+  <div class="max-w-7xl mx-auto pt-28 grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- LEFT SECTION - CART ITEMS -->
+    <div class="lg:col-span-2 space-y-5">
+
+      <!-- Cart Header -->
+      <div class="bg-white p-4 rounded shadow flex justify-between items-center">
+        <h2 class="text-2xl font-semibold ">
+          <i class="fa-solid fa-cart-shopping text-xl text-fantasy-gold"></i>
+        Shopping Cart</h2>
+        <p class="text-gray-500 text-sm">{{ item_count }} items</p>
+      </div>
+
+      <!-- ITEM CARD -->
+ {% for cart in items %}
+<div class="bg-white p-5 rounded-lg shadow flex flex-col md:flex-row gap-5">
+
+  <!-- Product Image -->
+   <a href="{% url 'user_product' cart.variant.product.slug %}">
+  <img src="{{ cart.variant.product.main_image.url }}"
+       class="w-32 h-32 object-cover rounded"></a>
+
+  <!-- Product Details -->
+  <div class="flex-1">
+
+    <h3 class="text-lg font-semibold">
+      {{ cart.variant.product.name }}
+    </h3>
+
+    <p class="text-sm text-gray-500">
+      {{ cart.variant.product.category }}
+    </p>
+
+    <p class="text-sm text-gray-500 mt-1">
+      Size:
+      <span class="font-medium text-gray-700">
+        {{ cart.variant.size_name }}
+      </span>
+    </p>
+
+    <p class="text-xs text-gray-400">
+      Best Before: {{ cart.variant.product.best_before }}
+    </p>
+
+    <!-- Pricing -->
+    <div class="mt-2 flex items-center gap-3">
+      <p class="text-xl font-bold text-gray-900">
+        ₹{{ cart.variant.price }}
+      </p>
+    </div>
+
+    <!-- Qty & Actions -->
+    <div class="flex flex-col md:flex-row gap-4 mt-3 items-start md:items-center">
+      <select class="form-select w-24">
+        <option>Qty: {{ cart.quantity }}</option>
+      </select>
+
+      <form method="POST" action="{% url 'cart:remove_cart' cart.variant.id %}">
+          {% csrf_token %}
+          <button class="text-red-600 text-sm font-medium hover:underline">
+              Remove
+          </button>
+      </form>
+
+      <button class="btn text-gray-600 text-sm">
+        Save for later
+      </button>
+
+      <button class="btn text-indigo-600 text-sm">
+        Move to Wishlist
+      </button>
+    </div>
+  </div>
+</div>
+{% empty %}
+  <div class="col-span-full flex flex-col items-center justify-center py-16 text-center">
+  <!-- Background Image -->
+  <img
+      src="{% static 'images/boy.png' %}"
+      alt="Empty Wishlist"
+      class="w-60 opacity-20"
+  />
+      <h3 class="text-2xl font-bold text-gray-800 mb-2">
+          Oops! Your Cart is Empty
+      </h3>
+      <p class="text-base text-gray-600">
+          Browse our <a href="{% url 'products' %}"
+           class="text-blue-600 hover:text-blue-800 transition-colors duration-300 font-semibold">
+            products </a>and add your favorites to make your Cart magical ✨
+      </p>
+</div>
+
+{% endfor %}
+
+    </div>
+
+
+    <!-- RIGHT SECTION - BILL SUMMARY -->
+    <div class="bg-white shadow p-6 rounded-lg h-fit">
+
+      <h3 class="text-xl font-semibold">Price Details</h3>
+      <hr class="my-3">
+
+      <div class="flex justify-between text-sm mb-2">
+        <span>Subtotal (3 items)</span>
+        <span>₹720</span>
+      </div>
+
+      <div class="flex justify-between text-sm mb-2">
+        <span>Delivery Charge</span>
+        <span class="text-green-600 font-medium">Free</span>
+      </div>
+
+      <div class="flex justify-between text-sm mb-2">
+        <span>Discount</span>
+        <span class="text-green-600 font-semibold">-₹120</span>
+      </div>
+
+      <div class="flex justify-between text-sm mb-2">
+        <span>Tax & GST</span>
+        <span>₹45</span>
+      </div>
+
+      <hr class="my-3">
+
+      <div class="flex justify-between font-bold text-lg mb-4">
+        <span>Total Amount</span>
+        <span>₹645</span>
+      </div>
+
+      <!-- Coupon -->
+      <label class="text-sm text-gray-600 mb-1 block">Apply Coupon</label>
+      <div class="flex gap-2">
+        <input class="form-control" placeholder="Enter coupon code">
+        <button class="btn btn-dark px-3">Apply</button>
+      </div>
+
+      <!-- Checkout -->
+      <button class="btn btn-success w-full mt-5 py-2 text-lg font-semibold">
+        Proceed to Checkout
+      </button>
+
+      <button class="btn btn-outline-secondary w-full mt-3">
+        Continue Shopping
+      </button>
+    </div>
+
+  </div>
+
+{% endblock %}

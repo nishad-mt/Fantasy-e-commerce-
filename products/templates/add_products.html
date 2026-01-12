@@ -1,0 +1,772 @@
+{% extends 'dashboard.html' %}
+
+{% block title %}
+<title>Create Product | Fantasy Bakery Admin
+</title>
+{% endblock %}
+
+{% block content %}
+<!-- Page-Specific Styles & Scripts -->
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                fontFamily: {
+                    sans: ['Outfit', 'sans-serif'],
+                    serif: ['Playfair Display', 'serif'],
+                },
+                colors: {
+                    brand: {
+                        50: '#fdf8f6',
+                        100: '#f2e8e5',
+                        200: '#eaddd7',
+                        300: '#e0cec7',
+                        400: '#d2bab0',
+                        500: '#a18072', /* Muted Brown */
+                        600: '#8c6b5d',
+                        700: '#7a5a4d',
+                        800: '#5d4037', /* Dark Brown */
+                        900: '#4e342e',
+                    },
+                    amber: {
+                        50: '#fffbeb',
+                        100: '#fef3c7',
+                        200: '#fde68a',
+                        300: '#fcd34d',
+                        400: '#fbbf24',
+                        500: '#f59e0b',
+                        600: '#d97706',
+                        700: '#b45309', // Deep Amber
+                        800: '#92400e',
+                        900: '#78350f',
+                    }
+                }
+            }
+        }
+    }
+</script>
+
+<style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f5f5f4;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #d6d3d1;
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #a8a29e;
+    }
+</style>
+
+<!-- Cropper.js -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+
+<!-- Main Content -->
+<main class="flex-1 flex flex-col min-w-0 overflow-hidden h-screen bg-[#fafaf9]">
+    {% if form.errors %}
+    <div class="text-red-600 text-sm mb-4">
+        {{ form.errors }}
+    </div>
+    {% endif %}
+
+    <!-- Header -->
+    <header class="bg-white border-b border-stone-200 sticky top-0 z-20">
+        <div class="flex items-center justify-between px-6 py-4">
+            <div class="flex items-center gap-4">
+                <button class="md:hidden text-stone-500 hover:text-stone-700">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+                <div>
+                    <div class="flex items-center gap-2 text-sm text-stone-500 mb-1">
+                        <a href="{% url 'products' %}" class="hover:text-amber-600 transition-colors">Products</a>
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                        <span class="text-stone-800 font-medium">Create Product</span>
+                    </div>
+                    <h1 class="text-2xl font-bold font-serif text-stone-800">Create Product</h1>
+                </div>
+            </div>
+            <div>
+                <a href="{% url 'admin_products' %}"
+                    class="bg-white border border-stone-300 text-stone-600 hover:bg-stone-50 hover:text-stone-800 px-5 py-2.5 rounded-lg shadow-sm transition-all flex items-center gap-2 font-medium text-sm">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Products
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Scrollable Content -->
+    <div class="flex-1 overflow-y-auto p-4 md:p-8">
+
+        <div class="max-w-5xl mx-auto">
+            <form id="createProductForm" method="POST" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+
+                <!-- 1. Main Product Info -->
+                <div class="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden">
+                    <div class="p-6 border-b border-stone-100 bg-stone-50/50">
+                        <h2 class="text-lg font-bold text-stone-800">Basic Information</h2>
+                        <p class="text-sm text-stone-500">General details about the product</p>
+                    </div>
+
+                    <div class="p-6 space-y-8">
+
+                        <!-- Top Row: Image + Main Fields -->
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                            <!-- Left: Image Upload (Main) -->
+                            <div class="lg:col-span-1">
+                                <label class="block text-sm font-semibold text-stone-700 mb-2">Main Product Image <span
+                                        class="text-red-500">*</span></label>
+
+                                <!-- Container -->
+                                <div class="relative w-full aspect-square border-2 border-dashed border-stone-300 rounded-xl bg-stone-50 overflow-hidden transition-all hover:border-amber-400 group"
+                                    id="uploadContainer">
+
+                                    <!-- Hidden File Input -->
+                                    <input type="file" id="mainImageInput" name="main_image" class="hidden"
+                                        accept="image/*" onchange="handleFileSelect(event)">
+
+                                    <!-- STATE 1: EMPTY -->
+                                    <div id="state-empty"
+                                        class="absolute inset-0 flex flex-col items-center justify-center cursor-pointer"
+                                        onclick="triggerUpload()">
+                                        <div
+                                            class="w-14 h-14 bg-stone-200/50 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
+                                            <i
+                                                class="fa-solid fa-image text-xl text-stone-400 group-hover:text-amber-500 transition-colors"></i>
+                                        </div>
+                                        <p class="text-sm font-medium text-stone-700">Upload Image</p>
+                                        <p class="text-xs text-stone-500 mt-1">PNG, JPG up to 10MB</p>
+                                    </div>
+
+                                    <!-- STATE 2: CROPPER -->
+                                    <div id="state-cropper" class="absolute inset-0 z-20 bg-stone-900 hidden">
+                                        <div class="absolute inset-0 bottom-14">
+                                            <img id="cropperImage" class="max-w-full max-h-full"
+                                                crossorigin="anonymous">
+                                        </div>
+                                        <!-- Toolbar -->
+                                        <div
+                                            class="absolute bottom-0 left-0 right-0 h-14 bg-white/10 backdrop-blur-md flex items-center justify-center gap-3 px-2 border-t border-white/10">
+                                            <button type="button" onclick="rotateImage(-90)"
+                                                class="p-1.5 text-white hover:text-amber-400"><i
+                                                    class="fa-solid fa-rotate-left"></i></button>
+                                            <button type="button" onclick="rotateImage(90)"
+                                                class="p-1.5 text-white hover:text-amber-400"><i
+                                                    class="fa-solid fa-rotate-right"></i></button>
+                                            <div class="w-px h-5 bg-white/20 mx-1"></div>
+                                            <button type="button" onclick="cancelCrop()"
+                                                class="px-3 py-1 text-xs font-medium text-white hover:bg-white/10 rounded">Cancel</button>
+                                            <button type="button" onclick="doneCrop()"
+                                                class="px-4 py-1 text-xs font-bold text-white bg-green-600 hover:bg-green-700 rounded shadow-sm flex items-center gap-1">
+                                                <i class="fa-solid fa-check"></i> Done
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- STATE 3: PREVIEW -->
+                                    <div id="state-preview" class="absolute inset-0 z-10 bg-white hidden group/preview">
+                                        <div class="w-full h-full flex items-center justify-center bg-stone-100">
+                                            <img id="finalPreview" class="max-w-full max-h-full object-cover">
+                                        </div>
+                                        <!-- Overlay Actions -->
+                                        <div
+                                            class="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover/preview:opacity-100 transition-opacity duration-200">
+                                            <button type="button" onclick="enterEditMode()"
+                                                class="p-2 bg-white/90 backdrop-blur shadow-sm border border-stone-200 rounded-lg text-stone-700 hover:text-amber-600 hover:bg-amber-50">
+                                                <i class="fa-solid fa-crop-simple"></i>
+                                            </button>
+                                            <button type="button" onclick="triggerUpload()"
+                                                class="p-2 bg-white/90 backdrop-blur shadow-sm border border-stone-200 rounded-lg text-stone-700 hover:text-blue-600 hover:bg-blue-50">
+                                                <i class="fa-solid fa-camera"></i>
+                                            </button>
+                                            <button type="button" onclick="deleteImage()"
+                                                class="p-2 bg-white/90 backdrop-blur shadow-sm border border-stone-200 rounded-lg text-stone-700 hover:text-red-600 hover:bg-red-50">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Fields -->
+                            <div class="lg:col-span-2 space-y-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <!-- Name -->
+                                    <div class="col-span-2 md:col-span-2">
+                                        <label for="prodName"
+                                            class="block text-sm font-medium text-stone-700 mb-1">Product Name <span
+                                                class="text-red-500">*</span></label>
+                                        <input type="text" id="prodName" name="name"
+                                            value="{{ form.instance.name|default:'' }}" onkeyup="generateSlug()"
+                                            class="w-full px-4 py-2 bg-white border border-stone-200 rounded-lg text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-400 transition-all placeholder-stone-400"
+                                            placeholder="e.g. Unniyappam" required>
+                                    </div>
+                                    <!-- SKU -->
+                                    <div class="col-span-2 md:col-span-2">
+                                        <label for="prodName" class="block text-sm font-medium text-stone-700 mb-1">SKU
+                                            <span class="text-red-500">*</span></label>
+                                        <input type="text" id="sku" name="sku"
+                                            value="{{ form.instance.sku|default:'' }}" onkeyup="generateSlug()"
+                                            class="w-full px-4 py-2 bg-white border border-stone-200 rounded-lg text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-400 transition-all placeholder-stone-400"
+                                            placeholder="e.g. Unique identity of a product" required>
+                                    </div>
+
+                                    <!-- Slug -->
+                                    <div class="col-span-2 md:col-span-2">
+                                        <label class="block text-sm font-medium text-stone-700 mb-1">Slug</label>
+                                        <div class="flex shadow-sm rounded-lg">
+                                            <span
+                                                class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-stone-200 bg-stone-50 text-stone-500 text-sm">/product/</span>
+                                            <input type="text" id="prodSlug" name="slug"
+                                                value="{{ form.instance.slug|default:'' }}"
+                                                class="flex-1 min-w-0 block w-full px-4 py-2 border border-stone-200 rounded-r-lg text-sm text-stone-500 bg-stone-50 focus:outline-none cursor-not-allowed"
+                                                readonly>
+                                        </div>
+                                    </div>
+
+                                    <!-- Category -->
+                                    <div>
+                                        <label for="prodCategory"
+                                            class="block text-sm font-medium text-stone-700 mb-1">Category <span
+                                                class="text-red-500">*</span></label>
+                                        <select id="prodCategory" name="category"
+                                            class="w-full px-4 py-2 bg-white border border-stone-200 rounded-lg text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-400 transition-all"
+                                            required>
+                                            <option value="" disabled selected>Select Category</option>
+                                            {% for cat in categories %}
+                                            <option value="{{ cat.category_id }}" {% if form.instance.category.pk == cat.category_id %}selected{% endif %}>
+                                                {{ cat.name }}
+                                            </option>
+                                            {% empty %}
+                                            <option disabled>No categories</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                    <!-- Best Before -->
+                                    <div>
+                                        <label class="block text-sm font-medium text-stone-700 mb-1">Best Before</label>
+                                        <input type="text" id="best_before" name="best_before"
+                                            value="{{ form.instance.best_before|default:'' }}"
+                                            class="w-full px-4 py-2 bg-white border border-stone-200 rounded-lg text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-400 transition-all"
+                                            placeholder="e.g. 3 Days" required>
+                                    </div>
+
+                                    <!-- Status -->
+                                    <div class="flex items-center gap-4 h-full pt-6">
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" name="is_active" class="sr-only peer" checked {% if form.instance.is_active %}checked{% endif %}>
+                                            <div
+                                                class="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500">
+                                            </div>
+                                            <span class="ml-3 text-sm font-medium text-stone-700">Available</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description & Nutrients -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-stone-700 mb-1">Description</label>
+                                <textarea name="description" rows="4"
+                                    class="w-full px-4 py-2 bg-white border border-stone-200 rounded-lg text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-400 transition-all resize-none placeholder-stone-400"
+                                    placeholder="Product details..." required>{{ form.instance.description|default:'' }}</textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-stone-700 mb-1">Nutritional Info</label>
+                                <textarea name="nutritional_info" rows="4"
+                                    class="w-full px-4 py-2 bg-white border border-stone-200 rounded-lg text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-400 transition-all resize-none placeholder-stone-400"
+                                    placeholder="e.g. Calories: 300, Fat: 12g...">{{ form.instance.nutritional_info|default:'' }}</textarea>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- 2. Size Variants -->
+                <div class="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden">
+                    <div class="p-6 border-b border-stone-100 bg-stone-50/50 flex justify-between items-center">
+                        <div>
+                            <h2 class="text-lg font-bold text-stone-800">Size Variants</h2>
+                            <p class="text-sm text-stone-500">Add different sizes tailored for this product</p>
+                        </div>
+                        <button type="button" onclick="addVariantRow()"
+                            class="px-4 py-2 text-xs font-semibold text-white bg-stone-800 hover:bg-black rounded-lg transition-colors shadow-sm flex items-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Add Variant
+                        </button>
+                    </div>
+                    <div class="p-0 overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr>
+                                    <th>Size Name</th>
+                                    <th>Price ($)</th>
+                                    <th>Available</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="variantsBody">
+                                <!-- Dynamic rows will be inserted here -->
+                            </tbody>
+                        </table>
+
+                        <div id="noVariantsMsg" class="p-8 text-center text-stone-400 italic text-sm">
+                            No size variants added yet.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Product Gallery -->
+                <div class="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden">
+                    <div class="p-6 border-b border-stone-100 bg-stone-50/50">
+                        <h2 class="text-lg font-bold text-stone-800">Product Gallery</h2>
+                        <p class="text-sm text-stone-500">Max 6 images for slideshow
+                            <span id="imageCount" class="font-semibold text-amber-600">(0/6)</span>
+                        </p>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4" id="galleryContainer">
+                            <!-- Add Button -->
+                            <label
+                                class="aspect-square border-2 border-dashed border-stone-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-amber-400 hover:bg-stone-50 transition-all group">
+                                <!-- Trigger Input -->
+                                <input type="file" id="galleryTrigger" class="hidden" multiple accept="image/*"
+                                    onchange="handleGalleryUpload(event)">
+                                <i
+                                    class="fa-solid fa-plus text-2xl text-stone-300 group-hover:text-amber-500 transition-colors mb-2"></i>
+                                <span class="text-xs font-medium text-stone-500 group-hover:text-amber-600">
+                                    Add Images
+                                </span>
+                            </label>
+
+                            <!-- Storage Input for Form Submission -->
+                            <input type="file" name="gallery_images[]" id="galleryInput" class="hidden" multiple>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex items-center justify-end gap-4 pt-4 border-t border-transparent">
+                    <a href="{% url 'admin_products' %}" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-red-300">
+                        Cancel
+                    </a>
+                    <button type="submit"
+                        class="px-6 py-2.5 text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 rounded-lg shadow-sm hover:shadow-md transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-check"></i> Save Product
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+</main>
+
+<script>
+    // --- Global State ---
+    let cropper = null;
+    let originalFile = null;
+    let currentBlob = null;
+    const existingVariants = JSON.parse('{{ sizes_json|default:"[]"|escapejs }}');
+    const existingGalleryImages = JSON.parse('{{ gallery_images_json|default:"[]"|escapejs }}');
+
+    // --- 1. Slug Generation ---
+    function generateSlug() {
+        const name = document.getElementById('prodName');
+        const slug = document.getElementById('prodSlug');
+        if (!name || !slug) return;
+
+        const val = name.value.toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-');
+        slug.value = val;
+    }
+
+    // --- 2. Main Image Cropper Logic (Reused) ---
+    // --- 2. Main Image Cropper Logic (Reused) ---
+    function triggerUpload() { document.getElementById('mainImageInput').click(); }
+
+    function handleFileSelect(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (!file.type.startsWith('image/')) {
+            alert('Please select a valid image file');
+            return;
+        }
+        // Don't overwrite originalFile immediately if we want to support cancelling back to it?
+        // Actually, if we pick a new file, we are starting a new drafted edit.
+        // We track the 'pending' file in a separate var or just use originalFile.
+        originalFile = file;
+        startCropper(file);
+    }
+
+    function startCropper(fileOrBlob) {
+        toggleState('cropper');
+        const img = document.getElementById('cropperImage');
+        // Ensure image is loaded before initializing cropper
+        img.onload = () => {
+            if (cropper) { cropper.destroy(); }
+            initCropper(img);
+        };
+
+        if (fileOrBlob instanceof Blob || fileOrBlob instanceof File) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(fileOrBlob);
+        } else if (typeof fileOrBlob === 'string') {
+            img.src = fileOrBlob;
+            // For URL strings, onload might trigger fast or we might need to force check
+            if (img.complete) {
+                if (cropper) { cropper.destroy(); }
+                initCropper(img);
+            }
+        }
+    }
+
+    function initCropper(imgElement) {
+        // Double check to prevent multiple instances
+        if (imgElement.dataset.cropperInit) return;
+
+        cropper = new Cropper(imgElement, {
+            viewMode: 1, dragMode: 'move', aspectRatio: NaN, autoCropArea: 0.9,
+            guides: true, center: true, background: false,
+            ready() {
+                this.cropper.element.dataset.cropperInit = 'true';
+            }
+        });
+    }
+
+    function rotateImage(deg) { if (cropper) cropper.rotate(deg); }
+
+    function doneCrop() {
+        if (!cropper) return;
+        const canvas = cropper.getCroppedCanvas({ maxWidth: 1200, maxHeight: 1200, fillColor: '#fff' });
+
+        canvas.toBlob((blob) => {
+            currentBlob = blob;
+            const url = URL.createObjectURL(blob);
+
+            // Sync input
+            updateFileInput(blob);
+
+            showPreviewState(url);
+
+            // Cleanup
+            cropper.destroy();
+            cropper = null;
+            document.getElementById('cropperImage').removeAttribute('src');
+            delete document.getElementById('cropperImage').dataset.cropperInit;
+        }, 'image/jpeg', 0.9);
+    }
+
+    function cancelCrop() {
+        // Cleanup cropper
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        document.getElementById('cropperImage').removeAttribute('src');
+        delete document.getElementById('cropperImage').dataset.cropperInit;
+
+        const preview = document.getElementById('finalPreview');
+        const hasExistingPreview = preview.src && preview.src.length > 0 && preview.src !== window.location.href;
+
+        // Logic: Revert to valid state if possible
+        if (currentBlob) {
+            // We have a previously cropped success - go back to it
+            updateFileInput(currentBlob);
+            toggleState('preview');
+        } else if (hasExistingPreview) {
+            // We have a server image (or previously set src) - go back to it
+            // Important: Clear the input because we cancelled the NEW file selection
+            document.getElementById('mainImageInput').value = '';
+            toggleState('preview');
+        } else {
+            // No fallback
+            deleteImage();
+        }
+    }
+
+    function deleteImage() {
+        document.getElementById('mainImageInput').value = '';
+        originalFile = null;
+        currentBlob = null;
+
+        if (cropper) { cropper.destroy(); cropper = null; }
+
+        const preview = document.getElementById('finalPreview');
+        preview.removeAttribute('src'); // Clear visual
+
+        toggleState('empty');
+    }
+
+    function updateFileInput(blob) {
+        // Name logic: failover to 'cropped.jpg'
+        const fileName = originalFile ? originalFile.name : 'cropped.jpg';
+        const file = new File([blob], fileName, { type: 'image/jpeg' });
+
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        document.getElementById('mainImageInput').files = dt.files;
+    }
+
+    function showPreviewState(url) {
+        document.getElementById('finalPreview').src = url;
+        toggleState('preview');
+    }
+
+    function toggleState(state) {
+        document.getElementById('state-empty').classList.add('hidden');
+        document.getElementById('state-cropper').classList.add('hidden');
+        document.getElementById('state-preview').classList.add('hidden');
+        if (state) document.getElementById(`state-${state}`).classList.remove('hidden');
+    }
+
+    function enterEditMode() {
+        const preview = document.getElementById('finalPreview');
+        const existingUrl = preview.getAttribute('src');
+
+        // Priority: Current edit > New File > Existing DB URL
+        if (currentBlob) {
+            startCropper(currentBlob);
+        } else if (originalFile) {
+            startCropper(originalFile);
+        } else if (existingUrl) {
+            startCropper(existingUrl);
+        }
+    }
+
+    // --- 3. Dynamic Size Variants ---
+
+let variantCount = 0;  // Global counter - ADD THIS
+
+    function addVariantRow(data = {}, providedIndex = null) {
+        const tbody = document.getElementById('variantsBody');
+        const msg = document.getElementById('noVariantsMsg');
+        msg.style.display = 'none';
+
+        // FIX 1: Calculate correct index based on CURRENT row count
+        const currentIndex = tbody.children.length;
+        const useIndex = providedIndex !== null ? providedIndex : currentIndex;
+            
+        const rowId = 'var_' + useIndex;
+        const row = document.createElement('tr');
+        row.id = rowId;
+        row.className = "group hover:bg-stone-50 transition-colors";
+        row.setAttribute('data-index', useIndex);  // FIX 2: Store index on row
+
+        row.innerHTML = `
+        <td class="px-6 py-3">
+            <input type="text" name="size_name[]" value="${data.name || ''}" placeholder="e.g. 1kg" class="w-full px-3 py-1.5 border border-stone-200 rounded text-sm focus:border-amber-400 focus:outline-none" required>
+        </td>
+        <td class="px-6 py-3">
+            <input type="number" step="0.01" name="size_price[]" value="${data.price || ''}" placeholder="0.00" class="w-full px-3 py-1.5 border border-stone-200 rounded text-sm focus:border-amber-400 focus:outline-none" required>
+        </td>
+        <td class="px-6 py-3 text-center">
+            <input type="checkbox" 
+                   name="size_available[]" 
+                   value="${useIndex}"  
+                   ${data.available ? "checked" : ""} 
+                   class="w-4 h-4 text-amber-600 rounded border-stone-300 focus:ring-amber-500">
+        </td>
+        <td class="px-6 py-3 text-right">
+            <button type="button" class="delete-variant text-stone-400 hover:text-red-500 transition-colors p-1">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        </td>
+    `;
+        tbody.appendChild(row);
+
+        if (providedIndex === null) variantCount++;
+    }
+
+    // Event delegation for delete buttons
+    document.getElementById('variantsBody').addEventListener('click', function (e) {
+        const btn = e.target.closest('.delete-variant');
+        if (!btn) return;
+
+        const tbody = document.getElementById('variantsBody');
+        if (tbody.querySelectorAll('tr').length <= 1) {
+            alert("At least one size variant is required.");
+            return;
+        }
+
+        const row = btn.closest('tr');
+        if (row) row.remove();
+
+        const msg = document.getElementById('noVariantsMsg');
+        if (tbody.children.length === 0) msg.style.display = 'block';
+    });
+
+
+    // --- 4. Gallery Logic ---
+    let accumulatedFiles = new DataTransfer(); // Holds all new files to be uploaded
+
+    function updateImageCount() {
+        const container = document.getElementById('galleryContainer');
+        // Count all gallery items (images)
+        const currentCount = container.querySelectorAll('.gallery-item').length;
+
+        const countEl = document.getElementById('imageCount');
+        if (countEl) countEl.textContent = `(${currentCount}/6)`;
+
+        const addInput = document.getElementById('galleryTrigger');
+        const addLabel = addInput.closest('label');
+
+        // Disable add button if max reached
+        if (currentCount >= 6) {
+            addLabel.classList.add('opacity-50', 'cursor-not-allowed');
+            if (!addInput.disabled) addInput.disabled = true;
+        } else {
+            addLabel.classList.remove('opacity-50', 'cursor-not-allowed');
+            if (addInput.disabled) addInput.disabled = false;
+        }
+    }
+
+    function handleGalleryUpload(e) {
+        const newFiles = Array.from(e.target.files);
+        const container = document.getElementById('galleryContainer');
+        const currentCount = container.querySelectorAll('.gallery-item').length;
+
+        if (currentCount + newFiles.length > 6) {
+            alert(`Max 6 images allowed! You have ${currentCount}, trying to add ${newFiles.length}`);
+            e.target.value = ""; // Reset input
+            return;
+        }
+
+        const addLabel = container.querySelector('label');
+
+        // Add new files to accumulator and DOM
+        newFiles.forEach(file => {
+            accumulatedFiles.items.add(file);
+
+            // Generate Preview
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const div = document.createElement("div");
+                div.className = "relative aspect-square rounded-xl overflow-hidden gallery-item";
+                div._file = file; // Attach file object directly to DOM element for reliable removal
+
+                div.innerHTML = `
+                <img src="${ev.target.result}" class="w-full h-full object-cover">
+                <button type="button" class="absolute top-1 right-1 bg-white text-red-500 p-1 rounded shadow" 
+                        onclick="removeGalleryItem(this)">✕</button>`;
+
+                // Insert BEFORE the 'Add' button so images list flows then button at end
+                container.insertBefore(div, addLabel);
+
+                updateImageCount();
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Update the actual input that gets submitted
+        document.getElementById('galleryInput').files = accumulatedFiles.files;
+
+        // Reset trigger to allow successive adds
+        e.target.value = '';
+    }
+
+
+    function removeGalleryItem(btn) {
+        const div = btn.closest('.gallery-item');
+
+        // Scenario 1: It's a newly uploaded file
+        if (div._file) {
+            const fileToRemove = div._file;
+            const newDataTransfer = new DataTransfer();
+
+            // Rebuild accumulator excluding this file
+            Array.from(accumulatedFiles.files).forEach(file => {
+                if (file !== fileToRemove) {
+                    newDataTransfer.items.add(file);
+                }
+            });
+
+            accumulatedFiles = newDataTransfer;
+            document.getElementById('galleryInput').files = accumulatedFiles.files;
+        }
+        // Scenario 2: It's an existing server-side image
+        else if (div.dataset.imageId) {
+            const imageId = div.dataset.imageId;
+            const form = document.getElementById('createProductForm');
+
+            // Append hidden input to signal deletion
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'deleted_gallery_images[]';
+            input.value = imageId;
+            form.appendChild(input);
+        }
+
+        div.remove();
+        updateImageCount();
+    }
+
+    // --- 5. DOMContentLoaded ---
+    document.addEventListener('DOMContentLoaded', () => {
+        // ✅ Populate existing variants WITH PROPER INDICES
+        if (existingVariants.length === 0) {
+            addVariantRow();  // Empty row at index 0 for CREATE
+        } else {
+            existingVariants.forEach((v, index) => {
+                addVariantRow({
+                    name: v.name,
+                    price: v.price,
+                    available: v.available
+                }, index);  // Pass index for EDIT
+            });
+        }
+
+        // ✅ SAFE IMAGE HANDLING FOR BOTH CREATE & EDIT
+        {% if form.instance.pk and form.instance.main_image %}
+        const existingImgUrl = "{{ form.instance.main_image.url }}";
+        const preview = document.getElementById('finalPreview');
+        preview.src = existingImgUrl;
+        toggleState('preview');
+        {% endif %}
+
+        existingGalleryImages.forEach(img => {
+            addGalleryImagePreview(img.url, img.id);
+        });
+        updateImageCount();
+    });
+
+    function addGalleryImagePreview(imageUrl, imageId = null) {
+        const container = document.getElementById('galleryContainer');
+        const addLabel = container.querySelector('label');
+
+        const div = document.createElement("div");
+        div.className = "relative aspect-square rounded-xl overflow-hidden gallery-item";
+        div.dataset.imageId = imageId || '';
+
+        div.innerHTML = `
+        <img src="${imageUrl}" class="w-full h-full object-cover">
+        <button type="button" class="absolute top-1 right-1 bg-white text-red-500 p-1 rounded shadow" 
+                onclick="removeGalleryItem(this)">✕</button>
+        `;
+        // NOTE: removed the auto-generation of deleted_gallery_images[] input
+
+        container.insertBefore(div, addLabel);
+    }
+
+</script>
+
+{% endblock %}

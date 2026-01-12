@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fantasy Food — Admin Dashboard</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Heroicons (optional) -->
+  <script src="https://unpkg.com/feather-icons"></script>
+
+  <style>
+    /* small custom tweaks */
+    .glass {
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(6px);
+    }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.02));
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    /* scrollbar nicer for tables */
+    .table-scroll::-webkit-scrollbar { height: 8px; }
+    .table-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 8px; }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-amber-50 via-amber-100 to-amber-50 min-h-screen font-sans text-gray-800">
+
+  <div class="flex h-screen">
+
+    <!-- SIDEBAR -->
+    <aside class="w-72 bg-white/80 glass p-4 border-r border-white/30 hidden md:block">
+      <div class="flex items-center gap-3 pb-6 border-b border-white/30 mb-4">
+        <div class="w-10 h-10 rounded-lg bg-amber-700 flex items-center justify-center text-white font-bold">F</div>
+        <div>
+          <h1 class="text-lg font-bold">Fantasy Admin</h1>
+          <p class="text-xs text-gray-600">Admin Panel</p>
+        </div>
+      </div>
+
+      <nav class="space-y-1 text-sm">
+        <button class="w-full text-left nav-btn px-3 py-2 rounded-lg hover:bg-amber-100 flex items-center gap-2 active" data-tab="dashboard">
+          <span class="material-icons">dashboard</span> Dashboard
+        </button>
+
+        <button class="w-full text-left nav-btn px-3 py-2 rounded-lg hover:bg-amber-100 flex items-center gap-2" data-tab="users">
+          <span class="material-icons">people</span> Users
+        </button>
+
+        <button class="w-full text-left nav-btn px-3 py-2 rounded-lg hover:bg-amber-100 flex items-center gap-2" data-tab="products">
+          <span class="material-icons">shopping_bag</span> Products
+        </button>
+
+        <button class="w-full text-left nav-btn px-3 py-2 rounded-lg hover:bg-amber-100 flex items-center gap-2" data-tab="offers">
+          <span class="material-icons">local_offer</span> Offers
+        </button>
+
+        <button class="w-full text-left nav-btn px-3 py-2 rounded-lg hover:bg-amber-100 flex items-center gap-2" data-tab="categories">
+          <span class="material-icons">category</span> Categories
+        </button>
+
+        <button class="w-full text-left nav-btn px-3 py-2 rounded-lg hover:bg-amber-100 flex items-center gap-2" data-tab="deliveries">
+          <span class="material-icons">local_shipping</span> Deliveries
+        </button>
+
+        <button class="w-full text-left nav-btn px-3 py-2 rounded-lg hover:bg-amber-100 flex items-center gap-2" data-tab="refunds">
+          <span class="material-icons">refund</span> Refunds
+        </button>
+
+        <button class="w-full text-left nav-btn px-3 py-2 rounded-lg hover:bg-amber-100 flex items-center gap-2" data-tab="site">
+          <span class="material-icons">settings</span> Site Info
+        </button>
+
+        <button class="w-full text-left nav-btn px-3 py-2 rounded-lg hover:bg-amber-100 flex items-center gap-2" data-tab="activity">
+          <span class="material-icons">history</span> Activity Log
+        </button>
+      </nav>
+
+      <div class="mt-6">
+        <button id="resetBtn" class="w-full py-2 bg-amber-700 text-white rounded-lg text-sm hover:opacity-95">Reset Demo Data</button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="flex-1 p-6 overflow-auto">
+      <!-- top -->
+      <header class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-4">
+          <button id="mobileMenuBtn" class="md:hidden p-2 bg-white/60 rounded-lg">☰</button>
+          <h2 id="pageTitle" class="text-2xl font-semibold">Dashboard</h2>
+          <div class="ml-4 text-sm text-gray-600 hidden md:block" id="subTitle">Overview & quick actions</div>
+        </div>
+        <div class="flex items-center gap-3">
+          <button id="refreshBtn" class="py-2 px-3 rounded-lg bg-white/80 hover:bg-white">Refresh</button>
+          <div class="px-3 py-2 rounded-lg card flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-amber-600 text-white flex items-center justify-center">A</div>
+            <div>
+              <div class="text-sm font-medium">Admin</div>
+              <div class="text-xs text-gray-500">fantasy@example.com</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- CONTENT AREA -->
+      <section id="contentArea" class="space-y-6">
+
+        <!-- Dashboard -->
+        <div id="tab-dashboard" class="tab-panel">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="p-4 rounded-lg card">
+              <div class="text-xs text-gray-400">Users</div>
+              <div id="statUsers" class="text-2xl font-bold mt-2">0</div>
+            </div>
+            <div class="p-4 rounded-lg card">
+              <div class="text-xs text-gray-400">Products</div>
+              <div id="statProducts" class="text-2xl font-bold mt-2">0</div>
+            </div>
+            <div class="p-4 rounded-lg card">
+              <div class="text-xs text-gray-400">Pending Refunds</div>
+              <div id="statRefunds" class="text-2xl font-bold mt-2">0</div>
+            </div>
+          </div>
+
+          <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div class="p-4 rounded-lg card">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="font-semibold">Recent Users</h3>
+                  <div class="text-xs text-gray-400">Latest signups</div>
+                </div>
+                <button id="addUserQuick" class="text-sm text-amber-700 hover:underline">+ Add user</button>
+              </div>
+              <div class="mt-3 table-scroll overflow-x-auto">
+                <table class="w-full text-sm">
+                  <thead class="text-left text-xs text-gray-500">
+                    <tr><th>Name</th><th>Email</th><th>Joined</th></tr>
+                  </thead>
+                  <tbody id="recentUsersTbody" class="text-sm"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="p-4 rounded-lg card">
+              <h3 class="font-semibold">Recent Activities</h3>
+              <div class="text-xs text-gray-400">Actions by admin / system</div>
+              <ul id="activityList" class="mt-3 max-h-64 overflow-auto text-sm space-y-2"></ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- USERS -->
+        <div id="tab-users" class="tab-panel hidden">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold">Users</h3>
+            <div class="flex items-center gap-2">
+              <input id="userSearch" placeholder="Search users..." class="px-3 py-2 rounded-lg border" />
+              <button id="openUserForm" class="px-3 py-2 bg-amber-700 text-white rounded-lg">+ New User</button>
+            </div>
+          </div>
+
+          <div class="mt-4 overflow-auto rounded-lg card p-4">
+            <table class="w-full text-sm">
+              <thead class="text-xs text-gray-500 text-left">
+                <tr><th>Name</th><th>Email</th><th>Phone</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="usersTbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- PRODUCTS -->
+        <div id="tab-products" class="tab-panel hidden">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold">Products</h3>
+            <div class="flex items-center gap-2">
+              <input id="productSearch" placeholder="Search products..." class="px-3 py-2 rounded-lg border" />
+              <button id="openProductForm" class="px-3 py-2 bg-amber-700 text-white rounded-lg">+ New Product</button>
+            </div>
+          </div>
+
+          <div class="mt-4 overflow-auto rounded-lg card p-4">
+            <table class="w-full text-sm">
+              <thead class="text-xs text-gray-500 text-left">
+                <tr><th>Title</th><th>Category</th><th>Price</th><th>Stock</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="productsTbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- OFFERS -->
+        <div id="tab-offers" class="tab-panel hidden">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold">Offers</h3>
+            <button id="openOfferForm" class="px-3 py-2 bg-amber-700 text-white rounded-lg">+ New Offer</button>
+          </div>
+
+          <div class="mt-4 overflow-auto rounded-lg card p-4">
+            <table class="w-full text-sm">
+              <thead class="text-xs text-gray-500 text-left">
+                <tr><th>Title</th><th>Type</th><th>Discount</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="offersTbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- CATEGORIES -->
+        <div id="tab-categories" class="tab-panel hidden">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold">Categories</h3>
+            <button id="openCategoryForm" class="px-3 py-2 bg-amber-700 text-white rounded-lg">+ New Category</button>
+          </div>
+
+          <div class="mt-4 overflow-auto rounded-lg card p-4">
+            <ul id="categoriesList" class="space-y-2"></ul>
+          </div>
+        </div>
+
+        <!-- DELIVERIES -->
+        <div id="tab-deliveries" class="tab-panel hidden">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold">Deliveries</h3>
+            <button id="openDeliveryForm" class="px-3 py-2 bg-amber-700 text-white rounded-lg">+ Add Delivery</button>
+          </div>
+
+          <div class="mt-4 overflow-auto rounded-lg card p-4">
+            <table class="w-full text-sm">
+              <thead class="text-xs text-gray-500 text-left">
+                <tr><th>Order ID</th><th>Customer</th><th>Address</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="deliveriesTbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- REFUNDS -->
+        <div id="tab-refunds" class="tab-panel hidden">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold">Refund Requests</h3>
+          </div>
+
+          <div class="mt-4 overflow-auto rounded-lg card p-4">
+            <table class="w-full text-sm">
+              <thead class="text-xs text-gray-500 text-left">
+                <tr><th>Refund ID</th><th>Order</th><th>Customer</th><th>Amount</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="refundsTbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SITE INFO -->
+        <div id="tab-site" class="tab-panel hidden">
+          <h3 class="text-lg font-semibold">Site & Contact Info</h3>
+          <div class="mt-4 rounded-lg card p-4">
+            <label class="text-xs text-gray-500">Site Title</label>
+            <input id="siteTitle" class="w-full px-3 py-2 border rounded mt-1" />
+            <label class="text-xs text-gray-500 mt-3 block">Contact Email</label>
+            <input id="siteEmail" class="w-full px-3 py-2 border rounded mt-1" />
+            <label class="text-xs text-gray-500 mt-3 block">Phone</label>
+            <input id="sitePhone" class="w-full px-3 py-2 border rounded mt-1" />
+            <label class="text-xs text-gray-500 mt-3 block">Address</label>
+            <textarea id="siteAddress" class="w-full px-3 py-2 border rounded mt-1"></textarea>
+
+            <div class="mt-4 flex gap-2">
+              <button id="saveSiteInfo" class="px-4 py-2 bg-amber-700 text-white rounded">Save</button>
+              <button id="resetSiteInfo" class="px-4 py-2 border rounded">Reset</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ACTIVITY -->
+        <div id="tab-activity" class="tab-panel hidden">
+          <h3 class="text-lg font-semibold">Activity Log</h3>
+          <div class="mt-4 rounded-lg card p-4">
+            <ul id="fullActivityList" class="space-y-2 max-h-96 overflow-auto text-sm"></ul>
+            <div class="mt-4">
+              <button id="clearActivity" class="px-3 py-2 bg-red-500 text-white rounded">Clear Log</button>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <!-- ----------------- MODALS (basic) ----------------- -->
+  <div id="modalRoot"></div>
+
+<script>
+/* ---------------------
+  Demo data + persistence (localStorage)
+   - Replace these operations with API calls when integrating backend.
+----------------------*/
+
+const STORAGE_KEYS = {
+  users: 'adm_users_v1',
+  products: 'adm_products_v1',
+  offers: 'adm_offers_v1',
+  categories: 'adm_cats_v1',
+  deliveries: 'adm_deliveries_v1',
+  refunds: 'adm_refunds_v1',
+  activity: 'adm_activity_v1',
+  site: 'adm_site_v1'
+};
+
+const demo = {
+  users: [
+    { id: 'u1', name: 'Aisha Khan', email: 'aisha@example.com', phone: '9447000001', status: 'active', joined: '2025-10-01' },
+    { id: 'u2', name: 'Rahul Menon', email: 'rahul@example.com', phone: '9447000002', status: 'active', joined: '2025-10-02' },
+    { id: 'u3', name: 'Sana Iqbal', email: 'sana@example.com', phone: '9447000003', status: 'blocked', joined: '2025-10-03' },
+  ],
+  products: [
+    { id:'p1', title:'Chocolate Fudge Cake', category: 'Cakes', price: 850, stock: 12 },
+    { id:'p2', title:'Cinnamon Rolls (6pcs)', category: 'Bakery', price: 220, stock: 31 },
+  ],
+  offers: [
+    { id:'o1', title:'Welcome 10% OFF', type:'percentage', discount:10 },
+  ],
+  categories: ['Cakes','Bakery','Snacks'],
+  deliveries: [
+    { id:'d1', orderId:'ORD1001', customer:'Aisha Khan', address:'12 Mango St, Kozhikode', status:'Out for delivery' },
+  ],
+  refunds: [
+    { id:'r1', orderId:'ORD1002', customer:'Rahul Menon', amount:220, status:'Pending' }
+  ],
+  activity: [
+    { id:'a1', time: new Date().toISOString(), text:'Demo data initialized' }
+  ],
+  site: { title:'Fantasy Food', email:'support@fantasyfood.com', phone:'+91 99999 00000', address:'Ponnani, Kerala' }
+};
+
+/* helpers */
+function load(key, fallback) {
+  const raw = localStorage.getItem(key);
+  if (!raw) { localStorage.setItem(key, JSON.stringify(fallback)); return JSON.parse(JSON.stringify(fallback)); }
+  try { return JSON.parse(raw); } catch(e){ return fallback; }
+}
+function save(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+function uid(prefix='id') { return prefix + '_' + Math.random().toString(36).slice(2,9); }
+function pushActivity(text) {
+  const list = load(STORAGE_KEYS.activity, demo.activity);
+  const entry = { id: uid('a'), time: new Date().toISOString(), text };
+  list.unshift(entry);
+  save(STORAGE_KEYS.activity, list);
+  renderActivity();
+}
+
+/* initialize data */
+let USERS = load(STORAGE_KEYS.users, demo.users);
+let PRODUCTS = load(STORAGE_KEYS.products, demo.products);
+let OFFERS = load(STORAGE_KEYS.offers, demo.offers);
+let CATEGORIES = load(STORAGE_KEYS.categories, demo.categories);
+let DELIVERIES = load(STORAGE_KEYS.deliveries, demo.deliveries);
+let REFUNDS = load(STORAGE_KEYS.refunds, demo.refunds);
+let ACTIVITY = load(STORAGE_KEYS.activity, demo.activity);
+let SITE = load(STORAGE_KEYS.site, demo.site);
+
+/* -----------------------
+  Rendering functions
+------------------------*/
+function renderStats() {
+  document.getElementById('statUsers').textContent = USERS.length;
+  document.getElementById('statProducts').textContent = PRODUCTS.length;
+  document.getElementById('statRefunds').textContent = REFUNDS.filter(r=>r.status==='Pending').length;
+}
+
+function renderRecentUsers() {
+  const t = document.getElementById('recentUsersTbody');
+  t.innerHTML = '';
+  const recent = USERS.slice(0,8);
+  recent.forEach(u=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="py-1">${u.name}</td><td class="py-1 text-xs text-gray-500">${u.email}</td><td class="py-1 text-xs text-gray-400">${u.joined||'—'}</td>`;
+    t.appendChild(tr);
+  });
+}
+
+function renderActivity() {
+  const list = load(STORAGE_KEYS.activity, demo.activity);
+  const el = document.getElementById('activityList');
+  el.innerHTML = '';
+  list.slice(0,10).forEach(a=>{
+    const li = document.createElement('li');
+    li.className = 'p-2 rounded-md bg-white/5';
+    li.innerHTML = `<div class="text-xs text-gray-400">${new Date(a.time).toLocaleString()}</div><div class="text-sm">${a.text}</div>`;
+    el.appendChild(li);
+  });
+
+  const full = document.getElementById('fullActivityList');
+  full.innerHTML = '';
+  list.forEach(a=>{
+    const li = document.createElement('li');
+    li.className = 'p-2 rounded-md bg-white/3';
+    li.innerHTML = `<div class="text-xs text-gray-400">${new Date(a.time).toLocaleString()}</div><div class="text-sm">${a.text}</div>`;
+    full.appendChild(li);
+  });
+}
+
+/* USERS */
+function renderUsersTable(filter='') {
+  const tbody = document.getElementById('usersTbody');
+  tbody.innerHTML = '';
+  const pattern = filter.trim().toLowerCase();
+  USERS.forEach(u=>{
+    if (pattern && !(u.name.toLowerCase().includes(pattern) || u.email.toLowerCase().includes(pattern))) return;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="py-2">${u.name}</td>
+      <td class="py-2 text-xs text-gray-500">${u.email}</td>
+      <td class="py-2 text-xs text-gray-500">${u.phone||'—'}</td>
+      <td class="py-2"><span class="px-2 py-1 rounded text-xs ${u.status==='active'?'bg-green-100 text-green-700':'bg-red-100 text-red-700'}">${u.status}</span></td>
+      <td class="py-2">
+        <button class="text-amber-700 text-sm mr-2" onclick="openEditUser('${u.id}')">Edit</button>
+        <button class="text-red-500 text-sm" onclick="deleteUser('${u.id}')">Delete</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+/* PRODUCTS */
+function renderProductsTable(filter='') {
+  const tbody = document.getElementById('productsTbody');
+  tbody.innerHTML = '';
+  const pattern = filter.trim().toLowerCase();
+  PRODUCTS.forEach(p=>{
+    if (pattern && !(p.title.toLowerCase().includes(pattern) || (p.category||'').toLowerCase().includes(pattern))) return;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="py-2">${p.title}</td>
+      <td class="py-2 text-xs text-gray-500">${p.category||'—'}</td>
+      <td class="py-2">₹${p.price}</td>
+      <td class="py-2">${p.stock}</td>
+      <td class="py-2">
+        <button class="text-amber-700 text-sm mr-2" onclick="openEditProduct('${p.id}')">Edit</button>
+        <button class="text-red-500 text-sm" onclick="deleteProduct('${p.id}')">Delete</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+/* OFFERS */
+function renderOffers() {
+  const tbody = document.getElementById('offersTbody');
+  tbody.innerHTML = '';
+  OFFERS.forEach(o=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="py-2">${o.title}</td><td class="py-2">${o.type}</td><td class="py-2">${o.discount}${o.type==='percentage'?'%':''}</td>
+    <td class="py-2"><button class="text-amber-700 text-sm mr-2" onclick="openEditOffer('${o.id}')">Edit</button>
+    <button class="text-red-500 text-sm" onclick="deleteOffer('${o.id}')">Delete</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+/* CATEGORIES */
+function renderCategories() {
+  const list = document.getElementById('categoriesList');
+  list.innerHTML = '';
+  CATEGORIES.forEach((c, idx)=>{
+    const li = document.createElement('li');
+    li.className = 'flex items-center justify-between p-2 bg-white/5 rounded';
+    li.innerHTML = `<div>${c}</div><div><button class="text-amber-700 mr-2" onclick="openEditCategory(${idx})">Edit</button>
+      <button class="text-red-500" onclick="deleteCategory(${idx})">Delete</button></div>`;
+    list.appendChild(li);
+  });
+}
+
+/* DELIVERIES */
+function renderDeliveries() {
+  const tbody = document.getElementById('deliveriesTbody');
+  tbody.innerHTML = '';
+  DELIVERIES.forEach(d=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="py-2">${d.orderId}</td><td class="py-2">${d.customer}</td><td class="py-2 text-xs">${d.address}</td>
+      <td class="py-2"><span class="px-2 py-1 rounded text-xs ${d.status.includes('Delivered')?'bg-green-100 text-green-700':'bg-yellow-100 text-yellow-700'}">${d.status}</span></td>
+      <td class="py-2"><button class="text-amber-700 text-sm mr-2" onclick="openEditDelivery('${d.id}')">Update</button>
+      <button class="text-red-500 text-sm" onclick="deleteDelivery('${d.id}')">Remove</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+/* REFUNDS */
+function renderRefunds() {
+  const tbody = document.getElementById('refundsTbody');
+  tbody.innerHTML = '';
+  REFUNDS.forEach(r=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="py-2">${r.id}</td><td class="py-2">${r.orderId}</td><td class="py-2">${r.customer}</td><td class="py-2">₹${r.amount}</td>
+      <td class="py-2"><span class="px-2 py-1 rounded text-xs ${r.status==='Pending'?'bg-yellow-100 text-yellow-700':'bg-green-100 text-green-700'}">${r.status}</span></td>
+      <td class="py-2"><button class="text-amber-700 text-sm mr-2" onclick="resolveRefund('${r.id}','Approved')">Approve</button>
+      <button class="text-red-500 text-sm" onclick="resolveRefund('${r.id}','Rejected')">Reject</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+/* SITE */
+function renderSiteInfo() {
+  document.getElementById('siteTitle').value = SITE.title || '';
+  document.getElementById('siteEmail').value = SITE.email || '';
+  document.getElementById('sitePhone').value = SITE.phone || '';
+  document.getElementById('siteAddress').value = SITE.address || '';
+}
+
+/* render all */
+function renderAll() {
+  renderStats();
+  renderRecentUsers();
+  renderActivity();
+  renderUsersTable();
+  renderProductsTable();
+  renderOffers();
+  renderCategories();
+  renderDeliveries();
+  renderRefunds();
+  renderSiteInfo();
+}
+
+/* ------------------------
+  CRUD operations (users)
+-------------------------*/
+function openModal(html) {
+  const root = document.getElementById('modalRoot');
+  root.innerHTML = `
+    <div class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/50" onclick="closeModal()"></div>
+      <div class="relative z-10 w-full max-w-2xl p-6">
+        <div class="bg-white rounded-lg p-4 shadow-lg">${html}</div>
+      </div>
+    </div>
+  `;
+}
+function closeModal() { document.getElementById('modalRoot').innerHTML = ''; }
+
+document.getElementById('openUserForm').addEventListener('click', ()=> openNewUserForm());
+document.getElementById('addUserQuick').addEventListener('click', ()=> openNewUserForm());
+
+function openNewUserForm() {
+  openModal(`
+    <h3 class="text-lg font-semibold mb-3">Add New User</h3>
+    <div class="space-y-3">
+      <input id="nu_name" class="w-full px-3 py-2 border rounded" placeholder="Full name" />
+      <input id="nu_email" class="w-full px-3 py-2 border rounded" placeholder="Email" />
+      <input id="nu_phone" class="w-full px-3 py-2 border rounded" placeholder="Phone" />
+      <div class="flex gap-2">
+        <button class="px-3 py-2 bg-amber-700 text-white rounded" onclick="createUser()">Create</button>
+        <button class="px-3 py-2 border rounded" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  `);
+}
+
+function createUser() {
+  const name = document.getElementById('nu_name').value.trim();
+  const email = document.getElementById('nu_email').value.trim();
+  const phone = document.getElementById('nu_phone').value.trim();
+  if(!name || !email) { alert('Name & email required'); return; }
+  const newUser = { id: uid('u'), name, email, phone, status:'active', joined: new Date().toISOString().slice(0,10) };
+  USERS.unshift(newUser); save(STORAGE_KEYS.users, USERS); pushActivity(`Created user ${name}`);
+  renderAll(); closeModal();
+}
+
+function openEditUser(id) {
+  const u = USERS.find(x=>x.id===id); if(!u) return;
+  openModal(`
+    <h3 class="text-lg font-semibold mb-3">Edit User</h3>
+    <div class="space-y-3">
+      <input id="eu_name" class="w-full px-3 py-2 border rounded" value="${u.name}" />
+      <input id="eu_email" class="w-full px-3 py-2 border rounded" value="${u.email}" />
+      <input id="eu_phone" class="w-full px-3 py-2 border rounded" value="${u.phone||''}" />
+      <select id="eu_status" class="w-full px-3 py-2 border rounded">
+        <option ${u.status==='active'?'selected':''} value="active">active</option>
+        <option ${u.status==='blocked'?'selected':''} value="blocked">blocked</option>
+      </select>
+      <div class="flex gap-2">
+        <button class="px-3 py-2 bg-amber-700 text-white rounded" onclick="saveEditUser('${u.id}')">Save</button>
+        <button class="px-3 py-2 border rounded" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  `);
+}
+
+function saveEditUser(id) {
+  const name = document.getElementById('eu_name').value.trim();
+  const email = document.getElementById('eu_email').value.trim();
+  const phone = document.getElementById('eu_phone').value.trim();
+  const status = document.getElementById('eu_status').value;
+  const idx = USERS.findIndex(x=>x.id===id);
+  if(idx===-1) return;
+  USERS[idx] = {...USERS[idx], name, email, phone, status};
+  save(STORAGE_KEYS.users, USERS); pushActivity(`Edited user ${name}`);
+  renderAll(); closeModal();
+}
+
+function deleteUser(id) {
+  if(!confirm('Delete user?')) return;
+  USERS = USERS.filter(u=>u.id!==id); save(STORAGE_KEYS.users, USERS); pushActivity(`Deleted user ${id}`);
+  renderAll();
+}
+
+/* ------------------------
+  Products CRUD
+-------------------------*/
+document.getElementById('openProductForm').addEventListener('click', ()=> openNewProductForm());
+
+function openNewProductForm() {
+  openModal(`
+    <h3 class="text-lg font-semibold mb-3">Add New Product</h3>
+    <div class="space-y-3">
+      <input id="np_title" class="w-full px-3 py-2 border rounded" placeholder="Title" />
+      <input id="np_price" type="number" class="w-full px-3 py-2 border rounded" placeholder="Price" />
+      <input id="np_stock" type="number" class="w-full px-3 py-2 border rounded" placeholder="Stock count" />
+      <input id="np_category" class="w-full px-3 py-2 border rounded" placeholder="Category" value="${CATEGORIES[0]||''}" />
+      <div class="flex gap-2">
+        <button class="px-3 py-2 bg-amber-700 text-white rounded" onclick="createProduct()">Create</button>
+        <button class="px-3 py-2 border rounded" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  `);
+}
+
+function createProduct() {
+  const title = document.getElementById('np_title').value.trim();
+  const price = Number(document.getElementById('np_price').value) || 0;
+  const stock = Number(document.getElementById('np_stock').value) || 0;
+  const category = document.getElementById('np_category').value.trim();
+  if(!title) { alert('Title required'); return; }
+  const p = { id: uid('p'), title, price, stock, category };
+  PRODUCTS.unshift(p); save(STORAGE_KEYS.products, PRODUCTS); pushActivity(`Added product ${title}`);
+  if (category && !CATEGORIES.includes(category)) { CATEGORIES.push(category); save(STORAGE_KEYS.categories, CATEGORIES); }
+  renderAll(); closeModal();
+}
+
+function openEditProduct(id) {
+  const p = PRODUCTS.find(x=>x.id===id); if(!p) return;
+  openModal(`
+    <h3 class="text-lg font-semibold mb-3">Edit Product</h3>
+    <div class="space-y-3">
+      <input id="ep_title" class="w-full px-3 py-2 border rounded" value="${p.title}" />
+      <input id="ep_price" type="number" class="w-full px-3 py-2 border rounded" value="${p.price}" />
+      <input id="ep_stock" type="number" class="w-full px-3 py-2 border rounded" value="${p.stock}" />
+      <input id="ep_category" class="w-full px-3 py-2 border rounded" value="${p.category||''}" />
+      <div class="flex gap-2">
+        <button class="px-3 py-2 bg-amber-700 text-white rounded" onclick="saveEditProduct('${p.id}')">Save</button>
+        <button class="px-3 py-2 border rounded" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  `);
+}
+
+function saveEditProduct(id) {
+  const idx = PRODUCTS.findIndex(x=>x.id===id); if(idx===-1) return;
+  const title = document.getElementById('ep_title').value.trim();
+  const price = Number(document.getElementById('ep_price').value) || 0;
+  const stock = Number(document.getElementById('ep_stock').value) || 0;
+  const category = document.getElementById('ep_category').value.trim();
+  PRODUCTS[idx] = {...PRODUCTS[idx], title, price, stock, category};
+  save(STORAGE_KEYS.products, PRODUCTS); pushActivity(`Edited product ${title}`);
+  renderAll(); closeModal();
+}
+
+function deleteProduct(id) {
+  if(!confirm('Delete product?')) return;
+  PRODUCTS = PRODUCTS.filter(p=>p.id!==id); save(STORAGE_KEYS.products, PRODUCTS); pushActivity(`Deleted product ${id}`);
+  renderAll();
+}
+
+/* ------------------------
+  Offers CRUD
+-------------------------*/
+document.getElementById('openOfferForm').addEventListener('click', ()=> {
+  openModal(`
+    <h3 class="text-lg font-semibold mb-3">Add Offer</h3>
+    <div class="space-y-3">
+      <input id="no_title" class="w-full px-3 py-2 border rounded" placeholder="Offer title" />
+      <select id="no_type" class="w-full px-3 py-2 border rounded">
+        <option value="percentage">Percentage</option>
+        <option value="fixed">Fixed</option>
+      </select>
+      <input id="no_discount" type="number" class="w-full px-3 py-2 border rounded" placeholder="10" />
+      <div class="flex gap-2">
+        <button class="px-3 py-2 bg-amber-700 text-white rounded" onclick="createOffer()">Create</button>
+        <button class="px-3 py-2 border rounded" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  `);
+});
+
+function createOffer() {
+  const title = document.getElementById('no_title').value.trim();
+  const type = document.getElementById('no_type').value;
+  const discount = Number(document.getElementById('no_discount').value) || 0;
+  if(!title) { alert('Title required'); return; }
+  const o = { id: uid('o'), title, type, discount };
+  OFFERS.unshift(o); save(STORAGE_KEYS.offers, OFFERS); pushActivity(`Created offer ${title}`);
+  renderAll(); closeModal();
+}
+function openEditOffer(id) {
+  const o = OFFERS.find(x=>x.id===id); if(!o) return;
+  openModal(`
+    <h3 class="text-lg font-semibold mb-3">Edit Offer</h3>
+    <div class="space-y-3">
+      <input id="eo_title" class="w-full px-3 py-2 border rounded" value="${o.title}" />
+      <select id="eo_type" class="w-full px-3 py-2 border rounded">
+        <option ${o.type==='percentage'?'selected':''} value="percentage">Percentage</option>
+        <option ${o.type==='fixed'?'selected':''} value="fixed">Fixed</option>
+      </select>
+      <input id="eo_discount" type="number" class="w-full px-3 py-2 border rounded" value="${o.discount}" />
+      <div class="flex gap-2">
+        <button class="px-3 py-2 bg-amber-700 text-white rounded" onclick="saveEditOffer('${o.id}')">Save</button>
+        <button class="px-3 py-2 border rounded" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  `);
+}
+function saveEditOffer(id) {
+  const idx = OFFERS.findIndex(x=>x.id===id); if(idx===-1) return;
+  const title = document.getElementById('eo_title').value.trim();
+  const type = document.getElementById('eo_type').value;
+  const discount = Number(document.getElementById('eo_discount').value) || 0;
+  OFFERS[idx] = {...OFFERS[idx], title, type, discount};
+  save(STORAGE_KEYS.offers, OFFERS); pushActivity(`Edited offer ${title}`);
+  renderAll(); closeModal();
+}
+function deleteOffer(id) {
+  if(!confirm('Delete offer?')) return;
+  OFFERS = OFFERS.filter(o=>o.id!==id); save(STORAGE_KEYS.offers, OFFERS); pushActivity(`Deleted offer ${id}`);
+  renderAll();
+}
+
+/* ------------------------
+  Categories CRUD
+-------------------------*/
+document.getElementById('openCategoryForm').addEventListener('click', ()=> {
+  openModal(`
+    <h3 class="text-lg font-semibold mb-3">Add Category</h3>
+    <div class="space-y-3">
+      <input id="nc_name" class="w-full px-3 py-2 border rounded" placeholder="Category name" />
+      <div class="flex gap-2">
+        <button class="px-3 py-2 bg-amber-700 text-white rounded" onclick="createCategory()">Create</button>
+        <button class="px-3 py-2 border rounded" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  `);
+});
+
+function createCategory() {
+  const name = document.getElementById('nc_name').value.trim();
+  if(!name) { alert('Name required'); return; }
+  if(CATEGORIES.includes(name)) { alert('Category exists'); return; }
+  CATEGORIES.push(name); save(STORAGE_KEYS.categories, CATEGORIES); pushActivity(`Added category ${name}`);
+  renderAll(); closeModal();
+}
+function openEditCategory(idx) {
+  const current = CATEGORIES[idx];
+  openModal(`
+    <h3 class="text-lg font-semibold mb-3">Edit Category</h3>
+    <div class="space-y-3">
+      <input id="ec_name" class="w-full px-3 py-2 border rounded" value="${current}" />
+      <div class="flex gap-2">
+        <button class="px-3 py-2 bg-amber-700 text-white rounded" onclick="saveEditCategory(${idx})">Save</button>
+        <button class="px-3 py-2 border rounded" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  `);
+}
+function saveEditCategory(idx) {
+  const name = document.getElementById('ec_name').value.trim();
+  if(!name) { alert('Name required'); return; }
+  CATEGORIES[idx] = name; save(STORAGE_KEYS.categories, CATEGORIES); pushActivity(`Edited category ${name}`);
+  renderAll(); closeModal();
+}
+function deleteCategory(idx) {
+  if(!confirm('Delete category?')) return;
+  const removed = CATEGORIES.splice(idx,1);
+  save(STORAGE_KEYS.categories, CATEGORIES); pushActivity(`Deleted category ${removed[0]}`);
+  renderAll();
+}
+
+/* ------------------------
+  Deliveries CRUD
+-------------------------*/
+document.getElementById('openDeliveryForm').addEventListener('click', ()=> {
+  openModal(`
+    <h3 class="text-lg font-semibold mb-3">Add Delivery</h3>
+    <div class="space-y-3">
+      <input id="nd_order" class="w-full px-3 py-2 border rounded" placeholder="Order ID" />
+      <input id="nd_customer" class="w-full px-3 py-2 border rounded" placeholder="Customer name" />
+      <input id="nd_address" class="w-full px-3 py-2 border rounded" placeholder="Address" />
+      <select id="nd_status" class="w-full px-3 py-2 border rounded">
+        <option>Pending</option><option>Out for delivery</option><option>Delivered</option>
+      </select>
+      <div class="flex gap-2">
+        <button class="px-3 py-2 bg-amber-700 text-white rounded" onclick="createDelivery()">Create</button>
+        <button class="px-3 py-2 border rounded" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  `);
+});
+
+function createDelivery() {
+  const orderId = document.getElementById('nd_order').value.trim();
+  const customer = document.getElementById('nd_customer').value.trim();
+  const address = document.getElementById('nd_address').value.trim();
+  const status = document.getElementById('nd_status').value;
+  if(!orderId || !customer) { alert('Order ID & customer required'); return; }
+  const d = { id: uid('d'), orderId, customer, address, status };
+  DELIVERIES.unshift(d); save(STORAGE_KEYS.deliveries, DELIVERIES); pushActivity(`Added delivery ${orderId}`);
+  renderAll(); closeModal();
+}
+function openEditDelivery(id) {
+  const d = DELIVERIES.find(x=>x.id===id); if(!d) return;
+  openModal(`
+    <h3 class="text-lg font-semibold mb-3">Update Delivery (${d.orderId})</h3>
+    <div class="space-y-3">
+      <input id="ed_address" class="w-full px-3 py-2 border rounded" value="${d.address}" />
+      <select id="ed_status" class="w-full px-3 py-2 border rounded">
+        <option ${d.status==='Pending'?'selected':''}>Pending</option>
+        <option ${d.status==='Out for delivery'?'selected':''}>Out for delivery</option>
+        <option ${d.status==='Delivered'?'selected':''}>Delivered</option>
+      </select>
+      <div class="flex gap-2">
+        <button class="px-3 py-2 bg-amber-700 text-white rounded" onclick="saveEditDelivery('${d.id}')">Save</button>
+        <button class="px-3 py-2 border rounded" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  `);
+}
+function saveEditDelivery(id) {
+  const idx = DELIVERIES.findIndex(x=>x.id===id); if(idx===-1) return;
+  const address = document.getElementById('ed_address').value.trim();
+  const status = document.getElementById('ed_status').value;
+  DELIVERIES[idx] = {...DELIVERIES[idx], address, status};
+  save(STORAGE_KEYS.deliveries, DELIVERIES); pushActivity(`Updated delivery ${DELIVERIES[idx].orderId}: ${status}`);
+  renderAll(); closeModal();
+}
+function deleteDelivery(id) {
+  if(!confirm('Remove delivery?')) return;
+  DELIVERIES = DELIVERIES.filter(d=>d.id!==id); save(STORAGE_KEYS.deliveries, DELIVERIES); pushActivity(`Removed delivery ${id}`);
+  renderAll();
+}
+
+/* ------------------------
+  Refunds handling
+-------------------------*/
+function resolveRefund(id, result) {
+  const idx = REFUNDS.findIndex(r=>r.id===id); if(idx===-1) return;
+  REFUNDS[idx].status = result;
+  save(STORAGE_KEYS.refunds, REFUNDS); pushActivity(`Refund ${id} ${result}`);
+  renderAll();
+}
+
+/* ------------------------
+  Site info
+-------------------------*/
+document.getElementById('saveSiteInfo').addEventListener('click', ()=>{
+  SITE.title = document.getElementById('siteTitle').value.trim();
+  SITE.email = document.getElementById('siteEmail').value.trim();
+  SITE.phone = document.getElementById('sitePhone').value.trim();
+  SITE.address = document.getElementById('siteAddress').value.trim();
+  save(STORAGE_KEYS.site, SITE); pushActivity('Updated site contact info');
+  alert('Saved site info');
+});
+document.getElementById('resetSiteInfo').addEventListener('click', ()=>{
+  renderSiteInfo();
+});
+
+/* ------------------------
+  Activity log
+-------------------------*/
+document.getElementById('clearActivity').addEventListener('click', ()=>{
+  if(!confirm('Clear activity log?')) return;
+  localStorage.setItem(STORAGE_KEYS.activity, JSON.stringify([])); pushActivity('Cleared activity log'); renderActivity();
+});
+
+/* ------------------------
+  SEARCH inputs
+-------------------------*/
+document.getElementById('userSearch').addEventListener('input', (e)=> renderUsersTable(e.target.value));
+document.getElementById('productSearch').addEventListener('input', (e)=> renderProductsTable(e.target.value));
+
+/* ------------------------
+  small helpers & UI wiring
+-------------------------*/
+function openEditProductInModal(p) { /* placeholder */ }
+
+/* navigation */
+document.querySelectorAll('.nav-btn').forEach(btn=>{
+  btn.addEventListener('click', (e)=>{
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active','bg-amber-100'));
+    btn.classList.add('active','bg-amber-100');
+    const tab = btn.dataset.tab;
+    showTab(tab);
+  });
+});
+
+function showTab(name) {
+  document.getElementById('pageTitle').textContent = name.charAt(0).toUpperCase() + name.slice(1);
+  document.querySelectorAll('.tab-panel').forEach(tp=> tp.classList.add('hidden'));
+  const el = document.getElementById('tab-'+name);
+  if(el) el.classList.remove('hidden');
+}
+
+/* quick event bindings for modal close on Escape */
+document.addEventListener('keydown', (e)=> { if(e.key==='Escape') closeModal(); });
+
+/* reset demo data */
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  if(!confirm('Reset demo data?')) return;
+  localStorage.clear();
+  // restore demo again
+  localStorage.setItem(STORAGE_KEYS.users, JSON.stringify(demo.users));
+  localStorage.setItem(STORAGE_KEYS.products, JSON.stringify(demo.products));
+  localStorage.setItem(STORAGE_KEYS.offers, JSON.stringify(demo.offers));
+  localStorage.setItem(STORAGE_KEYS.categories, JSON.stringify(demo.categories));
+  localStorage.setItem(STORAGE_KEYS.deliveries, JSON.stringify(demo.deliveries));
+  localStorage.setItem(STORAGE_KEYS.refunds, JSON.stringify(demo.refunds));
+  localStorage.setItem(STORAGE_KEYS.activity, JSON.stringify(demo.activity));
+  localStorage.setItem(STORAGE_KEYS.site, JSON.stringify(demo.site));
+  location.reload();
+});
+
+/* refresh */
+document.getElementById('refreshBtn').addEventListener('click', ()=> { renderAll(); pushActivity('Refreshed dashboard'); });
+
+/* small actions available from global scope called by generated markup */
+window.openEditUser = openEditUser;
+window.deleteUser = deleteUser;
+window.openEditProduct = openEditProduct;
+window.deleteProduct = deleteProduct;
+window.openEditOffer = openEditOffer;
+window.deleteOffer = deleteOffer;
+window.openEditCategory = openEditCategory;
+window.deleteCategory = deleteCategory;
+window.openEditDelivery = openEditDelivery;
+window.deleteDelivery = deleteDelivery;
+window.resolveRefund = resolveRefund;
+
+/* initial render */
+renderAll();
+
+/* show default tab */
+showTab('dashboard');
+
+/* render lists on data load */
+renderUsersTable(); renderProductsTable(); renderOffers(); renderCategories(); renderDeliveries(); renderRefunds(); renderActivity();
+
+</script>
+
+</body>
+</html>

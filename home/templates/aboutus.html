@@ -1,0 +1,156 @@
+{% extends 'index.html' %}
+{% block content %}
+
+<style>
+  .hero-section {
+    background: #fff1db;
+    padding: 70px 20px;
+    border-radius: 12px;
+  }
+
+  .info-card {
+    background: #fffdf8;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.08);
+  }
+
+  .team-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.08);
+    transition: 0.3s;
+  }
+
+  .team-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.12);
+  }
+</style>
+
+<!-- PAGE WRAPPER (fixes navbar overlap) -->
+<div class="pt-32">
+
+  <!-- HERO SECTION -->
+  <div class="max-w-7xl mx-auto px-6 hero-section text-center">
+    <h1 class="text-4xl font-bold text-[#5a3e2b]">
+      Welcome to Fantasy Foods
+    </h1>
+    <p class="text-gray-700 mt-3 text-lg max-w-2xl mx-auto">
+      Where tradition meets taste — delivering freshly made, authentic Kerala snacks right to your doorstep!
+    </p>
+  </div>
+
+  <!-- OUR STORY -->
+  <div class="max-w-7xl mx-auto px-6 mt-12">
+    <h2 class="text-3xl font-bold mb-4 text-[#5a3e2b]">Our Story</h2>
+
+    <div class="info-card">
+      <p class="text-gray-700 leading-relaxed text-lg">
+        Fantasy Foods began with a simple mission — to bring the nostalgic flavors of Kerala’s traditional snacks to every home across India.
+        What started as a small family-run kitchen has now grown into a trusted online brand loved for freshness, authenticity, and quality.
+      </p>
+      <p class="text-gray-700 mt-3 leading-relaxed text-lg">
+        From crispy banana chips to soft unniyappams, every product is made fresh,
+        using time-tested recipes passed down through generations — giving you the taste of home with every bite.
+      </p>
+    </div>
+  </div>
+
+  <!-- MISSION & VISION -->
+  <div class="max-w-7xl mx-auto px-6 mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="info-card">
+      <h3 class="text-2xl font-bold mb-3 text-[#5a3e2b]">Our Mission</h3>
+      <p class="text-gray-700">
+        To deliver fresh, authentic, and premium Kerala snacks to every food lover,
+        while ensuring hygiene, quality, and customer satisfaction in every order.
+      </p>
+    </div>
+
+    <div class="info-card">
+      <h3 class="text-2xl font-bold mb-3 text-[#5a3e2b]">Our Vision</h3>
+      <p class="text-gray-700">
+        To become India's most trusted and loved destination for traditional regional snacks
+        and to spread the unique flavors of Kerala across the world.
+      </p>
+    </div>
+  </div>
+
+  <!-- WHY CHOOSE US -->
+  <div class="max-w-7xl mx-auto px-6 mt-12">
+    <h2 class="text-3xl font-bold mb-4 text-[#5a3e2b]">Why Choose Us?</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="info-card text-center">
+        <h4 class="font-semibold text-xl mb-2">⭐ Authentic Taste</h4>
+        <p class="text-gray-600">
+          Same recipes, same flavors, made fresh every single day.
+        </p>
+      </div>
+
+      <div class="info-card text-center">
+        <h4 class="font-semibold text-xl mb-2">🚚 Fast Delivery</h4>
+        <p class="text-gray-600">
+          Timely shipping to ensure freshness when it reaches you.
+        </p>
+      </div>
+
+      <div class="info-card text-center">
+        <h4 class="font-semibold text-xl mb-2">🛡️ 100% Quality Assured</h4>
+        <p class="text-gray-600">
+          Premium ingredients, hygienic kitchens, and strict quality control.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEAM SECTION -->
+  <div class="max-w-7xl mx-auto px-6 mt-12">
+    <h2 class="text-3xl font-bold mb-4 text-[#5a3e2b]">Meet Our Team</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="team-card">
+        <img src="chef1.jpg" class="w-28 h-28 object-cover rounded-full mx-auto mb-3">
+        <h4 class="font-semibold">Rahul Menon</h4>
+        <p class="text-gray-600 text-sm">Head Chef</p>
+      </div>
+
+      <div class="team-card">
+        <img src="chef2.jpg" class="w-28 h-28 object-cover rounded-full mx-auto mb-3">
+        <h4 class="font-semibold">Aisha Nair</h4>
+        <p class="text-gray-600 text-sm">Quality Supervisor</p>
+      </div>
+
+      <div class="team-card">
+        <img src="chef3.jpg" class="w-28 h-28 object-cover rounded-full mx-auto mb-3">
+        <h4 class="font-semibold">Nishad TK</h4>
+        <p class="text-gray-600 text-sm">Founder</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACT SECTION -->
+  <div class="max-w-7xl mx-auto px-6 mt-12 mb-16">
+    <h2 class="text-3xl font-bold mb-4 text-[#5a3e2b]">Get in Touch</h2>
+
+    <div class="info-card">
+      <p class="text-gray-700 mb-1"><strong>Email:</strong> support@fantasyfoods.com</p>
+      <p class="text-gray-700 mb-1"><strong>Phone:</strong> +91 98765 43210</p>
+      <p class="text-gray-700"><strong>Location:</strong> Malappuram, Kerala, India</p>
+
+      <button class="mt-4 bg-[#5a3e2b] text-white px-6 py-2 rounded-lg hover:bg-[#4a3223] transition">
+        Contact Us
+      </button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="text-center py-6 text-gray-600">
+    © 2025 Fantasy Foods | Freshness You Can Trust
+  </footer>
+
+</div>
+
+{% endblock %}

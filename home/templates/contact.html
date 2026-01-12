@@ -1,0 +1,161 @@
+{% extends 'index.html' %}
+
+{% block title %}
+<title>Contact Us | Fantasy Bakery
+</title>{% endblock %}
+
+{% block content %}
+<div class="pt-24 min-h-screen bg-fantasy-cream">
+
+    <!-- Header -->
+    <section class="bg-fantasy-pink/30 py-16 text-center border-b border-fantasy-pink-dark/20">
+        <h1 class="text-4xl md:text-5xl font-serif font-bold text-fantasy-brown mb-3">📞 Contact Us</h1>
+        <p class="text-gray-600 text-lg">Your feedback helps us serve you better.</p>
+    </section>
+
+    <!-- Content Grid -->
+    <div class="container mx-auto px-6 py-16">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+
+            <!-- LEFT SIDE: Contact Info -->
+            <div class="lg:col-span-5 space-y-8">
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                    <h4 class="text-2xl font-serif font-bold text-fantasy-brown mb-6 flex items-center gap-2">
+                        <i class="fa-solid fa-headset text-fantasy-gold"></i> Support & Helpdesk
+                    </h4>
+
+                    <div class="space-y-6 text-gray-600">
+                        <div class="flex items-start gap-4">
+                            <div
+                                class="w-10 h-10 rounded-full bg-fantasy-cream flex items-center justify-center text-fantasy-brown flex-shrink-0">
+                                <i class="fa-solid fa-location-dot"></i>
+                            </div>
+                            <div>
+                                <h5 class="font-bold text-fantasy-brown mb-1">Our Castle</h5>
+                                <p class="text-sm leading-relaxed">Fantasy Food Pvt Ltd<br>123 Coffee Lane,
+                                    Ponnani,<br>Kerala, India</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4">
+                            <div
+                                class="w-10 h-10 rounded-full bg-fantasy-cream flex items-center justify-center text-fantasy-brown flex-shrink-0">
+                                <i class="fa-solid fa-phone"></i>
+                            </div>
+                            <div>
+                                <h5 class="font-bold text-fantasy-brown mb-1">Call Us</h5>
+                                <p class="text-sm font-mono">+91 98765 43210</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4">
+                            <div
+                                class="w-10 h-10 rounded-full bg-fantasy-cream flex items-center justify-center text-fantasy-brown flex-shrink-0">
+                                <i class="fa-solid fa-envelope"></i>
+                            </div>
+                            <div>
+                                <h5 class="font-bold text-fantasy-brown mb-1">Email Us</h5>
+                                <p class="text-sm font-mono">support@fantasyfood.com</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4">
+                            <div
+                                class="w-10 h-10 rounded-full bg-fantasy-cream flex items-center justify-center text-fantasy-brown flex-shrink-0">
+                                <i class="fa-solid fa-clock"></i>
+                            </div>
+                            <div>
+                                <h5 class="font-bold text-fantasy-brown mb-1">Working Hours</h5>
+                                <p class="text-sm">Mon – Sat: 9 AM – 9 PM<br>Sun: 10 AM – 6 PM</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT SIDE: Contact Form -->
+            <div class="lg:col-span-7">
+                <div class="bg-white p-8 md:p-10 rounded-2xl shadow-lg border border-gray-100 relative overflow-hidden">
+                    <!-- Decorative BG Element -->
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-fantasy-gold/10 rounded-bl-full -mr-8 -mt-8"></div>
+
+                    <div id="successMessage" class="hidden bg-green-50 border-l-4 border-green-500 p-4 mb-6 rounded-r">
+                        <p class="text-green-700 font-medium flex items-center gap-2">
+                            <i class="fa-solid fa-check-circle"></i> Message sent! We will respond within 24 hours.
+                        </p>
+                    </div>
+
+                    <h3 class="text-2xl font-serif font-bold text-fantasy-brown mb-6">Send us a Message</h3>
+
+                    <form id="contactForm" class="space-y-5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Full Name <span
+                                        class="text-red-400">*</span></label>
+                                <input type="text"
+                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-fantasy-gold focus:ring-1 focus:ring-fantasy-gold outline-none transition-colors bg-fantasy-cream/30"
+                                    placeholder="John Doe" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Email Address <span
+                                        class="text-red-400">*</span></label>
+                                <input type="email"
+                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-fantasy-gold focus:ring-1 focus:ring-fantasy-gold outline-none transition-colors bg-fantasy-cream/30"
+                                    placeholder="john@example.com" required>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Phone Number</label>
+                                <input type="tel"
+                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-fantasy-gold focus:ring-1 focus:ring-fantasy-gold outline-none transition-colors bg-fantasy-cream/30"
+                                    placeholder="+91 ...">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Category <span
+                                        class="text-red-400">*</span></label>
+                                <select
+                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-fantasy-gold focus:ring-1 focus:ring-fantasy-gold outline-none transition-colors bg-fantasy-cream/30"
+                                    required>
+                                    <option disabled selected>Select Topic</option>
+                                    <option>Order Issue</option>
+                                    <option>Refund / Return</option>
+                                    <option>Partner & Wholesale</option>
+                                    <option>Feedback</option>
+                                    <option>Others</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Message <span
+                                    class="text-red-400">*</span></label>
+                            <textarea rows="5"
+                                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-fantasy-gold focus:ring-1 focus:ring-fantasy-gold outline-none transition-colors bg-fantasy-cream/30"
+                                placeholder="How can we help you today?" required></textarea>
+                        </div>
+
+                        <button type="submit"
+                            class="w-full bg-fantasy-brown text-white font-bold py-4 rounded-xl hover:bg-opacity-90 hover:shadow-lg transition-all transform active:scale-95 flex justify-center items-center gap-2">
+                            <span>Send Message</span>
+                            <i class="fa-regular fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById("contactForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const successMsg = document.getElementById("successMessage");
+        successMsg.classList.remove("hidden");
+        this.reset();
+        window.scrollTo({ top: successMsg.offsetTop - 100, behavior: 'smooth' });
+        setTimeout(() => { successMsg.classList.add('hidden'); }, 5000);
+    });
+</script>
+{% endblock %}
