@@ -54,15 +54,15 @@
     <!-- Pricing -->
     <div class="mt-2 flex items-center gap-3">
       <p class="text-xl font-bold text-gray-900">
-        ₹{{ cart.variant.price }}
+        ₹{{ cart.total_price }}
       </p>
     </div>
 
     <!-- Qty & Actions -->
     <div class="flex flex-col md:flex-row gap-4 mt-3 items-start md:items-center">
-      <select class="form-select w-24">
-        <option>Qty: {{ cart.quantity }}</option>
-      </select>
+      
+       <p> Qty: {{ cart.quantity }}</p>
+     
 
       <form method="POST" action="{% url 'cart:remove_cart' cart.variant.id %}">
           {% csrf_token %}
@@ -71,13 +71,12 @@
           </button>
       </form>
 
-      <button class="btn text-gray-600 text-sm">
-        Save for later
-      </button>
-
-      <button class="btn text-indigo-600 text-sm">
-        Move to Wishlist
-      </button>
+      {% if item.variant %}
+      <a href="{% url 'cart:move_to_wishlist' item.variant.id %}"
+        class="text-sm text-pink-600 hover:underline">
+        Move to Wishlist ❤️
+      </a>
+      {% endif %}
     </div>
   </div>
 </div>
@@ -100,59 +99,75 @@
 </div>
 
 {% endfor %}
-
-    </div>
-
-
+</div>
     <!-- RIGHT SECTION - BILL SUMMARY -->
-    <div class="bg-white shadow p-6 rounded-lg h-fit">
+<div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 sticky top-24">
 
-      <h3 class="text-xl font-semibold">Price Details</h3>
-      <hr class="my-3">
+  <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+    <i class="fa-solid fa-receipt text-fantasy-brown"></i>
+    Price Details
+  </h3>
 
-      <div class="flex justify-between text-sm mb-2">
-        <span>Subtotal (3 items)</span>
-        <span>₹720</span>
-      </div>
+  <!-- Subtotal -->
+  <div class="flex justify-between text-sm py-2 border-b border-dashed">
+    <span class="text-gray-600">Subtotal ({{ total_items }} items)</span>
+    <span class="font-semibold text-gray-800">₹{{ subtotal }}</span>
+  </div>
 
-      <div class="flex justify-between text-sm mb-2">
-        <span>Delivery Charge</span>
-        <span class="text-green-600 font-medium">Free</span>
-      </div>
+  <!-- Delivery -->
+  <div class="flex justify-between text-sm py-2 border-b border-dashed">
+    <span class="text-gray-600">Delivery</span>
+    {% if delivery_charge == 0 %}
+      <span class="text-green-600 font-semibold">Free 🚚</span>
+    {% else %}
+      <span class="font-semibold text-gray-800">₹{{ delivery_charge }}</span>
+    {% endif %}
+  </div>
 
-      <div class="flex justify-between text-sm mb-2">
-        <span>Discount</span>
-        <span class="text-green-600 font-semibold">-₹120</span>
-      </div>
+  <!-- Discount -->
+  <div class="flex justify-between text-sm py-2 border-b border-dashed">
+    <span class="text-gray-600">Discount</span>
+    <span class="text-green-600 font-semibold">-₹{{ discount }}</span>
+  </div>
 
-      <div class="flex justify-between text-sm mb-2">
-        <span>Tax & GST</span>
-        <span>₹45</span>
-      </div>
+  <!-- Tax -->
+  <div class="flex justify-between text-sm py-2 border-b border-dashed">
+    <span class="text-gray-600">Tax & GST</span>
+    <span class="font-semibold text-gray-800">₹{{ tax }}</span>
+  </div>
 
-      <hr class="my-3">
+  <!-- Total -->
+  <div class="flex justify-between text-lg font-bold py-4 mt-2 border-t">
+    <span>Total Amount</span>
+    <span class="text-fantasy-brown">₹{{ total|floatformat:2 }}</span>
+  </div>
 
-      <div class="flex justify-between font-bold text-lg mb-4">
-        <span>Total Amount</span>
-        <span>₹645</span>
-      </div>
-
-      <!-- Coupon -->
-      <label class="text-sm text-gray-600 mb-1 block">Apply Coupon</label>
-      <div class="flex gap-2">
-        <input class="form-control" placeholder="Enter coupon code">
-        <button class="btn btn-dark px-3">Apply</button>
-      </div>
-
-      <!-- Checkout -->
-      <button class="btn btn-success w-full mt-5 py-2 text-lg font-semibold">
-        Proceed to Checkout
-      </button>
-
-      <button class="btn btn-outline-secondary w-full mt-3">
-        Continue Shopping
+  <!-- Coupon -->
+  <div class="mt-4">
+    <label class="text-sm font-medium text-gray-600">Have a coupon?</label>
+    <div class="flex gap-2 mt-2">
+      <input
+        class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-fantasy-brown focus:outline-none"
+        placeholder="Enter coupon code">
+      <button class="px-4 py-2 rounded-lg bg-gray-800 text-white hover:bg-green-600 transition-all">
+        Apply
       </button>
     </div>
+  </div>
+
+  <!-- Checkout Button -->
+  <button class="w-full mt-6 py-3 rounded-xl bg-fantasy-brown text-white font-bold text-lg shadow-md hover:shadow-lg hover:scale-[1.02] transition transform">
+    Proceed to Checkout
+  </button>
+
+  <!-- Continue Shopping -->
+  <a href="{% url 'products' %}"
+     class="block text-center mt-4 text-sm font-semibold text-fantasy-brown hover:underline">
+    Continue Shopping
+  </a>
+
+</div>
+
 
   </div>
 

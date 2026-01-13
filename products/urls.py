@@ -12,5 +12,11 @@ urlpatterns = [
     path("product/<slug:slug>/images/", views.product_detail, name="product_image"),
     path("edit_category/<uuid:category_id>",views.edit_category,name="edit_category"),
     path("delete_category/<uuid:category_id>",views.del_category,name="del_category"),
-    path("product_review/",views.product_review,name="product_review"),
+    
+    path("review/write/<slug:slug>/", views.write_review, name="write_review"),
+    path("review/edit/<uuid:review_id>/", views.edit_review, name="edit_review"),
+    path("review/delete/<uuid:review_id>/", views.delete_review, name="delete_review"),
+    path("admin/reviews/update/<uuid:review_id>/", views.update_review_status, name="update_review_status"),
+
+
 ]

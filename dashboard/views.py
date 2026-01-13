@@ -4,11 +4,14 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import LoginForm
 from django.contrib.auth.decorators import login_required
-from products.models import Categories,Product,SizeVariant
+from products.models import Categories,Product,SizeVariant,ProductReview
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from django.views.decorators.cache import never_cache
-from django.db.models import Min
+from django.db.models import Prefetch
+from accounts.decarators import admin_required
+from django.db.models import Avg, Count
+
 
 
 User = get_user_model()
@@ -39,11 +42,16 @@ def dashboard(request):
     total_users = User.objects.count()
     total_products = Product.objects.count()
     rec_users = User.objects.order_by('-joined_at')[:5]
-
+    products = Product.objects.annotate(
+    wishlist_count=Count("wishlistitem", distinct=True),
+    cart_count=Count("variants__cartitem", distinct=True)
+).order_by("-wishlist_count", "-cart_count")
+    
     context = {
         'total_users': total_users,
-        'total_products':total_products,
+        'total_products':total_products, 
         'rec_users':rec_users,
+        'products':products
     }
 
     return render(request, "dashboard.html", context)
@@ -218,8 +226,20 @@ def offers_management(request):
 @never_cache
 @login_required
 def categories(request):
-    ctgry = Categories.objects.all()
+    ctgry = Categories.objects.prefetch_related(
+    Prefetch(
+        "products",
+        queryset=Product.objects.filter(is_active=True),
+        to_attr="active_products"
+    ),
+    Prefetch(
+        "products",
+        queryset=Product.objects.filter(is_active=False),
+        to_attr="inactive_products"
+    )
+)
     categories_count = ctgry.count()
+    product_count = Product.objects.all().count()
     active_categories = Categories.objects.filter(is_active = True).count()
     hidden_categories = Categories.objects.filter(is_active = False).count()
     
@@ -235,9 +255,55 @@ def categories(request):
         'categories':ctgry,
         'active_categories':active_categories,
         'hidden_categories':hidden_categories,
+        'product_count':product_count,
     }
     return render(request,"adm_categories.html",context)
 
+@login_required
+@admin_required
+def admin_reviews(request):
+    reviews = ProductReview.objects.select_related("product", "user")
+
+    # Filters
+    status = request.GET.get("status")
+    rating = request.GET.get("rating")
+    search = request.GET.get("search")
+
+    if status == "approved":
+        reviews = reviews.filter(is_approved=True)
+    elif status == "pending":
+        reviews = reviews.filter(is_approved=False)
+
+    if rating:
+        if rating == "5":
+            reviews = reviews.filter(rating=5)
+        elif rating == "4":
+            reviews = reviews.filter(rating__gte=4)
+        elif rating == "3":
+            reviews = reviews.filter(rating__gte=3)
+        elif rating == "low":
+            reviews = reviews.filter(rating__lte=2)
+
+    if search:
+        reviews = reviews.filter(
+            Q(product__name__icontains=search) |
+            Q(user__username__icontains=search)
+        )
+
+    # Stats
+    total_reviews = ProductReview.objects.count()
+    avg_rating = ProductReview.objects.aggregate(avg=Avg("rating"))["avg"] or 0
+    pending_count = ProductReview.objects.filter(is_approved=False).count()
+    verified_count = ProductReview.objects.filter(is_verified_purchase=True).count()
+
+    context = { 
+        "reviews": reviews,
+        "total_reviews": total_reviews,
+        "avg_rating": round(avg_rating, 1),
+        "pending_count": pending_count,
+        "verified_count": verified_count,
+    }
+    return render(request, "admin_reviews.html", context)
 
 @never_cache
 @login_required
@@ -254,10 +320,6 @@ def Payments(request):
 def deliveries(request):
     return render(request,"delivery.html")
 
-@never_cache
-@login_required
-def reviews(request):
-    return render(request,"reviews.html")
 
 @never_cache
 @login_required

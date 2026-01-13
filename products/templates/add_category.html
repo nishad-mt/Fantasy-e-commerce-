@@ -229,28 +229,6 @@
                     </div>
                 </div>
 
-                <!-- Status -->
-                <div class="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden max-w-sm">
-                    <div class="p-6 border-b border-stone-100 bg-stone-50/50">
-                        <h2 class="text-lg font-bold text-stone-800">Status</h2>
-                    </div>
-                    <div class="p-6">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-stone-800">Visibility</p>
-                                <p class="text-xs text-stone-500">Show in store</p>
-                            </div>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input name="is_active" type="checkbox" id="catStatus" class="sr-only peer" 
-                                {% if form.is_active.value %}checked{% endif %}>
-                                <div
-                                    class="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500">
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Actions -->
                 <div class="flex items-center justify-end gap-4 pt-4 border-t border-stone-200">
                    <a href="{% url 'categories' %}" 

@@ -1,6 +1,11 @@
 from django.db import models
 import uuid
+from django.conf import settings
 from django.utils.text import slugify
+User = settings.AUTH_USER_MODEL
+from django.core.validators import MinValueValidator
+from decimal import Decimal
+
 
 def product_main_image_path(instance, filename):
     ext = filename.split('.')[-1]
@@ -49,7 +54,9 @@ class Product(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
-
+    @property  
+    def is_out_of_stock(self):
+        return not self.variants.filter(is_available=True).exists()
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="images")
@@ -61,7 +68,11 @@ class ProductImage(models.Model):
 class SizeVariant(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="variants")
     size_name = models.CharField(max_length=50)  
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.01"))]
+        )
     is_available = models.BooleanField(default=True) 
     
     class Meta:
@@ -69,3 +80,32 @@ class SizeVariant(models.Model):
     
     def __str__(self):
         return f"{self.product.name} - {self.size_name}"
+
+class ProductReview(models.Model):
+    review_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="reviews"
+    )
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
+    rating = models.PositiveSmallIntegerField()  
+    review = models.TextField()
+
+    is_verified_purchase = models.BooleanField(default=False)
+    is_approved = models.BooleanField(default=True)   
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.product.name} - {self.rating}★ by {self.user}"

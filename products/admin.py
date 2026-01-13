@@ -33,3 +33,50 @@ class ProductImageAdmin(admin.ModelAdmin):
 @admin.register(SizeVariant)
 class SizeVariantAdmin(admin.ModelAdmin):
     list_display = ['product', 'size_name', 'price', 'is_available']
+
+from django.contrib import admin
+from .models import ProductReview
+
+
+@admin.register(ProductReview)
+class ProductReviewAdmin(admin.ModelAdmin):
+    list_display = (
+        "user",
+        "product",
+        "rating",
+        "is_verified_purchase",
+        "is_approved",
+        "created_at",
+        
+    )
+
+    list_filter = (
+        "rating",
+        "is_verified_purchase",
+        "is_approved",
+        "created_at",
+    )
+
+    search_fields = (
+        "product__name",
+        "user",
+        "review",
+    )
+
+    ordering = ("-created_at",)
+
+    list_editable = ("is_approved",)
+
+    readonly_fields = ("created_at", "review_id")
+
+    fieldsets = (
+        ("Review Info", {
+            "fields": ("product", "rating", "review")
+        }),
+        ("User Info", {
+            "fields": ("user",  "is_verified_purchase")
+        }),
+        ("Moderation", {
+            "fields": ("is_approved", "created_at")
+        }),
+    )

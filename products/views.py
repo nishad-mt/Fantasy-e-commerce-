@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect
 from .forms import CategoriesForm,ProductsForm
 from django.shortcuts import get_object_or_404
-from .models import Categories,Product,SizeVariant,ProductImage
+from .models import Categories,Product,SizeVariant,ProductImage,ProductReview
 from wishlist.models import WishlistItem,WishlistModel
 from cart.models import Cart,CartItem
 from django.utils.safestring import mark_safe
@@ -12,7 +12,11 @@ from django.views.decorators.cache import never_cache
 from django.contrib.auth import get_user_model
 from accounts.decarators import admin_required
 from django.db.models import Min, Q
+from django.db.models import Avg, Count
 from decimal import Decimal
+from .utils import sync_category_status
+from django.http import HttpResponseForbidden
+
 
 User = get_user_model()
 
@@ -20,10 +24,13 @@ def products(request, slug=None):
     cats = Categories.objects.all()
     selected_category = None
 
-    products = Product.objects.all().annotate(
-        min_price=Min('variants__price')
+    
+    products = Product.objects.filter(is_active=True).annotate(
+        min_price=Min('variants__price'),
+        avg_rating=Avg("reviews__rating", filter=Q(reviews__is_approved=True), distinct=True),
+        review_count=Count("reviews", filter=Q(reviews__is_approved=True), distinct=True)
     )
-
+    
     # Wishlist
     wishlist_product_ids = []
     if request.user.is_authenticated:
@@ -87,6 +94,7 @@ def add_products(request):
             product = form.save()
 
             # Save size variants
+            sync_category_status(product.category)
             size_names = request.POST.getlist("size_name[]")
             size_prices = request.POST.getlist("size_price[]")
             for i, name in enumerate(size_names):
@@ -119,7 +127,9 @@ def add_products(request):
 @admin_required
 def del_product(request,product_id):
     product = get_object_or_404(Product,pk = product_id)
+    category = product.category
     product.delete()
+    sync_category_status(category)
     return redirect('admin_products')
     
 @never_cache
@@ -135,6 +145,7 @@ def edit_product(request, slug):
             updated_product = form.save()
 
             # 1️⃣ Delete selected gallery images
+            sync_category_status(updated_product.category)
             deleted_images = request.POST.getlist('deleted_gallery_images[]')
             for img_id in deleted_images:
                 ProductImage.objects.filter(id=img_id, product=updated_product).delete()
@@ -208,6 +219,15 @@ def user_product_details(request, slug):
     images = product.images.all()
     variants = product.variants.filter(is_available=True).order_by('price')
     initial_variant = variants.first() 
+    
+    review_count = ProductReview.objects.all().count() or 1
+    reviews = product.reviews.all()
+    rating_data = reviews.aggregate(
+    avg=Avg("rating"),
+    count=Count("review_id")
+)
+
+    avg = rating_data["avg"] or 0
 
     wishlist_product_ids = []
     cart_variant_ids = []
@@ -235,7 +255,13 @@ def user_product_details(request, slug):
         "wishlist_product_ids": wishlist_product_ids,
         "cart_variant_ids": cart_variant_ids,
         'latest_products':latest_products,
-    }
+        
+        'review_count':review_count,
+        "avg_rating": avg,
+        "full_stars": int(avg),   
+        "has_half": avg - int(avg) >= 0.5,
+        "review_count": rating_data["count"]
+        }
 
     return render(request, "user_product_detail.html", context)
 
@@ -267,6 +293,7 @@ def edit_category(request,category_id):
             if category.is_active and not cat.is_active:
                 Product.objects.filter(category=category).update(is_active=False)
             cat.save()
+            sync_category_status(cat)
             return redirect('categories')
     else:    
         form = CategoriesForm(instance=category)
@@ -275,9 +302,6 @@ def edit_category(request,category_id):
         'is_edit': True,
     })
 
-def product_review(request):
-    return render(request,'product_review.html')
-
 @never_cache
 @login_required
 @admin_required
@@ -285,3 +309,86 @@ def del_category(request,category_id):
     category = get_object_or_404(Categories, pk=category_id)
     category.delete()
     return redirect("categories")
+
+@login_required
+@never_cache
+def write_review(request, slug):
+    product = get_object_or_404(Product, slug=slug)
+
+    reviews = product.reviews.filter(is_approved=True)
+    rating_data = reviews.aggregate(
+        avg=Avg("rating"),
+        count=Count("review_id")
+    )
+
+    if request.method == "POST":
+        user = request.user
+
+        ProductReview.objects.create(
+        product=product,
+        user=request.user,
+        rating=int(request.POST.get("rating")),
+        review=request.POST.get("review"),
+        is_verified_purchase=CartItem.objects.filter(
+            cart__user=request.user,
+            product=product,
+            order__status="DELIVERED" 
+        ).exists()
+    )
+
+        return redirect("user_product", slug=slug)
+
+    return render(request, "product_review.html", {
+        "product": product,
+        "avg_rating": rating_data["avg"] or 0,
+        "review_count": rating_data["count"]
+    })
+    
+@login_required
+@never_cache
+def edit_review(request, review_id):
+    review = get_object_or_404(ProductReview, review_id=review_id)
+
+    if review.user != request.user and not request.user.is_staff:
+        return HttpResponseForbidden("Not allowed")
+
+    if request.method == "POST":
+        review.rating = int(request.POST.get("rating"))
+        review.review = request.POST.get("review")
+        review.save()
+
+        return redirect("user_product", slug=review.product.slug)
+
+    return render(request, "edit_review.html", {"review": review})
+
+@login_required
+@never_cache
+def delete_review(request, review_id):
+    review = get_object_or_404(ProductReview, review_id=review_id)
+
+    if review.user != request.user and not request.user.is_staff:
+        return HttpResponseForbidden("Not allowed")
+
+    review.delete()
+    return redirect("user_product", slug=review.product.slug)
+
+@login_required
+@admin_required
+def update_review_status(request, review_id):
+    review = get_object_or_404(ProductReview, review_id=review_id)
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+
+        if action == "approve":
+            review.is_approved = True
+            review.save()
+
+        elif action == "hide":
+            review.is_approved = False
+            review.save()
+
+        elif action == "delete":
+            review.delete()
+
+    return redirect("admin_reviews")

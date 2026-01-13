@@ -30,10 +30,10 @@
                         class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 cursor-zoom-in">
 
                     <!-- Discount Badge -->
-                    <span
+                    <!-- <span
                         class="absolute top-4 left-4 bg-fantasy-pink-dark text-white text-sm font-bold px-3 py-1 rounded-full shadow-md">
                         20% OFF
-                    </span>
+                    </span> -->
 
                     <!-- Wishlist Button -->
                     <form method="POST" action="{% url 'wishlist:toggle_wishlist' product.product_id %}">
@@ -83,14 +83,18 @@
                 <!-- Ratings -->
                 <div class="flex items-center gap-4 mb-6">
                     <div class="flex text-yellow-400 text-sm">
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star-half-stroke"></i>
+                        {% for i in "12345" %}
+                                {% if forloop.counter <= avg_rating %}
+                                    <i class="fa-solid fa-star"></i>
+                                {% elif forloop.counter <= avg_rating|add:"0.5" %}
+                                    <i class="fa-solid fa-star-half-stroke"></i>
+                                {% else %}
+                                    <i class="fa-regular fa-star"></i>
+                                {% endif %}
+                        {% endfor %}
                     </div>
                     <span class="text-gray-500 text-sm font-medium border-l border-gray-300 pl-4">
-                        4.8 (124 reviews)
+                        {{ avg_rating|floatformat:1 }} ({{review_count}} reviews)
                     </span>
                     {% if product.is_active %}
                     <span class="text-green-600 text-sm font-bold bg-green-50 px-2 py-0.5 rounded-full">
@@ -179,7 +183,6 @@
     </form>
 {% endif %}
 
-
                     <!-- Buy Now -->
                     <a href="{% url 'checkout' %}"
                         class="flex-1 bg-fantasy-gold text-fantasy-brown h-14 rounded-full font-bold shadow-lg hover:bg-opacity-90 hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2 text-lg">
@@ -228,107 +231,45 @@
 <section class="bg-fantasy-cream border-t border-fantasy-brown/10">
     <div class="container mx-auto px-6 max-w-5xl">
 
-        <!-- Description Content -->
-        <div class="py-16 border-b border-gray-200">
-            <h3 class="text-3xl font-serif font-bold text-fantasy-brown mb-8 text-center">Magical Details</h3>
-            <div class="prose prose-lg text-gray-600 max-w-none">
-                <p class="mb-4">
-                    Immerse yourself in the whimsical world of our Enchanted Forest Cake. Each layer is meticulously
-                    crafted to tell a story of flavor and fantasy. Using only the finest ingredients sourced from
-                    magical lands (and certified farms), we create a dessert that is as pleasing to the eye as it is to
-                    the palate.
-                </p>
-                <div class="grid md:grid-cols-2 gap-8 my-8">
-                    <ul class="space-y-3 font-medium">
-                        <li class="flex items-start gap-3">
-                            <i class="fa-solid fa-leaf text-green-500 mt-1"></i>
-                            <span>Organic Dark Chocolate from Belgium (70% Cocoa)</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <i class="fa-solid fa-leaf text-green-500 mt-1"></i>
-                            <span>Premium Japanese Matcha Powder for the moss effect</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <i class="fa-solid fa-leaf text-green-500 mt-1"></i>
-                            <span>Hand-sculpted meringue mushrooms</span>
-                        </li>
-                    </ul>
-                    <ul class="space-y-3 font-medium">
-                        <li class="flex items-start gap-3">
-                            <i class="fa-solid fa-check text-fantasy-gold mt-1"></i>
-                            <span>Eggless Options Available</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <i class="fa-solid fa-check text-fantasy-gold mt-1"></i>
-                            <span>Freshly baked on order day</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <i class="fa-solid fa-check text-fantasy-gold mt-1"></i>
-                            <span>Keeps fresh for 3 days (Refrigerated)</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
 
         <!-- Reviews Content (Stacked Below Description) -->
         <div class="py-16">
-            <h3 class="text-3xl font-serif font-bold text-fantasy-brown mb-12 text-center">Customer Reviews (124)</h3>
+            <h3 class="text-3xl font-serif font-bold text-fantasy-brown mb-12 text-center">Customer Reviews ({{review_count}})</h3>
 
             <div class="grid md:grid-cols-3 gap-12">
                 <!-- Summary -->
                 <div class="md:col-span-1">
                     <div class="bg-white p-6 rounded-2xl shadow-sm text-center sticky top-24">
-                        <h4 class="text-5xl font-bold text-fantasy-brown mb-2">4.8</h4>
+                        <h4 class="text-5xl font-bold text-fantasy-brown mb-2">{{ avg_rating|floatformat:1 }}</h4>
                         <div class="text-yellow-400 text-xl mb-2">
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star-half-stroke"></i>
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= avg_rating %}
+                                    <i class="fa-solid fa-star"></i>
+                                {% elif forloop.counter <= avg_rating|add:"0.5" %}
+                                    <i class="fa-solid fa-star-half-stroke"></i>
+                                {% else %}
+                                    <i class="fa-regular fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
                         </div>
-                        <p class="text-gray-500 text-sm mb-6">Based on 124 reviews</p>
-
-                        <!-- Bars -->
-                        <div class="space-y-2 text-sm">
-                            <div class="flex items-center gap-2">
-                                <span class="w-8 text-right text-gray-500">5 <i
-                                        class="fa-solid fa-star text-xs"></i></span>
-                                <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                                    <div class="h-full bg-yellow-400 w-[80%]"></div>
-                                </div>
-                                <span class="w-8 text-gray-400 text-xs">80%</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="w-8 text-right text-gray-500">4 <i
-                                        class="fa-solid fa-star text-xs"></i></span>
-                                <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                                    <div class="h-full bg-yellow-400 w-[15%]"></div>
-                                </div>
-                                <span class="w-8 text-gray-400 text-xs">15%</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="w-8 text-right text-gray-500">3 <i
-                                        class="fa-solid fa-star text-xs"></i></span>
-                                <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                                    <div class="h-full bg-yellow-400 w-[3%]"></div>
-                                </div>
-                                <span class="w-8 text-gray-400 text-xs">3%</span>
-                            </div>
-                        </div>
+                        <p class="text-gray-500 text-sm mb-6">Based on {{review_count}} reviews</p>
 
                         {% if user.is_authenticated %}
-                        <a href="{% url 'product_review' %}">
-                        <button onclick="document.getElementById('review-form').classList.remove('hidden')"
-                            class="w-full mt-6 py-2 border border-fantasy-brown text-fantasy-brown font-bold rounded-lg hover:bg-fantasy-brown hover:text-white transition-colors">
-                            Write a Review
-                        </button></a>
-                        {% else %}
-                        <a href="{% url 'login' %}"
-                            class="block w-full mt-6 py-2 border border-gray-300 text-gray-500 font-bold rounded-lg hover:bg-gray-50 transition-colors">
-                            Login into Review
-                        </a>
-                        {% endif %}
+                                <a href="{% url 'write_review' product.slug %}">
+                                    <button
+                                        class="w-full mt-6 py-2 border border-fantasy-brown text-fantasy-brown font-bold rounded-lg
+                                            hover:bg-fantasy-brown hover:text-white transition-colors">
+                                        Write a Review
+                                    </button>
+                                </a>
+                            {% else %}
+                                <a href="{% url 'login' %}?next={% url 'write_review' product.slug %}"
+                                class="block w-full mt-6 py-2 border border-gray-300 text-gray-500 font-bold rounded-lg
+                                        hover:bg-gray-50 transition-colors text-center">
+                                    Login to Review
+                                </a>
+                            {% endif %}
+
                     </div>
                 </div>
 
@@ -344,7 +285,8 @@
                                 class="text-gray-400 function hover:text-gray-600"><i
                                     class="fa-solid fa-xmark"></i></button>
                         </div>
-                        <form>
+                        <form method="POST" action="{% url 'write_review' product.slug %}">
+                        {% csrf_token %}
                             <div class="mb-4">
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Rating</label>
                                 <div class="flex gap-2 text-2xl text-gray-300 hover:text-yellow-400 cursor-pointer">
@@ -367,53 +309,75 @@
                         </form>
                     </div>
 
-                    <!-- Review Item 1 -->
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                        <div class="flex justify-between items-start mb-4">
-                            <div class="flex items-center gap-4">
-                                <div
-                                    class="w-10 h-10 rounded-full bg-fantasy-gold/20 flex items-center justify-center text-fantasy-brown font-bold">
-                                    JD
-                                </div>
-                                <div>
-                                    <h5 class="font-bold text-gray-800">Jane Doe</h5>
-                                    <div class="text-yellow-400 text-xs">
-                                        <i class="fa-solid fa-star"></i>
-                                        <i class="fa-solid fa-star"></i>
-                                        <i class="fa-solid fa-star"></i>
-                                        <i class="fa-solid fa-star"></i>
-                                        <i class="fa-solid fa-star"></i>
-                                    </div>
-                                </div>
-                            </div>
-                            <span class="text-xs text-gray-400">2 days ago</span>
-                        </div>
-                        <p class="text-gray-600">The most beautiful cake I've ever seen! Tastes just as good as it
-                            looks. The matcha works perfectly with the chocolate.</p>
-                    </div>
+                        {% for r in product.reviews.all %}
+                            {% if r.is_approved %}
+                            <div class="review-item {% if forloop.counter > 2 %}hidden extra-review{% endif %}
+                                bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
 
-                    <!-- Review Item 2 -->
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                        <div class="flex justify-between items-start mb-4">
-                            <div class="flex items-center gap-4">
-                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User"
-                                    class="w-10 h-10 rounded-full object-cover">
-                                <div>
-                                    <h5 class="font-bold text-gray-800">Michael Smith</h5>
-                                    <div class="text-yellow-400 text-xs">
-                                        <i class="fa-solid fa-star"></i>
-                                        <i class="fa-solid fa-star"></i>
-                                        <i class="fa-solid fa-star"></i>
-                                        <i class="fa-solid fa-star"></i>
-                                        <i class="fa-regular fa-star"></i>
+                                <div class="flex justify-between items-start mb-4">
+
+                                    <!-- Left: Avatar + Name -->
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-10 h-10 rounded-full bg-fantasy-gold/20 flex items-center justify-center text-fantasy-brown font-bold">
+                                            {{ r.user.username|slice:":2"|upper }}
+                                        </div>
+                                        <div>
+                                            <h5 class="font-bold text-gray-800">
+                                                {{ r.user.get_full_name|default:r.user.username }}
+                                            </h5>
+
+                                            <div class="text-yellow-400 text-xs">
+                                                {% for i in "12345" %}
+                                                    {% if forloop.counter <= r.rating %}
+                                                        <i class="fa-solid fa-star"></i>
+                                                    {% else %}
+                                                        <i class="fa-regular fa-star"></i>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+
+                                            {% if r.is_verified_purchase %}
+                                                <span class="text-xs text-green-600 font-medium">
+                                                    Verified Purchase
+                                                </span>
+                                            {% endif %}
+                                        </div>
                                     </div>
+
+                                    <!-- Right: Time + Actions -->
+                                    <div class="text-right">
+                                        <span class="block text-xs text-gray-400">
+                                            {{ r.created_at|timesince }} ago
+                                        </span>
+
+                                        {% if r.user == request.user or request.user.is_staff %}
+                                        <div class="flex gap-3 text-xs mt-2 justify-end">
+                                            <a href="{% url 'edit_review' r.review_id %}"
+                                            class="text-blue-500 hover:underline">
+                                                Edit
+                                            </a>
+                                            <a href="{% url 'delete_review' r.review_id %}"
+                                            class="text-red-500 hover:underline"
+                                            onclick="return confirm('Delete this review?');">
+                                                Delete
+                                            </a>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+
                                 </div>
+
+                                <p class="text-gray-600">{{ r.review }}</p>
                             </div>
-                            <span class="text-xs text-gray-400">1 week ago</span>
-                        </div>
-                        <p class="text-gray-600">Great taste, but smaller than I expected for the price. Delivery was
-                            super fast though!</p>
-                    </div>
+                            {% endif %}
+                        {% endfor %}
+                        {% if review_count > 2 %}
+                        <button id="viewMoreBtn"
+                            class="mt-4 text-fantasy-brown font-semibold text-sm hover:underline">
+                            View more reviews
+                        </button>
+                        {% endif %}
+
                 </div>
             </div>
         </div>
@@ -567,5 +531,13 @@ function toggleQtyButtons(qty) {
         const msg = document.getElementById("cart-success");
         if (msg) msg.style.display = "none";
     }, 3000);
+
+    document.getElementById("viewMoreBtn").addEventListener("click", function () {
+    document.querySelectorAll(".extra-review").forEach(el => {
+        el.classList.remove("hidden");
+    });
+
+    this.style.display = "none";
+});
 </script>
 {% endblock %}

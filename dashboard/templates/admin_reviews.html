@@ -1,24 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reviews Management | Fantasy Bakery Admin</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
-        rel="stylesheet">
-
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+{% extends 'dashboard.html' %}
+{% block content %}
     <script>
         tailwind.config = {
             theme: {
@@ -103,46 +84,6 @@
 
 <body class="bg-[#fafaf9] text-stone-800 font-sans antialiased min-h-screen flex">
 
-    <!-- Sidebar -->
-    <aside class="hidden md:flex flex-col w-64 bg-white border-r border-stone-200 h-screen sticky top-0 shrink-0">
-        <div class="p-6 border-b border-stone-100 flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-700">
-                <span class="font-serif font-bold text-lg">F</span>
-            </div>
-            <div>
-                <h1 class="font-serif font-bold text-xl text-stone-800">Fantasy Bakery</h1>
-                <p class="text-xs text-stone-500">Admin Panel</p>
-            </div>
-        </div>
-
-        <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
-            <a href="admin_dash.html"
-                class="flex items-center gap-3 px-3 py-2 text-stone-600 rounded-lg hover:bg-stone-50 hover:text-amber-700 transition-colors">
-                <i class="fa-solid fa-chart-pie w-5"></i> Dashboard
-            </a>
-            <a href="admin_orders.html"
-                class="flex items-center gap-3 px-3 py-2 text-stone-600 rounded-lg hover:bg-stone-50 hover:text-amber-700 transition-colors">
-                <i class="fa-solid fa-cart-shopping w-5"></i> Orders
-            </a>
-            <a href="admin_payments.html"
-                class="flex items-center gap-3 px-3 py-2 text-stone-600 rounded-lg hover:bg-stone-50 hover:text-amber-700 transition-colors">
-                <i class="fa-solid fa-credit-card w-5"></i> Payments
-            </a>
-            <a href="admin_deliveries.html"
-                class="flex items-center gap-3 px-3 py-2 text-stone-600 rounded-lg hover:bg-stone-50 hover:text-amber-700 transition-colors">
-                <i class="fa-solid fa-truck-fast w-5"></i> Deliveries
-            </a>
-            <a href="#"
-                class="flex items-center gap-3 px-3 py-2 bg-amber-50 text-amber-700 rounded-lg transition-colors font-medium">
-                <i class="fa-solid fa-star w-5"></i> Reviews
-            </a>
-            <a href="admin_categories.html"
-                class="flex items-center gap-3 px-3 py-2 text-stone-600 rounded-lg hover:bg-stone-50 hover:text-amber-700 transition-colors">
-                <i class="fa-solid fa-layer-group w-5"></i> Categories
-            </a>
-        </nav>
-    </aside>
-
     <!-- Main Content -->
     <main class="flex-1 flex flex-col min-w-0 overflow-hidden h-screen bg-[#fafaf9]">
 
@@ -177,11 +118,11 @@
         <div class="flex-1 overflow-y-auto p-4 md:p-8 space-y-6">
 
             <!-- Summary Cards -->
-            <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div class="bg-white p-5 rounded-xl border border-stone-200 shadow-sm flex items-start justify-between">
                     <div>
                         <p class="text-xs font-bold text-stone-400 uppercase tracking-wider">Total Reviews</p>
-                        <h3 class="text-2xl font-bold text-stone-800 mt-1">842</h3>
+                        <h3 class="text-2xl font-bold text-stone-800 mt-1">{{ total_reviews }}</h3>
                         <p class="text-xs text-stone-500 mt-2">Lifetime</p>
                     </div>
                     <div class="w-10 h-10 rounded-lg bg-stone-100 text-stone-600 flex items-center justify-center">
@@ -192,7 +133,7 @@
                 <div class="bg-white p-5 rounded-xl border border-stone-200 shadow-sm flex items-start justify-between">
                     <div>
                         <p class="text-xs font-bold text-stone-400 uppercase tracking-wider">Avg Rating</p>
-                        <h3 class="text-2xl font-bold text-stone-800 mt-1">4.8 <span
+                        <h3 class="text-2xl font-bold text-stone-800 mt-1">{{ avg_rating }} <span
                                 class="text-sm font-normal text-stone-400">/ 5.0</span></h3>
                         <div class="flex text-amber-400 text-xs mt-2">
                             <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
@@ -208,7 +149,7 @@
                 <div class="bg-white p-5 rounded-xl border border-stone-200 shadow-sm flex items-start justify-between">
                     <div>
                         <p class="text-xs font-bold text-stone-400 uppercase tracking-wider">Pending</p>
-                        <h3 class="text-2xl font-bold text-stone-800 mt-1">15</h3>
+                        <h3 class="text-2xl font-bold text-stone-800 mt-1">{{ pending_count }}</h3>
                         <p class="text-xs text-amber-600 mt-2 font-medium">Needs Approval</p>
                     </div>
                     <div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
@@ -216,47 +157,45 @@
                     </div>
                 </div>
 
-                <div class="bg-white p-5 rounded-xl border border-stone-200 shadow-sm flex items-start justify-between">
-                    <div>
-                        <p class="text-xs font-bold text-stone-400 uppercase tracking-wider">Reported</p>
-                        <h3 class="text-2xl font-bold text-stone-800 mt-1">2</h3>
-                        <p class="text-xs text-red-500 mt-2 font-medium">Flagged by users</p>
-                    </div>
-                    <div class="w-10 h-10 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
-                        <i class="fa-solid fa-flag text-lg"></i>
-                    </div>
-                </div>
             </section>
 
             <!-- Filters -->
-            <section class="bg-white p-4 rounded-xl border border-stone-200 shadow-sm space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="relative">
-                        <i
-                            class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-sm"></i>
-                        <input id="searchInput" type="text" placeholder="Search Product or Customer..."
-                            class="w-full pl-9 pr-4 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-100">
-                    </div>
+<form method="GET" class="bg-white p-4 rounded-xl border border-stone-200 shadow-sm space-y-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
-                    <select id="statusFilter"
-                        class="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-amber-100">
-                        <option value="all">All Statuses</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Approved">Approved</option>
-                        <option value="Hidden">Hidden</option>
-                        <option value="Reported">Reported</option>
-                    </select>
+        <!-- Search -->
+        <div class="relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-sm"></i>
+            <input name="search"
+                   value="{{ request.GET.search }}"
+                   type="text"
+                   placeholder="Search Product or Customer..."
+                   class="w-full pl-9 pr-4 py-2 border border-stone-200 rounded-lg text-sm">
+        </div>
 
-                    <select id="ratingFilter"
-                        class="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-amber-100">
-                        <option value="all">All Ratings</option>
-                        <option value="5">5 Stars</option>
-                        <option value="4">4 Stars & Up</option>
-                        <option value="3">3 Stars & Up</option>
-                        <option value="low">Low Rating (1-2)</option>
-                    </select>
-                </div>
-            </section>
+        <!-- Status -->
+        <select name="status" class="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm bg-white">
+            <option value="">All Statuses</option>
+            <option value="approved" {% if request.GET.status == "approved" %}selected{% endif %}>Approved</option>
+            <option value="pending" {% if request.GET.status == "pending" %}selected{% endif %}>Disapproved</option>
+        </select>
+
+        <!-- Rating -->
+        <select name="rating" class="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm bg-white">
+            <option value="">All Ratings</option>
+            <option value="5" {% if request.GET.rating == "5" %}selected{% endif %}>5 Stars</option>
+            <option value="4" {% if request.GET.rating == "4" %}selected{% endif %}>4 Stars & Up</option>
+            <option value="3" {% if request.GET.rating == "3" %}selected{% endif %}>3 Stars & Up</option>
+            <option value="low" {% if request.GET.rating == "low" %}selected{% endif %}>Low (1–2)</option>
+        </select>
+
+        <!-- Submit -->
+        <button class="bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-amber-700">
+            Apply
+        </button>
+
+    </div>
+</form>
 
             <!-- Reviews Table -->
             <section class="bg-white rounded-xl border border-stone-200 shadow-sm overflow-hidden flex flex-col">
@@ -273,8 +212,77 @@
                                 <th class="p-4 border-b border-stone-200 text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="reviewsTableBody" class="divide-y divide-stone-100 text-sm">
-                            <!-- Populated by JS -->
+                        <tbody class="divide-y divide-stone-100 text-sm">
+                        {% for r in reviews %}
+                        <tr>
+                            <td class="p-4">{{ r.review_id|stringformat:"s"|slice:":5" }}</td>
+
+                            <td class="p-4">
+                                <span class="font-medium">{{ r.product.name }}</span>
+                            </td>
+
+                            <td class="p-4">
+                                {{ r.user.username }}
+                                {% if r.is_verified_purchase %}
+                                    <span class="ml-1 text-xs text-green-600">(Verified)</span>
+                                {% endif %}
+                            </td>
+
+                            <td class="p-4">
+                                <div class="flex text-amber-400 text-xs">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= r.rating %}
+                                            <i class="fa-solid fa-star"></i>
+                                        {% else %}
+                                            <i class="fa-regular fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </td>
+
+                            <td class="p-4 max-w-md truncate">{{ r.review }}</td>
+
+                            <td class="p-4">
+                                {% if r.is_approved %}
+                                    <span class="px-2 py-1 text-xs bg-green-100 text-green-700 rounded">Approved</span>
+                                {% else %}
+                                    <span class="px-2 py-1 text-xs bg-amber-100 text-amber-700 rounded">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td class="p-4 text-right">
+                                <form method="POST" action="{% url 'update_review_status' r.review_id %}" class="flex justify-end gap-2">
+                                    {% csrf_token %}
+
+                                    {% if r.is_approved %}
+                                        <button name="action" value="hide"
+                                            class="text-xs text-red-600 hover:underline">
+                                            Hide
+                                        </button>
+                                    {% else %}
+                                        <button name="action" value="approve"
+                                            class="text-xs text-green-600 hover:underline">
+                                            Approve
+                                        </button>
+                                    {% endif %}
+
+                                    <button name="action" value="delete"
+                                        onclick="return confirm('Delete this review permanently?')"
+                                        class="text-xs text-gray-500 hover:underline">
+                                        Delete
+                                    </button>
+                                </form>
+                            </td>
+
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="p-10 text-center text-stone-400">
+                                No reviews found
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+
                         </tbody>
                     </table>
                     <div id="emptyState" class="hidden flex-col items-center justify-center py-16 text-center">
@@ -283,18 +291,6 @@
                             <i class="fa-solid fa-comment-slash text-2xl"></i>
                         </div>
                         <p class="text-stone-600 font-medium">No reviews found</p>
-                    </div>
-                </div>
-
-                <!-- Pagination -->
-                <div class="p-4 border-t border-stone-200 bg-stone-50 flex justify-between items-center text-sm">
-                    <span class="text-stone-500">Showing <span class="font-bold text-stone-800"
-                            id="showingCount">0</span> reviews</span>
-                    <div class="flex gap-2">
-                        <button
-                            class="px-3 py-1 border border-stone-200 rounded bg-white text-stone-400 cursor-not-allowed">Previous</button>
-                        <button
-                            class="px-3 py-1 border border-stone-200 rounded bg-white text-stone-600 hover:text-amber-700 hover:border-amber-300">Next</button>
                     </div>
                 </div>
             </section>
@@ -369,16 +365,7 @@
 
     <script>
         // --- Dummy Data ---
-        let reviews = [
-            { id: 'REV-001', product: 'Chocolate Truffle Cake', customer: 'Aisha Khan', rating: 5, comment: 'Absolutely delicious! The best cake I have ever had. Highly recommended.', status: 'Approved', date: '2025-10-24' },
-            { id: 'REV-002', product: 'Cinnamon Rolls', customer: 'Rahul Nair', rating: 4, comment: 'Taste was good but delivery was a bit late. Packaging was excellent though.', status: 'Pending', date: '2025-10-23' },
-            { id: 'REV-003', product: 'Red Velvet Cupcake', customer: 'Sarah John', rating: 5, comment: 'Perfect sweetness and very soft. Will order again!', status: 'Approved', date: '2025-10-22' },
-            { id: 'REV-004', product: 'Chicken Puffs', customer: 'Arjun K', rating: 2, comment: 'Too oily for my taste. Disappointed.', status: 'Reported', date: '2025-10-21' },
-            { id: 'REV-005', product: 'Plum Cake', customer: 'Deepa Thomas', rating: 5, comment: 'Just like homemade! Loved it.', status: 'Approved', date: '2025-10-20' },
-            { id: 'REV-006', product: 'Donut Box', customer: 'Manu P', rating: 1, comment: 'Stale donuts sent. Very bad experience.', status: 'Hidden', date: '2025-10-19' },
-            { id: 'REV-007', product: 'Burger Bun', customer: 'Fathima S', rating: 4, comment: 'Soft and fresh.', status: 'Pending', date: '2025-10-24' },
-        ];
-
+        
         const statusColors = {
             'Pending': 'bg-amber-50 text-amber-700 border-amber-100',
             'Approved': 'bg-emerald-50 text-emerald-700 border-emerald-100',
@@ -511,6 +498,4 @@
             renderTable(reviews);
         });
     </script>
-</body>
-
-</html>
+{% endblock %}

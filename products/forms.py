@@ -4,7 +4,7 @@ from .models import Categories,Product
 class CategoriesForm(forms.ModelForm):
     class Meta:
         model = Categories
-        fields = ['name','image','description','is_active',]
+        fields = ['name','image','description',]
     
 class ProductsForm(forms.ModelForm):
     class Meta:

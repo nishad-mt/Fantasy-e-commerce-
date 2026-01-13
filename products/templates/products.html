@@ -213,17 +213,22 @@
                                 {{ pdc.name }}</h3>
                             <div class="flex items-center gap-1 mb-3">
                                 <div class="flex text-yellow-400 text-xs">
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-regular fa-star"></i>
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= pdc.avg_rating %}
+                                            <i class="fa-solid fa-star"></i>
+                                        {% else %}
+                                            <i class="fa-regular fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
                                 </div>
-                                <span class="text-xs text-gray-400">(4 reviews)</span>
+                                <span class="text-xs text-gray-400">
+                                    ({{ pdc.review_count|default:0 }} reviews)
+                                </span>
                             </div>
+
                             <div>
-                                {% if pdc.is_active == False %}
-                                <span class="text-red-800">Out Of Stock</span>
+                                {% if pdc.is_out_of_stock %}
+                                <span class="text-red-800">Unavailable</span>
                                 {% endif %}
                             </div>
                             <div class="mt-auto flex items-center justify-between gap-4">
