@@ -7,6 +7,7 @@ from datetime import timedelta      #countdown by substracting
 import random
 from django.contrib.auth import authenticate, login as auth_login, logout 
 from django.contrib.auth.decorators import login_required
+from addresses.models import Address
 from .forms import CustomUserForm, UserProfileForm
 from .models import CustomUser, UserProfile
 from django.views.decorators.cache import never_cache
@@ -166,8 +167,16 @@ def user_logout(request):
 def profile(request):
     if request.user.is_staff:
         return redirect('/admin_user/')
+
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
-    return render(request, 'user_profile.html', {'profile': profile})
+    addresses = Address.objects.filter(user=request.user)
+    default_address = addresses.filter(is_default=True).first()
+
+    return render(request, 'user_profile.html', {
+        'profile': profile,
+        'addresses': addresses,
+        'default_address': default_address
+    })
 
 @login_required
 @never_cache

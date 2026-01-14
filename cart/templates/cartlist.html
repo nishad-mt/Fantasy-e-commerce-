@@ -7,18 +7,11 @@
   <!-- Bootstrap -->
   
 
-  <div class="max-w-7xl mx-auto pt-28 grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="max-w-7xl mx-auto pt-28 grid gap-6
+    {% if items %}grid-cols-1 lg:grid-cols-3{% else %}grid-cols-1{% endif %}">
 
     <!-- LEFT SECTION - CART ITEMS -->
     <div class="lg:col-span-2 space-y-5">
-
-      <!-- Cart Header -->
-      <div class="bg-white p-4 rounded shadow flex justify-between items-center">
-        <h2 class="text-2xl font-semibold ">
-          <i class="fa-solid fa-cart-shopping text-xl text-fantasy-gold"></i>
-        Shopping Cart</h2>
-        <p class="text-gray-500 text-sm">{{ item_count }} items</p>
-      </div>
 
       <!-- ITEM CARD -->
  {% for cart in items %}
@@ -81,8 +74,8 @@
   </div>
 </div>
 {% empty %}
-  <div class="col-span-full flex flex-col items-center justify-center py-16 text-center">
-  <!-- Background Image -->
+<div class="col-span-full flex flex-col items-center justify-center py-16 text-center">
+    <!-- Background Image -->
   <img
       src="{% static 'images/boy.png' %}"
       alt="Empty Wishlist"
@@ -101,6 +94,7 @@
 {% endfor %}
 </div>
     <!-- RIGHT SECTION - BILL SUMMARY -->
+{% if items %}
 <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 sticky top-24">
 
   <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
@@ -154,11 +148,19 @@
       </button>
     </div>
   </div>
-
+ 
   <!-- Checkout Button -->
-  <button class="w-full mt-6 py-3 rounded-xl bg-fantasy-brown text-white font-bold text-lg shadow-md hover:shadow-lg hover:scale-[1.02] transition transform">
-    Proceed to Checkout
-  </button>
+  <form method="POST" action="{% url 'create_from_cart' %}">
+    {% csrf_token %}
+    <button
+      class="w-full mt-6 py-3 rounded-xl 
+            bg-fantasy-brown text-white font-bold text-lg
+            shadow-md hover:shadow-lg hover:scale-[1.02]
+            transition-all duration-300">
+      Proceed to Checkout
+    </button>
+  </form>
+
 
   <!-- Continue Shopping -->
   <a href="{% url 'products' %}"
@@ -167,6 +169,7 @@
   </a>
 
 </div>
+{% endif %}
 
 
   </div>

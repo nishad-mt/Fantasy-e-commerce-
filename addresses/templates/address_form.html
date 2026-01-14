@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Address | Fantasy Bakery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'fantasy-cream': '#FDFBF7',
+                        'fantasy-brown': '#5D4037',
+                        'fantasy-gold': '#D4AF37',
+                    },
+                    fontFamily: {
+                        sans: ['"Lato"', 'sans-serif'],
+                        serif: ['"Playfair Display"', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        /* Floating Label Logic */
+        .floating-input:focus~label,
+        .floating-input:not(:placeholder-shown)~label {
+            top: -0.5rem;
+            left: 0.75rem;
+            font-size: 0.75rem;
+            background-color: white;
+            padding: 0 0.25rem;
+            color: #D4AF37;
+            /* Fantasy Gold on focus/active */
+        }
+
+        .floating-input:not(:focus):not(:placeholder-shown)~label {
+            color: #6b7280;
+            /* Gray when filled but not focused */
+        }
+
+        .input-error {
+            border-color: #ef4444 !important;
+        }
+
+        .input-error:focus {
+            box-shadow: 0 0 0 1px #ef4444 !important;
+        }
+
+        .error-message {
+            display: none;
+            color: #ef4444;
+            font-size: 0.7rem;
+            margin-top: 0.25rem;
+            margin-left: 0.25rem;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col">
+
+    <!-- Minimal Header similar to checkout flows -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center max-w-2xl">
+            <a href="{% url 'home' %}" class="flex items-center gap-2 text-fantasy-brown hover:opacity-80 transition">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span class="font-bold text-sm uppercase tracking-wide">Back</span>
+            </a>
+            <span class="font-serif font-bold text-lg text-fantasy-brown">Add Address</span>
+            <div class="w-8"></div> <!-- Spacer for centering -->
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-8 flex justify-center items-start">
+        <div class="w-full max-w-2xl bg-white rounded-lg shadow-sm p-6 md:p-10 border border-gray-100">
+
+            {% if form.errors %}
+            <div class="bg-red-50 text-red-600 p-3 rounded text-sm mb-6 border border-red-100">
+                <p class="font-bold mb-1"><i class="fa-solid fa-circle-exclamation mr-1"></i> Please check errors:</p>
+                {{ form.errors }}
+            </div>
+            {% endif %}
+
+            <form id="addressForm" method="POST" class="space-y-6">
+                {% csrf_token %}
+
+                <!-- Name Field -->
+                <div class="relative group">
+                    <input type="text" id="name" name="name"
+                        class="floating-input peer w-full px-4 py-3.5 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:border-fantasy-gold focus:ring-1 focus:ring-fantasy-gold placeholder-transparent transition-all bg-transparent"
+                        placeholder="Name">
+                    <label for="name"
+                        class="absolute left-4 top-3.5 text-gray-400 transition-all pointer-events-none duration-200 ease-in-out">
+                        Name*
+                    </label>
+                    <p id="nameError" class="error-message">Name is required.</p>
+                </div>
+
+                <!-- Phone Field -->
+                <div class="relative group">
+                    <input type="tel" id="phone" name="phone" maxlength="10"
+                        class="floating-input peer w-full px-4 py-3.5 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:border-fantasy-gold focus:ring-1 focus:ring-fantasy-gold placeholder-transparent transition-all bg-transparent"
+                        placeholder="Mobile Number">
+                    <label for="phone"
+                        class="absolute left-4 top-3.5 text-gray-400 transition-all pointer-events-none duration-200 ease-in-out">
+                        Mobile Number*
+                    </label>
+                    <p id="phoneError" class="error-message">Valid 10-digit number required.</p>
+                </div>
+
+                <!-- Pincode & City & State Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Pincode -->
+                    <div class="relative group">
+                        <input type="text" id="pincode" name="pincode" maxlength="6"
+                            class="floating-input peer w-full px-4 py-3.5 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:border-fantasy-gold focus:ring-1 focus:ring-fantasy-gold placeholder-transparent transition-all bg-transparent"
+                            placeholder="Pincode">
+                        <label for="pincode"
+                            class="absolute left-4 top-3.5 text-gray-400 transition-all pointer-events-none duration-200 ease-in-out">
+                            Pincode*
+                        </label>
+                        <p id="pincodeError" class="error-message">Valid 6-digit pincode required.</p>
+                    </div>
+
+                    <!-- City -->
+                    <div class="relative group">
+                        <input type="text" id="city" name="city"
+                            class="floating-input peer w-full px-4 py-3.5 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:border-fantasy-gold focus:ring-1 focus:ring-fantasy-gold placeholder-transparent transition-all bg-transparent"
+                            placeholder="City">
+                        <label for="city"
+                            class="absolute left-4 top-3.5 text-gray-400 transition-all pointer-events-none duration-200 ease-in-out">
+                            City / District*
+                        </label>
+                        <p id="cityError" class="error-message">City is required.</p>
+                    </div>
+                </div>
+
+                <!-- State (Full width or split if needed, keep full for flow) -->
+                <div class="relative group">
+                    <input type="text" id="state" name="state"
+                        class="floating-input peer w-full px-4 py-3.5 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:border-fantasy-gold focus:ring-1 focus:ring-fantasy-gold placeholder-transparent transition-all bg-transparent"
+                        placeholder="State">
+                    <label for="state"
+                        class="absolute left-4 top-3.5 text-gray-400 transition-all pointer-events-none duration-200 ease-in-out">
+                        State*
+                    </label>
+                    <p id="stateError" class="error-message">State is required.</p>
+                </div>
+
+                <!-- Street / Address Area -->
+                <div class="relative group">
+                    <textarea id="street" name="street" rows="3"
+                        class="floating-input peer w-full px-4 py-3.5 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:border-fantasy-gold focus:ring-1 focus:ring-fantasy-gold placeholder-transparent transition-all bg-transparent resize-none leading-relaxed"
+                        placeholder="Address (House No, Building, Street, Area)"></textarea>
+                    <label for="street"
+                        class="absolute left-4 top-3.5 text-gray-400 transition-all pointer-events-none duration-200 ease-in-out bg-white">
+                        Address (House No, Building, Street, Area)*
+                    </label>
+                    <p id="streetError" class="error-message">Complete address is required.</p>
+                </div>
+
+                <!-- Additional Options: Home/Work (Visual Only for now as requested, or just kept simple) -->
+                <!-- Ideally "Type of Address" buttons go here, but user asked to keep SAME fields. 
+                     We stick to the fields provided: name, phone, street, city, state, pincode, is_default. -->
+
+                <!-- Default Address Checkbox -->
+                <div class="flex items-center gap-3 pt-2">
+                    <div class="relative flex items-center">
+                        <input type="checkbox" id="is_default" name="is_default"
+                            class="peer h-5 w-5 cursor-pointer appearance-none rounded border border-gray-300 bg-white checked:bg-fantasy-gold checked:border-fantasy-gold transition-all">
+                        <i
+                            class="fa-solid fa-check absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white text-xs opacity-0 peer-checked:opacity-100 pointer-events-none"></i>
+                    </div>
+                    <label for="is_default" class="text-sm font-medium text-gray-600 cursor-pointer select-none">Make
+                        this my default address</label>
+                </div>
+
+                <!-- Global Error Container -->
+                <div id="formGlobalError"
+                    class="hidden p-3 bg-red-50 text-red-600 text-sm rounded border border-red-100 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span>Please correct the errors above.</span>
+                </div>
+
+                <!-- Footer Actions -->
+                <div class="pt-6">
+                    <button type="submit"
+                        class="w-full bg-fantasy-gold text-white font-bold text-sm uppercase tracking-wider py-4 rounded-md shadow-md hover:bg-yellow-500 hover:shadow-lg transition-all transform active:scale-[0.99]">
+                        Save Address
+                    </button>
+                    <button type="button" onclick="window.history.back()"
+                        class="w-full text-center text-fantasy-brown font-bold text-xs uppercase tracking-wider mt-4 hover:underline">
+                        Cancel
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('addressForm');
+            const inputs = {
+                name: document.getElementById('name'),
+                phone: document.getElementById('phone'),
+                pincode: document.getElementById('pincode'),
+                city: document.getElementById('city'),
+                state: document.getElementById('state'),
+                street: document.getElementById('street'),
+            };
+            const errors = {
+                name: document.getElementById('nameError'),
+                phone: document.getElementById('phoneError'),
+                pincode: document.getElementById('pincodeError'),
+                city: document.getElementById('cityError'),
+                state: document.getElementById('stateError'),
+                street: document.getElementById('streetError'),
+            };
+            const globalError = document.getElementById('formGlobalError');
+
+            const patterns = {
+                name: /^[A-Za-z\s]{3,}$/,
+                phone: /^[0-9]{10}$/,
+                pincode: /^[0-9]{6}$/,
+                city: /^[A-Za-z\s]+$/,
+                state: /^[A-Za-z\s]+$/
+            };
+
+            const showError = (field, msg) => {
+                inputs[field].classList.add('input-error');
+                if (msg) errors[field].textContent = msg;
+                errors[field].style.display = 'block';
+            };
+
+            const clearError = (field) => {
+                inputs[field].classList.remove('input-error');
+                errors[field].style.display = 'none';
+            };
+
+            const validateField = (field) => {
+                const val = inputs[field].value.trim();
+                clearError(field);
+
+                if (!val) {
+                    showError(field, `${field.charAt(0).toUpperCase() + field.slice(1)} is required.`);
+                    return false;
+                }
+
+                if (field === 'name' && !patterns.name.test(val)) {
+                    showError(field, "Enter a valid name (min 3 letters).");
+                    return false;
+                }
+                if (field === 'phone' && !patterns.phone.test(val)) {
+                    showError(field, "Enter a valid 10-digit mobile number.");
+                    return false;
+                }
+                if (field === 'pincode' && !patterns.pincode.test(val)) {
+                    showError(field, "Enter a valid 6-digit pincode.");
+                    return false;
+                }
+                if ((field === 'city' || field === 'state') && !patterns[field].test(val)) {
+                    showError(field, "Only letters allowed.");
+                    return false;
+                }
+                if (field === 'street' && val.length < 10) {
+                    showError(field, "Please enter a complete address (min 10 chars).");
+                    return false;
+                }
+
+                return true;
+            };
+
+            // Attach Blur Listeners
+            Object.keys(inputs).forEach(field => {
+                inputs[field].addEventListener('blur', () => validateField(field));
+                inputs[field].addEventListener('input', () => {
+                    if (inputs[field].classList.contains('input-error')) validateField(field);
+                });
+            });
+
+            form.addEventListener('submit', (e) => {
+                let isValid = true;
+                globalError.classList.add('hidden');
+
+                Object.keys(inputs).forEach(field => {
+                    if (!validateField(field)) isValid = false;
+                });
+
+                if (!isValid) {
+                    e.preventDefault();
+                    globalError.classList.remove('hidden');
+                    globalError.querySelector('span').textContent = "Please correct the errors highlighted above.";
+                    // Shake effect optional
+                } else {
+                    // Optional: check for "bad words" if needed, same as before
+                    const fullText = (inputs.street.value + " " + inputs.city.value).toLowerCase();
+                    const badWords = ["test", "dummy", "fake"];
+                    if (badWords.some(w => fullText.includes(w))) {
+                        e.preventDefault();
+                        globalError.classList.remove('hidden');
+                        globalError.querySelector('span').textContent = "Please enter a valid, real address.";
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
