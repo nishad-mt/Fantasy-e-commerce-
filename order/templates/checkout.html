@@ -79,7 +79,7 @@
                                             {{ item.variant.product.name }}
                                         </h3>
                                         <span class="font-bold text-fantasy-brown">
-                                            ₹{{ item.price|floatformat:2 }}
+                                            ₹{{ item.|floatformat:2 }}
                                         </span>
                                     </div>
                                     <p class="text-sm text-gray-500 mb-2">
@@ -104,29 +104,45 @@
                                         class="bg-fantasy-brown/10 text-fantasy-brown w-6 h-6 rounded-full flex items-center justify-center text-xs">2</span>
                                     Delivery Details
                                 </h2>
-                                <button type="button" onclick="window.location.href='address_form.html'"
-                                    class="text-sm font-bold text-fantasy-brown hover:text-fantasy-gold transition-colors border-b border-fantasy-brown/20 pb-0.5 hover:border-fantasy-gold">
+                                <button type="button"
+                                    onclick="document.getElementById('addressModal').classList.remove('hidden')"
+                                    class="text-sm font-bold text-fantasy-brown hover:text-fantasy-gold transition-colors">
                                     Change Address
                                 </button>
+
                             </div>
 
+                            {% if order.address %}
                             <div class="pl-8 mb-6">
-                                <h3 class="font-bold text-gray-900 text-base mb-1">Alice Wonderland <span
-                                        class="bg-gray-100 text-gray-500 text-[10px] px-2 py-0.5 rounded ml-2 uppercase tracking-wide">Home</span>
+                                <h3 class="font-bold text-gray-900 text-base mb-1">
+                                    {{ order.address.name }}
+                                    <span class="bg-gray-100 text-gray-500 text-[10px] px-2 py-0.5 rounded ml-2 uppercase tracking-wide">
+                                        Default
+                                    </span>
                                 </h3>
+
                                 <p class="text-gray-600 text-sm leading-relaxed mb-2">
-                                    Flat 4B, Dream Castle Apartments, <br>
-                                    Sector 7, Magic Lane, Wonderland - 682001
+                                    {{ order.address.street }}, {{ order.address.city }} <br>
+                                    {{ order.address.state }} - {{ order.address.pincode }}
                                 </p>
+
                                 <p class="text-sm text-gray-800 font-medium">
-                                    <i class="fa-solid fa-phone text-gray-400 mr-1.5 text-xs"></i> +91 98765 43210
+                                    <i class="fa-solid fa-phone text-gray-400 mr-1.5 text-xs"></i>
+                                    +91 {{ order.address.phone }}
                                 </p>
                             </div>
+                            {% else %}
+                            <p class="text-red-500">No delivery address selected</p>
+                            {% endif %}
+                            <p class="text-sm text-green-600 font-semibold mt-2">
+                                <i class="fa-solid fa-truck-fast mr-1"></i>
+                                Expected delivery: {{ order.delivery_date|date:"D, d M" }}
+                            </p>
                         </div>
                     </section>
 
                     <!-- 3. Payment Method -->
-                    <section
+                    <!-- <section
                         class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300">
                         <div class="p-6">
                             <h2 class="text-lg font-serif font-bold text-fantasy-brown flex items-center gap-2 mb-6">
@@ -136,7 +152,7 @@
                             </h2>
 
                             <div class="space-y-4 pl-8">
-                                <!-- COD -->
+                                 COD 
                                 <label
                                     class="relative flex items-center p-4 border border-fantasy-gold bg-orange-50/20 rounded-xl cursor-pointer transition-all">
                                     <div class="flex items-center h-5">
@@ -152,12 +168,12 @@
                                         <p class="text-xs text-gray-500 mt-0.5">Pay cash when you receive your order.
                                         </p>
                                     </div>
-                                    <!-- Selected Indicator Strip -->
+                                     Selected Indicator Strip 
                                     <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-fantasy-gold rounded-l-xl">
                                     </div>
                                 </label>
 
-                                <!-- UPI -->
+                                 UPI
                                 <label
                                     class="relative flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer hover:border-gray-300 transition-all opacity-75 hover:opacity-100 group hover:bg-gray-50">
                                     <div class="flex items-center h-5">
@@ -174,7 +190,7 @@
                                     </div>
                                 </label>
 
-                                <!-- Card -->
+                                 Card 
                                 <label
                                     class="relative flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer hover:border-gray-300 transition-all opacity-75 hover:opacity-100 group hover:bg-gray-50">
                                     <div class="flex items-center h-5">
@@ -195,7 +211,7 @@
                                 </label>
                             </div>
                         </div>
-                    </section>
+                    </section> -->
 
                     <!-- 4. Order Summary (Footer Style) -->
                     <section class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden relative">
@@ -203,55 +219,68 @@
                         <div class="h-1.5 bg-gradient-to-r from-fantasy-brown via-fantasy-gold to-fantasy-brown"></div>
 
                         <div class="p-6 md:p-8">
-                            <h3 class="font-serif font-bold text-xl text-fantasy-brown mb-6">Bill Details</h3>
+    <h3 class="font-serif font-bold text-xl text-fantasy-brown mb-6">Bill Details</h3>
 
-                            <div class="space-y-3 text-sm border-b border-dashed border-gray-200 pb-6 mb-6">
-                                <div class="flex justify-between text-gray-600">
-                                    <span>Item Total</span>
-                                    <span>₹{{ order.total_amount|floatformat:2 }}</span>
-                                </div>
-                                <div class="flex justify-between text-gray-600">
-                                    <span class="text-gray-600">Delivery Fee</span>
-                                    {% if delivery_charge == 0 %}
-                                    <span class="text-green-600 font-semibold">Free 🚚</span>
-                                    {% else %}
-                                    <span class="font-semibold text-gray-800">₹{{ delivery_charge }}</span>
-                                    {% endif %}
-                                </div>
-                                <div class="flex justify-between text-gray-600">
-                                    <span>Discount</span>
-                                    <span class="text-green-600 relative">
-                                        - ₹260.00
-                                    </span>
-                                </div>
-                                <div class="flex justify-between text-gray-600">
-                                    <span>Taxes & Charges</span>
-                                    <span>₹45.00</span>
-                                </div>
-                            </div>
+    <div class="space-y-3 text-sm border-b border-dashed border-gray-200 pb-6 mb-6">
 
-                            <div class="flex justify-between items-end mb-8">
-                                <span class="font-bold text-gray-800 text-lg">To Pay</span>
-                                <div class="text-right">
-                                    <span class="font-serif font-bold text-3xl text-fantasy-brown">₹1085</span>
-                                    <p class="text-[10px] text-gray-400">Inclusive of all taxes</p>
-                                </div>
-                            </div>
+        <!-- Item total -->
+        <div class="flex justify-between text-gray-600">
+            <span>Products</span>
+            <span>
+                {{ order.items.all|length }}
+            </span>
+        </div>
 
-                            <button
-                                class="w-full py-4 bg-fantasy-brown text-white rounded-xl font-bold text-lg shadow-xl shadow-fantasy-brown/20 hover:bg-opacity-90 hover:shadow-2xl transform hover:-translate-y-0.5 transition-all duration-300 flex justify-center items-center gap-3">
-                                <span>Place Order</span>
-                                <i class="fa-solid fa-arrow-right-long"></i>
-                            </button>
+        <div class="flex justify-between text-gray-600">
+            <span>Total</span>
+            <span>
+                ₹{{ order.total_amount|floatformat:2 }}
+            </span>
+        </div>
 
-                            <div class="mt-4 text-center">
-                                <p
-                                    class="text-[10px] text-gray-400 font-medium flex items-center justify-center gap-1.5">
-                                    <i class="fa-solid fa-shield-halved text-green-500"></i>
-                                    Secure & encrypted payment by Stripe
-                                </p>
-                            </div>
-                        </div>
+        <!-- Delivery -->
+        <div class="flex justify-between text-gray-600">
+            <span>Delivery Fee</span>
+            {% if order.delivery_charge == 0 %}
+                <span class="text-green-600 font-semibold">Free 🚚</span>
+            {% else %}
+                <span class="font-semibold text-gray-800">
+                    ₹{{ order.delivery_charge|floatformat:2 }}
+                </span>
+            {% endif %}
+        </div>
+
+
+    </div>
+
+    <!-- Final total -->
+    <div class="flex justify-between items-end mb-8">
+        <span class="font-bold text-gray-800 text-lg">To Pay</span>
+        <div class="text-right">
+            <span class="font-serif font-bold text-3xl text-fantasy-brown">
+                ₹{{ order.total_amount|add:order.delivery_charge|floatformat:2 }}
+            </span>
+            <p class="text-[10px] text-gray-400">Inclusive of all taxes</p>
+        </div>
+    </div>
+
+    <form method="POST" action="{% url 'place_order' %}">
+        {% csrf_token %}
+        <button
+            class="w-full py-4 bg-fantasy-brown text-white rounded-xl font-bold text-lg shadow-xl shadow-fantasy-brown/20 hover:bg-opacity-90 hover:shadow-2xl transform hover:-translate-y-0.5 transition-all duration-300 flex justify-center items-center gap-3">
+            <span>Place Order</span>
+            <i class="fa-solid fa-arrow-right-long"></i>
+        </button>
+    </form>
+
+    <div class="mt-4 text-center">
+        <p class="text-[10px] text-gray-400 font-medium flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-shield-halved text-green-500"></i>
+            Secure & encrypted payment
+        </p>
+    </div>
+</div>
+
                     </section>
 
                 </form>
@@ -269,8 +298,49 @@
                 </div>
             </div>
         </footer>
-
     </div>
+    <!--------------------------------------------------------------------------------------------------------->
+    <div id="addressModal" class="fixed inset-0 bg-black/40 z-50 hidden flex items-center justify-center">
+
+  <div class="bg-white w-full max-w-lg rounded-xl p-6">
+    <h3 class="text-lg font-bold mb-4">Select Delivery Address</h3>
+
+    <form method="POST" action="{% url 'place_order' %}">
+      {% csrf_token %}
+
+      <div class="space-y-4 max-h-96 overflow-y-auto">
+        {% for addr in addresses %}
+        <label class="flex items-start gap-3 p-4 border rounded-lg cursor-pointer hover:border-fantasy-brown">
+
+          <input type="radio" name="address_id" value="{{ addr.id }}"
+                 {% if order.address and order.address.id == addr.id %}checked{% endif %}>
+
+          <div>
+            <p class="font-bold">{{ addr.name }}</p>
+            <p class="text-sm text-gray-600">
+              {{ addr.street }}, {{ addr.city }}, {{ addr.state }} - {{ addr.pincode }}
+            </p>
+          </div>
+        </label>
+        {% endfor %}
+      </div>
+
+      <div class="mt-6 flex justify-between">
+        <button type="button"
+            onclick="document.getElementById('addressModal').classList.add('hidden')"
+            class="px-4 py-2 border rounded-lg">
+            Cancel
+        </button>
+
+        <button type="submit"
+            class="px-6 py-2 bg-fantasy-brown text-white rounded-lg font-bold">
+            Deliver Here
+        </button>
+      </div>
+    </form>
+  </div>
+
+</div>
 </body>
 
 </html>

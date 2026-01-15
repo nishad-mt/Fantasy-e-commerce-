@@ -3,6 +3,6 @@ from .models import Address
 
 @admin.register(Address)
 class AddressAdmin(admin.ModelAdmin):
-    list_display = ('user','phone','street','city','pincode','state',)
+    list_display = ('user','phone','is_default','street','city','pincode','state',)
     search_fields = ('user','city')
 

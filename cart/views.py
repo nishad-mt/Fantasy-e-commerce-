@@ -48,8 +48,7 @@ def cart(request):
     
     delivery_charge = 0 if subtotal > 500 else 40
     discount = 0
-    tax = (subtotal * Decimal("0.05")).quantize(Decimal("0.01"))
-    total = subtotal + tax + delivery_charge - discount
+    total = subtotal + delivery_charge - discount
     
     context = {
         "items": items,
@@ -58,7 +57,6 @@ def cart(request):
         "delivery_charge": delivery_charge,
         "discount": discount,
         "total": total,
-        'tax':tax,
         "item_count":item_count
     }
     return render(request, 'cartlist.html', context)

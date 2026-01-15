@@ -8,8 +8,6 @@ class Order(models.Model):
     address = models.ForeignKey(
         "addresses.Address",
         on_delete=models.PROTECT,
-        null=True,
-        blank=True
     )
     STATUS_CHOICES = [
         ("PENDING", "Pending Payment"),
@@ -24,7 +22,7 @@ class Order(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="PENDING")
     created_at = models.DateTimeField(auto_now_add=True)
     delivery_charge = models.DecimalField(max_digits=8, decimal_places=2, default=0)
-
+    delivery_date = models.DateField()
 
     def __str__(self):
         return str(self.order_id)
