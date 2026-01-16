@@ -322,6 +322,10 @@ def deliveries(request):
 
 
 @never_cache
+def admin_contact(request):
+    return render(request,"admin_contact.html")
+
+@never_cache
 @login_required
 def admin_logout(request):
     logout(request)

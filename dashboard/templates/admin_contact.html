@@ -1,0 +1,422 @@
+
+{% extends 'dashboard.html' %}
+{% block content %}
+<body class="bg-amber-100 text-gray-800 min-h-screen">
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-amber-900">Contact & Support</h1>
+                <p class="text-amber-700 mt-1">Manage public contact info and user messages</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="index.html" class="text-amber-700 hover:text-amber-900 font-medium text-sm">Dashboard</a>
+                <span class="text-amber-300">/</span>
+                <span class="text-amber-900 font-medium text-sm">Contact</span>
+            </div>
+        </div>
+
+        <!-- Section 1: Contact Details Management -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden mb-8 border border-amber-100">
+            <div class="px-6 py-4 border-b border-amber-100 flex justify-between items-center bg-amber-50">
+                <h3 class="text-lg font-bold text-amber-900">Public Contact Details</h3>
+                <button onclick="openEditContactModal()"
+                    class="text-sm bg-amber-600 text-white px-3 py-2 rounded-lg hover:bg-amber-700 transition shadow-sm flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square"></i> Edit Details
+                </button>
+            </div>
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Address -->
+                <div class="p-4 rounded-lg bg-gray-50 border border-gray-100">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                            <i class="fa-solid fa-location-dot"></i></div>
+                        <h4 class="font-semibold text-gray-900">Address</h4>
+                    </div>
+                    <p class="text-sm text-gray-600 whitespace-pre-line" id="disp_address">123 Coffee Lane, Ponnani,
+                        Kerala, India</p>
+                </div>
+
+                <!-- Phone -->
+                <div class="p-4 rounded-lg bg-gray-50 border border-gray-100">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                            <i class="fa-solid fa-phone"></i></div>
+                        <h4 class="font-semibold text-gray-900">Phone</h4>
+                    </div>
+                    <p class="text-sm text-gray-600 font-mono" id="disp_phone">+91 98765 43210</p>
+                </div>
+
+                <!-- Email -->
+                <div class="p-4 rounded-lg bg-gray-50 border border-gray-100">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                            <i class="fa-solid fa-envelope"></i></div>
+                        <h4 class="font-semibold text-gray-900">Email</h4>
+                    </div>
+                    <p class="text-sm text-gray-600" id="disp_email">support@fantasyfood.com</p>
+                </div>
+
+                <!-- Hours -->
+                <div class="p-4 rounded-lg bg-gray-50 border border-gray-100">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                            <i class="fa-solid fa-clock"></i></div>
+                        <h4 class="font-semibold text-gray-900">Working Hours</h4>
+                    </div>
+                    <p class="text-sm text-gray-600 whitespace-pre-line" id="disp_hours">Mon – Sat: 9 AM – 9 PM
+                        Sun: 10 AM – 6 PM</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Messages -->
+        <h2 class="text-xl font-bold text-amber-900 mb-4">User Messages</h2>
+
+        <!-- Message Stats -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-blue-500 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-blue-600 uppercase">Total Messages</p>
+                    <h3 class="text-2xl font-bold text-gray-900 mt-1" id="stat_total">14</h3>
+                </div>
+                <div class="p-2 bg-blue-50 rounded-lg text-blue-600"><i class="fa-solid fa-inbox text-xl"></i></div>
+            </div>
+            <div
+                class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-amber-500 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-amber-600 uppercase">Pending Reply</p>
+                    <h3 class="text-2xl font-bold text-gray-900 mt-1" id="stat_pending">5</h3>
+                </div>
+                <div class="p-2 bg-amber-50 rounded-lg text-amber-600"><i
+                        class="fa-solid fa-hourglass-half text-xl"></i></div>
+            </div>
+            <div
+                class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-green-500 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-green-600 uppercase">Replied</p>
+                    <h3 class="text-2xl font-bold text-gray-900 mt-1" id="stat_replied">9</h3>
+                </div>
+                <div class="p-2 bg-green-50 rounded-lg text-green-600"><i class="fa-solid fa-check-double text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages Table -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-amber-100">
+            <!-- Filters -->
+            <div class="p-4 border-b border-amber-100 bg-amber-50 flex flex-col sm:flex-row gap-4 justify-between">
+                <div class="relative w-full sm:w-64">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-amber-400"><i
+                            class="fa-solid fa-search"></i></span>
+                    <input type="text" id="searchInput" onkeyup="renderMessages()"
+                        placeholder="Search sender or subject..."
+                        class="pl-10 pr-4 py-2 w-full rounded-lg border-amber-200 focus:ring-amber-500 focus:border-amber-500 border text-sm">
+                </div>
+                <select id="filterStatus" onchange="renderMessages()"
+                    class="rounded-lg border-amber-200 focus:ring-amber-500 focus:border-amber-500 border text-sm py-2 px-3 text-amber-900">
+                    <option value="all">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="replied">Replied</option>
+                </select>
+            </div>
+
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="min-w-full divide-y divide-amber-200">
+                    <thead class="bg-amber-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-amber-800 uppercase tracking-wider">
+                                Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-amber-800 uppercase tracking-wider">
+                                Sender</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-amber-800 uppercase tracking-wider">
+                                Category</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-amber-800 uppercase tracking-wider">
+                                Message Preview</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-amber-800 uppercase tracking-wider">
+                                Status</th>
+                            <th
+                                class="px-6 py-3 text-right text-xs font-medium text-amber-800 uppercase tracking-wider">
+                                Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-amber-100" id="messagesTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- Pagination (Static) -->
+            <div class="px-6 py-3 border-t border-amber-100 flex items-center justify-between text-sm text-gray-500">
+                <span>Showing <span id="showingCount">0</span> results</span>
+                <div class="flex gap-1">
+                    <button class="px-3 py-1 border border-amber-200 rounded hover:bg-amber-50">Prev</button>
+                    <button class="px-3 py-1 border border-amber-200 rounded hover:bg-amber-50">Next</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal: Edit Contact Info -->
+    <div id="editContactModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title"
+        role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeEditContactModal()">
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div
+                class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border-t-4 border-amber-600">
+                <div class="bg-amber-50 px-4 py-3 flex justify-between items-center border-b border-amber-100">
+                    <h3 class="text-lg font-bold text-amber-900">Edit Contact Information</h3>
+                    <button onclick="closeEditContactModal()" class="text-gray-400 hover:text-gray-600"><i
+                            class="fa-solid fa-times text-xl"></i></button>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Address</label>
+                        <textarea id="edit_address" rows="3"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Phone</label>
+                        <input type="text" id="edit_phone"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Email</label>
+                        <input type="email" id="edit_email"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Working Hours</label>
+                        <textarea id="edit_hours" rows="2"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500"></textarea>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 flex flex-row-reverse gap-2">
+                    <button onclick="saveContactInfo()"
+                        class="w-full sm:w-auto px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 font-medium shadow-sm">Save
+                        Changes</button>
+                    <button onclick="closeEditContactModal()"
+                        class="w-full sm:w-auto px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: View/Reply Message -->
+    <div id="messageModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog"
+        aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeMessageModal()"></div>
+            <div
+                class="relative bg-white rounded-xl shadow-xl w-full max-w-2xl overflow-hidden border-t-4 border-amber-600">
+                <div class="bg-amber-50 px-6 py-4 border-b border-amber-100 flex justify-between items-start">
+                    <div>
+                        <h3 class="text-xl font-bold text-amber-900 mb-1" id="msg_subject">Message Subject</h3>
+                        <div class="flex items-center gap-2 text-sm text-gray-500">
+                            <span id="msg_sender">John Doe</span> &bull; <span id="msg_email">john@example.com</span>
+                        </div>
+                    </div>
+                    <button onclick="closeMessageModal()" class="text-gray-400 hover:text-gray-600"><i
+                            class="fa-solid fa-times text-xl"></i></button>
+                </div>
+
+                <div class="p-6 overflow-y-auto max-h-[60vh]">
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 mb-6">
+                        <p class="text-xs text-gray-400 mb-2 uppercase font-bold tracking-wide">Received: <span
+                                id="msg_date">Oct 12, 2025</span></p>
+                        <p class="text-gray-800 text-base leading-relaxed whitespace-pre-line" id="msg_content">Message
+                            content goes here...</p>
+                    </div>
+
+                    <div id="replySection">
+                        <label class="block text-sm font-bold text-amber-900 mb-2">Reply to Customer</label>
+                        <textarea id="replyText" rows="4"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 mb-3"
+                            placeholder="Type your reply here..."></textarea>
+                        <button onclick="sendReply()"
+                            class="bg-amber-600 text-white px-6 py-2 rounded-lg hover:bg-amber-700 font-medium transition flex items-center gap-2 shadow-sm">
+                            <i class="fa-solid fa-paper-plane"></i> Send Reply
+                        </button>
+                    </div>
+
+                    <div id="repliedSection" class="hidden">
+                        <div class="bg-green-50 border border-green-100 p-4 rounded-lg">
+                            <p class="text-green-800 font-medium flex items-center gap-2"><i
+                                    class="fa-solid fa-check-circle"></i> Replied on <span id="msg_reply_date"></span>
+                            </p>
+                            <p class="text-gray-600 mt-2 text-sm italic" id="msg_reply_content"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Data ---
+        let contactInfo = {
+            address: "123 Coffee Lane, Ponnani,\nKerala, India",
+            phone: "+91 98765 43210",
+            email: "support@fantasyfood.com",
+            hours: "Mon – Sat: 9 AM – 9 PM\nSun: 10 AM – 6 PM"
+        };
+
+        let messages = [
+            { id: 1, sender: "Alice Wonder", email: "alice@example.com", category: "Order Issue", subject: "Missing Item in Order #442", date: "2025-01-15", content: "Hi, I received my order yesterday but the Chocolate Fudge was missing. Please help.", status: "pending", reply: null },
+            { id: 2, sender: "Bob Builder", email: "bob@construction.com", category: "Feedback", subject: "Loved the cake!", date: "2025-01-14", content: "Just wanted to say the cake was amazing. Will order again!", status: "replied", reply: "Thank you Bob! We are glad you liked it.", replyDate: "2025-01-14" },
+            { id: 3, sender: "Charlie Brown", email: "charlie@peanuts.com", category: "Partner", subject: "Wholesale Inquiry", date: "2025-01-12", content: "Do you supply to local cafes? I would like to discuss a partnership.", status: "pending", reply: null },
+            { id: 4, sender: "David Rose", email: "david@schitts.town", category: "Refund", subject: "Refund for cancelled order", date: "2025-01-10", content: "When will I get my refund for the order I cancelled last week?", status: "pending", reply: null },
+            { id: 5, sender: "Eve Polastri", email: "eve@mi6.gov", category: "Others", subject: "Job Opening", date: "2025-01-08", content: "Are you hiring for a security manager position?", status: "replied", reply: "Hi Eve, currently we have no openings.", replyDate: "2025-01-09" },
+        ];
+
+        let currentMsgId = null;
+
+        // --- Render Functions ---
+
+        function renderContactInfo() {
+            document.getElementById('disp_address').innerText = contactInfo.address;
+            document.getElementById('disp_phone').innerText = contactInfo.phone;
+            document.getElementById('disp_email').innerText = contactInfo.email;
+            document.getElementById('disp_hours').innerText = contactInfo.hours;
+        }
+
+        function renderStats() {
+            document.getElementById('stat_total').innerText = messages.length;
+            document.getElementById('stat_pending').innerText = messages.filter(m => m.status === 'pending').length;
+            document.getElementById('stat_replied').innerText = messages.filter(m => m.status === 'replied').length;
+        }
+
+        function renderMessages() {
+            const tbody = document.getElementById('messagesTableBody');
+            tbody.innerHTML = '';
+
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const filter = document.getElementById('filterStatus').value;
+
+            const filtered = messages.filter(m => {
+                const matchesSearch = m.sender.toLowerCase().includes(search) || m.subject.toLowerCase().includes(search);
+                const matchesFilter = filter === 'all' || m.status === filter;
+                return matchesSearch && matchesFilter;
+            });
+
+            document.getElementById('showingCount').innerText = filtered.length;
+
+            filtered.forEach(m => {
+                const statusBadge = m.status === 'pending'
+                    ? `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-800">Pending</span>`
+                    : `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Replied</span>`;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-amber-50 transition-colors";
+                tr.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${m.date}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${m.sender}</div>
+                        <div class="text-xs text-gray-500">${m.email}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${m.category}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">${m.subject} - <span class="text-gray-400">${m.content}</span></td>
+                    <td class="px-6 py-4 whitespace-nowrap">${statusBadge}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button onclick="openMessageModal(${m.id})" class="text-amber-600 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 px-3 py-1 rounded transition">
+                            ${m.status === 'pending' ? 'Reply' : 'View'}
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // --- Modals & Actions ---
+
+        // Contact Info Edit
+        function openEditContactModal() {
+            document.getElementById('edit_address').value = contactInfo.address;
+            document.getElementById('edit_phone').value = contactInfo.phone;
+            document.getElementById('edit_email').value = contactInfo.email;
+            document.getElementById('edit_hours').value = contactInfo.hours;
+            document.getElementById('editContactModal').classList.remove('hidden');
+        }
+
+        function closeEditContactModal() {
+            document.getElementById('editContactModal').classList.add('hidden');
+        }
+
+        function saveContactInfo() {
+            contactInfo.address = document.getElementById('edit_address').value;
+            contactInfo.phone = document.getElementById('edit_phone').value;
+            contactInfo.email = document.getElementById('edit_email').value;
+            contactInfo.hours = document.getElementById('edit_hours').value;
+            renderContactInfo();
+            closeEditContactModal();
+            // In a real app, send AJAX request here
+            alert("Contact details updated successfully!");
+        }
+
+        // Message View/Reply
+        function openMessageModal(id) {
+            currentMsgId = id;
+            const m = messages.find(msg => msg.id === id);
+            if (!m) return;
+
+            document.getElementById('msg_subject').innerText = m.subject;
+            document.getElementById('msg_sender').innerText = m.sender;
+            document.getElementById('msg_email').innerText = m.email;
+            document.getElementById('msg_date').innerText = m.date;
+            document.getElementById('msg_content').innerText = m.content;
+
+            const replySection = document.getElementById('replySection');
+            const repliedSection = document.getElementById('repliedSection');
+            const replyText = document.getElementById('replyText');
+
+            if (m.status === 'replied') {
+                replySection.classList.add('hidden');
+                repliedSection.classList.remove('hidden');
+                document.getElementById('msg_reply_date').innerText = m.replyDate;
+                document.getElementById('msg_reply_content').innerText = m.reply;
+            } else {
+                replySection.classList.remove('hidden');
+                repliedSection.classList.add('hidden');
+                replyText.value = ''; // clear previous text
+            }
+
+            document.getElementById('messageModal').classList.remove('hidden');
+        }
+
+        function closeMessageModal() {
+            document.getElementById('messageModal').classList.add('hidden');
+        }
+
+        function sendReply() {
+            const replyText = document.getElementById('replyText').value.trim();
+            if (!replyText) {
+                alert("Please type a reply.");
+                return;
+            }
+
+            const mIndex = messages.findIndex(msg => msg.id === currentMsgId);
+            if (mIndex > -1) {
+                messages[mIndex].status = 'replied';
+                messages[mIndex].reply = replyText;
+                messages[mIndex].replyDate = new Date().toISOString().split('T')[0];
+
+                renderMessages();
+                renderStats();
+                closeMessageModal();
+                alert("Reply sent successfully!");
+            }
+        }
+
+        // --- Init ---
+        renderContactInfo();
+        renderStats();
+        renderMessages();
+
+    </script>
+</body>
+
+{% endblock %}

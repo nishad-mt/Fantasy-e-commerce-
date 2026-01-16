@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Contact Info</title>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        fantasy: {
+                            brown: '#5a3e2b',
+                            gold: '#d4a373'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 min-h-screen flex items-center justify-center px-4">
+
+    <div class="w-full max-w-3xl bg-white rounded-2xl shadow-lg p-6 sm:p-10">
+        
+        <!-- Header -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-800">
+                Site Contact Information
+            </h2>
+            <p class="text-gray-500 text-sm mt-1">
+                Update the contact details displayed on the website
+            </p>
+        </div>
+
+        <!-- Form -->
+        <form method="POST" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- Email -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Email Address
+                </label>
+                <input
+                    type="email"
+                    name="email"
+                    value="{{ site_contact.email|default:'' }}"
+                    required
+                    class="w-full rounded-lg border-gray-300 focus:border-fantasy-gold focus:ring-fantasy-gold px-4 py-2"
+                    placeholder="support@fantasy.com"
+                >
+            </div>
+
+            <!-- Phone -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Contact Number
+                </label>
+                <input
+                    type="text"
+                    name="contact_number"
+                    value="{{ site_contact.contact_number|default:'' }}"
+                    required
+                    class="w-full rounded-lg border-gray-300 focus:border-fantasy-gold focus:ring-fantasy-gold px-4 py-2"
+                    placeholder="+91 98765 43210"
+                >
+            </div>
+
+            <!-- Address -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Address
+                </label>
+                <textarea
+                    name="address"
+                    rows="3"
+                    class="w-full rounded-lg border-gray-300 focus:border-fantasy-gold focus:ring-fantasy-gold px-4 py-2"
+                    placeholder="Fantasy Bakery, Malappuram, Kerala"
+                >{{ site_contact.address|default:'' }}</textarea>
+            </div>
+
+            <!-- Working Hours -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Working Hours
+                </label>
+                <input
+                    type="text"
+                    name="working_hours"
+                    value="{{ site_contact.working_hours|default:'' }}"
+                    class="w-full rounded-lg border-gray-300 focus:border-fantasy-gold focus:ring-fantasy-gold px-4 py-2"
+                    placeholder="Mon – Sat, 9:00 AM – 6:00 PM"
+                >
+            </div>
+
+            <!-- Active Toggle -->
+            <div class="flex items-center gap-3">
+                <input
+                    type="checkbox"
+                    name="is_active"
+                    {% if site_contact.is_active %}checked{% endif %}
+                    class="h-4 w-4 text-fantasy-gold focus:ring-fantasy-gold border-gray-300 rounded"
+                >
+                <label class="text-sm text-gray-700">
+                    Set as active site contact
+                </label>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                <button
+                    type="submit"
+                    class="flex-1 bg-fantasy-brown text-white py-3 rounded-lg font-semibold hover:bg-opacity-90 transition"
+                >
+                    Save Contact Info
+                </button>
+
+                <a
+                    href="{% url 'dashboard' %}"
+                    class="flex-1 text-center border border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-100 transition"
+                >
+                    Cancel
+                </a>
+            </div>
+
+        </form>
+    </div>
+
+</body>
+</html>

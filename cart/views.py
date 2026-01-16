@@ -40,7 +40,6 @@ def cart(request):
     total_items = 0
     
     for item in items:
-        item.total_price = item.variant.price*item.quantity
         subtotal += item.total_price
         total_items += item.quantity
         

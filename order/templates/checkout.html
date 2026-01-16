@@ -78,9 +78,7 @@
                                         <h3 class="font-bold text-gray-900 text-base">
                                             {{ item.variant.product.name }}
                                         </h3>
-                                        <span class="font-bold text-fantasy-brown">
-                                            ₹{{ item.|floatformat:2 }}
-                                        </span>
+                                        
                                     </div>
                                     <p class="text-sm text-gray-500 mb-2">
                                         {{ item.variant.size_name }}
@@ -234,7 +232,7 @@
         <div class="flex justify-between text-gray-600">
             <span>Total</span>
             <span>
-                ₹{{ order.total_amount|floatformat:2 }}
+                ₹{{ order.order_items_total|floatformat:2 }}
             </span>
         </div>
 
@@ -258,7 +256,7 @@
         <span class="font-bold text-gray-800 text-lg">To Pay</span>
         <div class="text-right">
             <span class="font-serif font-bold text-3xl text-fantasy-brown">
-                ₹{{ order.total_amount|add:order.delivery_charge|floatformat:2 }}
+                ₹{{ order.total_amount|floatformat:2 }}
             </span>
             <p class="text-[10px] text-gray-400">Inclusive of all taxes</p>
         </div>

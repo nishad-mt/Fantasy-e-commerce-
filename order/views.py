@@ -23,36 +23,36 @@ def checkout(request):
         'delivery_date':delivery_date.date()
     })
 
+@login_required
 def create_from_cart(request):
     cart = get_object_or_404(Cart, user=request.user)
     items = cart.items.select_related("variant")
-    
+
     if not items.exists():
-        return redirect('cart:cart')
-    
+        return redirect("cart:cart")
+
     order_items_total = Decimal("0.00")
-
     for item in items:
-        line_total = item.variant.price * item.quantity
-        order_items_total += line_total
+        order_items_total += item.variant.price * item.quantity
 
-    OrderItem.objects.create(
-        order=order,
-        variant=item.variant,
-        quantity=item.quantity,
-        price=item.variant.price  # snapshot taken now
-    )
-        
     delivery = Decimal("0.00") if order_items_total > 500 else Decimal("40.00")
-    total = order_items_total  + delivery
-    default_address = Address.objects.filter(user=request.user, is_default=True).first()
-    delivery_date = date.today() + timedelta(days=3)
+    product_total = order_items_total
+    total = order_items_total + delivery
+
+    default_address = Address.objects.filter(
+        user=request.user,
+        is_default=True
+    ).first()
+
     if not default_address:
-        return redirect("checkout")  # force user to pick/create address
+        return redirect("checkout")
+
+    delivery_date = date.today() + timedelta(days=3)
 
     order = Order.objects.create(
         user=request.user,
         address=default_address,
+        order_items_total=product_total,
         total_amount=total,
         delivery_charge=delivery,
         delivery_date=delivery_date
