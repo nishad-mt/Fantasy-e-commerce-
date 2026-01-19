@@ -14,80 +14,113 @@
         </div>
 
         <!-- ORDER CARD -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-8">
+        {% load static %}
+{% if orders %}
+    {% for order in orders %}
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-8">
 
-            <!-- Header -->
-            <div class="flex flex-wrap justify-between items-center gap-4 p-6 border-b">
-                <div>
-                    <p class="text-sm text-gray-500">Order ID</p>
-                    <p class="font-bold text-gray-800">FFN-99214</p>
-                    <p class="text-xs text-gray-400 mt-1">Placed on 28 Nov 2025</p>
-                </div>
-
-                <span class="px-4 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-700">
-                    Delivered
-                </span>
+        <!-- Header -->
+        <div class="flex flex-wrap justify-between items-center gap-4 p-6 border-b">
+            <div>
+                <p class="text-sm text-gray-500">Order ID</p>
+                <p class="font-bold text-gray-800">{{ order.order_id }}</p>
+                <p class="text-xs text-gray-400 mt-1">
+                    {{ order.created_at|date:"d M Y" }}
+                </p>
             </div>
 
-            <!-- Items -->
-            <div class="divide-y">
-                <!-- Item -->
-                <div class="flex gap-4 p-6">
-                    <a href="{% url 'order_detail' %}">
-                    <img src="{% static 'images/banana.jpg' %}"
-                         class="w-24 h-24 rounded-xl object-cover border"></a>
+            <span class="px-4 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-700">
+                {{ order.status }}
+            </span>
+        </div>
 
-                    <div class="flex-1">
-                        <h3 class="font-bold text-lg text-gray-800">Kerala Banana Chips</h3>
-                        <p class="text-sm text-gray-500 mt-1">500g Pack • Best before 10 days</p>
-                        <p class="text-sm text-green-600 mt-1 font-semibold">
-                            Delivered on 30 Nov
-                        </p>
-                        <p class="font-bold text-lg mt-2 text-fantasy-brown">₹180</p>
-                    </div>
+        <!-- Items Preview -->
+        <div class="p-6 flex gap-6 items-start">
+            {% regroup order.items.all by variant.product as unique_products %}
 
-                    <!-- Actions -->
-                    <div class="relative">
-                        <button onclick="toggleMenu(this)"
-                                class="text-gray-400 hover:text-gray-700 text-2xl leading-none">⋮</button>
+            <a href="{% url 'order_detail' order.order_id %}">
+                <div class="relative w-28 h-28">
 
-                        <div class="hidden absolute right-0 mt-2 w-40 bg-white border rounded-xl shadow-md z-10">
-                            <button onclick="openReturnModal()"
-                                    class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-50 text-red-600">
-                                Request Return
-                            </button>
+                    {% for group in unique_products|slice:":4" %}
+                        <img
+                            src="{{ group.grouper.main_image.url }}"
+                            alt="{{ group.grouper.name }}"
+                            class="absolute w-20 h-20 rounded-xl object-cover border-2 border-white shadow-md"
+                            style="
+                                left: {{ forloop.counter0 }}rem;
+                                top: {{ forloop.counter0 }}rem;
+                                z-index: {{ forloop.counter }};
+                            "
+                        >
+                    {% endfor %}
+
+                    {% if unique_products|length > 4 %}
+                        <div class="absolute bottom-0 right-0 bg-black/70 text-white text-xs px-2 py-1 rounded-full">
+                            +{{ unique_products|length|add:"-4" }}
                         </div>
-                    </div>
-                    </a>
+                    {% endif %}
+                </div>
+            </a>
+
+
+            <!-- Order Summary -->
+            <div class="flex-1">
+                <h3 class="font-bold text-lg text-gray-800">
+                    {{ order.items.first.variant.product.name }}
+                    {% if order.items.count > 1 %}
+                        <span class="text-sm font-medium text-gray-500">
+                            +{{ order.items.count|add:"-1" }} more
+                        </span>
+                    {% endif %}
+                </h3>
+
+                <p class="text-sm text-gray-500 mt-1">
+                    Delivered by {{ order.delivery_date|date:"d M" }}
+                </p>
+
+                <p class="font-bold text-lg mt-2 text-fantasy-brown">
+                    ₹{{ order.total_amount }}
+                </p>
+            </div>
+
+            <!-- Actions -->
+            <div class="relative">
+                <button onclick="toggleMenu(this)"
+                        class="text-gray-400 hover:text-gray-700 text-2xl leading-none">⋮</button>
+
+                <div class="hidden absolute right-0 mt-2 w-40 bg-white border rounded-xl shadow-md z-10">
+                    <button class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-50 text-red-600">
+                        Cancel Request
+                    </button>
                 </div>
             </div>
 
-            <!-- Footer -->
-            <div class="flex flex-wrap justify-between gap-6 p-6 border-t bg-gray-50 rounded-b-2xl">
-                <div>
-                    <p class="text-sm text-gray-500">Delivered To</p>
-                    <p class="font-medium text-gray-700">Nishad, Malappuram, Kerala</p>
-                </div>
+        </div>
 
-                <div class="text-right">
-                    <p class="text-sm text-gray-500">Total Amount</p>
-                    <p class="text-xl font-bold text-fantasy-brown">₹440</p>
-                </div>
+        <!-- Footer -->
+        <div class="flex flex-wrap justify-between gap-6 p-6 border-t bg-gray-50 rounded-b-2xl">
+            <div>
+                <p class="text-sm text-gray-500">Delivered To</p>
+                <p class="font-medium text-gray-700">
+                    {{ order.address.name }},
+                    {{ order.address.city }},
+                    {{ order.address.state }}
+                </p>
             </div>
 
-            <!-- Buttons -->
-            <div class="p-6 flex flex-wrap gap-3">
-                <button class="px-5 py-2 rounded-lg border font-semibold hover:bg-gray-100">
-                    View Invoice
-                </button>
-                <button class="px-5 py-2 rounded-lg border font-semibold hover:bg-gray-100">
-                    Reorder
-                </button>
-                <button class="px-5 py-2 rounded-lg bg-fantasy-brown text-white font-semibold hover:opacity-90">
-                    Track Order
-                </button>
+            <div class="text-right">
+                <p class="text-sm text-gray-500">Total Amount</p>
+                <p class="text-xl font-bold text-fantasy-brown">
+                    ₹{{ order.total_amount }}
+                </p>
             </div>
         </div>
+
+    </div>
+    {% endfor %}
+{% else %}
+    <p class="text-center text-gray-500 mt-10">No orders found.</p>
+{% endif %}
 
     </div>
 </section>

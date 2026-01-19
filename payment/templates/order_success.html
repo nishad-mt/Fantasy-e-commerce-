@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Confirmed</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gradient-to-br from-green-50 to-white min-h-screen flex items-center justify-center overflow-hidden">
+
+    <!-- Toast Popup -->
+    <div id="toast"
+         class="fixed top-6 right-6 bg-green-600 text-white px-6 py-4 rounded-xl shadow-xl flex items-center gap-3 opacity-0 translate-y-[-20px] transition-all duration-500 z-50">
+        <span class="text-xl">🎉</span>
+        <span class="font-semibold">Your order has been confirmed!</span>
+    </div>
+
+    <!-- Main Card -->
+    <div id="card"
+         class="bg-white rounded-2xl shadow-2xl p-10 max-w-md w-full text-center transform scale-75 opacity-0 transition-all duration-700">
+
+        <!-- Check Icon -->
+        <div class="mx-auto w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-6">
+            <svg class="w-10 h-10 text-green-600 animate-check"
+                 fill="none" stroke="currentColor" stroke-width="3"
+                 viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M5 13l4 4L19 7"/>
+            </svg>
+        </div>
+
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">
+            Order Confirmed
+        </h1>
+
+        <p class="text-gray-600 mb-6">
+            Your order <span class="font-semibold">#{{ order.order_id }}</span>
+            has been placed successfully.
+        </p>
+
+        <div class="text-sm text-gray-400">
+            Redirecting to order details…
+        </div>
+    </div>
+
+    <!-- Confetti -->
+    <canvas id="confetti" class="fixed inset-0 pointer-events-none"></canvas>
+
+    <!-- Scripts -->
+    <script>
+        // Animate card in
+        setTimeout(() => {
+            document.getElementById("card").classList.remove("scale-75", "opacity-0");
+            document.getElementById("card").classList.add("scale-100", "opacity-100");
+        }, 200);
+
+        // Show toast
+        setTimeout(() => {
+            const toast = document.getElementById("toast");
+            toast.classList.remove("opacity-0", "translate-y-[-20px]");
+            toast.classList.add("opacity-100", "translate-y-0");
+        }, 400);
+
+        // Confetti animation
+        const canvas = document.getElementById("confetti");
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const confettiPieces = Array.from({ length: 120 }).map(() => ({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height - canvas.height,
+            r: Math.random() * 6 + 2,
+            d: Math.random() * 40 + 10,
+            color: `hsl(${Math.random() * 360}, 100%, 60%)`,
+            tilt: Math.random() * 10 - 10
+        }));
+
+        function drawConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            confettiPieces.forEach(p => {
+                ctx.beginPath();
+                ctx.fillStyle = p.color;
+                ctx.ellipse(p.x, p.y, p.r, p.r / 2, p.tilt, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            updateConfetti();
+        }
+
+        function updateConfetti() {
+            confettiPieces.forEach(p => {
+                p.y += Math.cos(p.d) + 4;
+                p.x += Math.sin(p.d);
+                if (p.y > canvas.height) {
+                    p.y = -10;
+                    p.x = Math.random() * canvas.width;
+                }
+            });
+        }
+
+        let confettiInterval = setInterval(drawConfetti, 16);
+
+        // Stop confetti after 2 seconds
+        setTimeout(() => clearInterval(confettiInterval), 5000);
+
+        // Redirect to order detail page
+        setTimeout(() => {
+            window.location.href = "{% url 'order_detail' order.order_id  %}";
+        }, 2200);
+    </script>
+
+    <style>
+        @keyframes check {
+            0% { stroke-dasharray: 0, 50; }
+            100% { stroke-dasharray: 50, 0; }
+        }
+        .animate-check {
+            animation: check 0.6s ease-out forwards;
+        }
+    </style>
+
+</body>
+</html>
