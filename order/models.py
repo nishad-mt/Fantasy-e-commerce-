@@ -16,15 +16,18 @@ class Order(models.Model):
     ]
     PAYMENT_STATUS_CHOICES = [
         ("PENDING", "Pending"),
-        ("PAID", "Paid"),
+        ("SUCCESS", "success"),
         ("FAILED", "Failed"),
     ]
     STATUS_CHOICES = [
-        ("PENDING", "Pending Payment"),
-        ("PAID", "Paid"),
+        ("PENDING", "Pending"),
+        ("CONFIRMED", "Confirmed"),
+        ("PREPARING", "Preparing"),
+        ("PACKED", "packed"),
         ("DELIVERED", "Delivered"),
         ("CANCELLED", "Cancelled"),
     ]
+
 
     order_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

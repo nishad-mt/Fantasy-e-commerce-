@@ -4,14 +4,16 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import LoginForm
 from django.contrib.auth.decorators import login_required
-from products.models import Categories,Product,SizeVariant,ProductReview
+from products.models import Categories,Product,ProductReview
+from order.models import Order
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from django.views.decorators.cache import never_cache
+from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Prefetch
 from accounts.decarators import admin_required
 from django.db.models import Avg, Count
-
+from datetime import date, timedelta
 
 
 User = get_user_model()
@@ -122,6 +124,7 @@ def block(request, user_id):
 
     messages.success(request, f"{user.username or user.email} has been blocked")
     return redirect('user')
+
 @never_cache
 @login_required
 def unblock(request,user_id):
@@ -305,20 +308,89 @@ def admin_reviews(request):
     }
     return render(request, "admin_reviews.html", context)
 
-@never_cache
-@login_required
-def orders(request):
-    return render(request,"admin_orders.html")
+
+@staff_member_required
+def admin_order_list(request):
+    orders = Order.objects.all().order_by("-created_at")
+
+    search = request.GET.get("search")
+    if search:
+        orders = orders.filter(
+            Q(order_id__icontains=search) |
+            Q(user__username__icontains=search) |
+            Q(address__phone__icontains=search)
+        )
+
+    status = request.GET.get("status")
+    if status and status != "all":
+        orders = orders.filter(status=status.upper())
+
+    payment = request.GET.get("payment")
+    if payment == "COD":
+        orders = orders.filter(payment_method="COD")
+    elif payment == "Online":
+        orders = orders.exclude(payment_method="COD")
+
+    date_filter = request.GET.get("date")
+    today = date.today()
+
+    if date_filter == "today":
+        orders = orders.filter(created_at__date=today)
+    elif date_filter == "week":
+        orders = orders.filter(created_at__date__gte=today - timedelta(days=7))
+    elif date_filter == "month":
+        orders = orders.filter(created_at__month=today.month)
+
+    
+    STATUS_FLOW = {
+        "PENDING": ["CONFIRMED", "CANCELLED"],
+        "CONFIRMED": ["PACKED"],
+        "PACKED": ["DELIVERED"],
+    }
+
+    # Attach next actions to each order
+    for order in orders:
+        order.next_actions = STATUS_FLOW.get(order.status, [])
+
+    if request.method == "POST":
+        order_id = request.POST.get("order_id")
+        new_status = request.POST.get("status")
+
+        order = get_object_or_404(Order, order_id=order_id)
+
+        if order.payment_method != "COD" and order.payment_status != "SUCCESS":
+            messages.error(request, "Payment not verified.")
+            return redirect("orders")
+
+        # 🚦 Status validation
+        if new_status not in STATUS_FLOW.get(order.status, []):
+            messages.error(request, "Invalid status update.")
+            return redirect("orders")
+
+        order.status = new_status
+
+        # COD payment success on delivery
+        if new_status == "DELIVERED" and order.payment_method == "COD":
+            order.payment_status = "SUCCESS"
+
+        order.save()
+        messages.success(request, "Order status updated.")
+        return redirect("orders")
+
+    return render(request, "admin_orders.html", {
+        "orders": orders,
+        "filters": {
+            "search": search or "",
+            "status": status or "all",
+            "payment": payment or "all",
+            "date": date_filter or "all",
+        }
+    })
 
 @never_cache
 @login_required
 def Payments(request):
     return render(request,"payments.html")
-
-@never_cache
-@login_required
-def deliveries(request):
-    return render(request,"delivery.html")
 
 
 @never_cache

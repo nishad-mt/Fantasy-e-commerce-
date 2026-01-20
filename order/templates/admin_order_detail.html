@@ -1,0 +1,154 @@
+{% extends "dashboard.html" %}
+{% load static %}
+
+{% block content %}
+<div class="flex-1 overflow-y-auto p-4 md:p-8 space-y-8">
+
+    <!-- HEADER -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-stone-800">Order Details</h1>
+            <p class="text-sm text-stone-500 mt-1">
+                Order ID:
+                <span class="font-mono text-xs">
+                    {{ order.order_id|stringformat:"s"|slice:":18" }}<br>
+                    {{ order.order_id|stringformat:"s"|slice:"18:" }}
+                </span>
+            </p>
+        </div>
+
+        <!-- Status Badge -->
+        <span class="px-4 py-2 rounded-full text-sm font-semibold
+            {% if order.status == 'PENDING' %}
+                bg-orange-100 text-orange-700
+            {% elif order.status == 'CONFIRMED' %}
+                bg-blue-100 text-blue-700
+            {% elif order.status == 'DELIVERED' %}
+                bg-green-100 text-green-700
+            {% elif order.status == 'CANCELLED' %}
+                bg-red-100 text-red-700
+            {% endif %}
+        ">
+            {{ order.get_status_display }}
+        </span>
+    </div>
+
+    <!-- GRID -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- LEFT: ORDER & ITEMS -->
+        <div class="lg:col-span-2 space-y-6">
+
+            <!-- ITEMS -->
+            <section class="bg-white rounded-xl border border-stone-100 shadow-sm">
+                <div class="p-6 border-b">
+                    <h2 class="font-semibold text-stone-800">Ordered Items</h2>
+                </div>
+
+                <div class="divide-y">
+                    {% for item in items %}
+                    <div class="flex gap-4 p-6">
+                        <img
+                            src="{{ item.variant.product.main_image.url }}"
+                            class="w-20 h-20 rounded-lg object-cover border"
+                            alt="{{ item.variant.product.name }}"
+                        >
+
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-stone-800">
+                                {{ item.variant.product.name }}
+                            </h3>
+                            <p class="text-sm text-stone-500">
+                                {{ item.variant.size_name }}
+                            </p>
+
+                            <div class="flex justify-between mt-2 text-sm">
+                                <span class="text-stone-500">
+                                    Qty: {{ item.quantity }}
+                                </span>
+                                <span class="font-semibold text-stone-700">
+                                    ₹{{ item.price|floatformat:2 }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <!-- BILL SUMMARY -->
+            <section class="bg-white rounded-xl border border-stone-100 shadow-sm">
+                <div class="p-6">
+                    <h2 class="font-semibold text-stone-800 mb-4">Bill Summary</h2>
+
+                    <div class="space-y-2 text-sm text-stone-600">
+                        <div class="flex justify-between">
+                            <span>Items Total</span>
+                            <span>₹{{ order.order_items_total|floatformat:2 }}</span>
+                        </div>
+
+                        <div class="flex justify-between">
+                            <span>Delivery Charge</span>
+                            {% if order.delivery_charge == 0 %}
+                                <span class="text-green-600 font-semibold">FREE</span>
+                            {% else %}
+                                <span>₹{{ order.delivery_charge|floatformat:2 }}</span>
+                            {% endif %}
+                        </div>
+
+                        <hr>
+
+                        <div class="flex justify-between text-lg font-bold text-stone-800">
+                            <span>Total Amount</span>
+                            <span class="text-fantasy-brown">
+                                ₹{{ order.total_amount|floatformat:2 }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- RIGHT: CUSTOMER / PAYMENT / DELIVERY -->
+        <div class="space-y-6">
+
+            <!-- CUSTOMER -->
+            <section class="bg-white rounded-xl border border-stone-100 shadow-sm p-6">
+                <h2 class="font-semibold text-stone-800 mb-3">Customer</h2>
+                <p class="font-medium">{{ order.user.get_full_name|default:order.user.username }}</p>
+                <p class="text-sm text-stone-500">{{ order.user.email }}</p>
+            </section>
+
+            <!-- DELIVERY ADDRESS -->
+            <section class="bg-white rounded-xl border border-stone-100 shadow-sm p-6">
+                <h2 class="font-semibold text-stone-800 mb-3">Delivery Address</h2>
+                <p class="font-medium">{{ order.address.name }}</p>
+                <p class="text-sm text-stone-600 leading-relaxed mt-1">
+                    {{ order.address.street }}<br>
+                    {{ order.address.city }},
+                    {{ order.address.state }} – {{ order.address.pincode }}
+                </p>
+                <p class="text-sm mt-2">
+                    📞 {{ order.address.phone }}
+                </p>
+            </section>
+
+            <!-- PAYMENT -->
+            <section class="bg-white rounded-xl border border-stone-100 shadow-sm p-6">
+                <h2 class="font-semibold text-stone-800 mb-3">Payment</h2>
+
+                <div class="text-sm space-y-1">
+                    <p>
+                        <strong>Method:</strong>
+                        {{ order.get_payment_method_display }}
+                    </p>
+                    <p>
+                        <strong>Status:</strong>
+                        {{ order.get_payment_status_display }}
+                    </p>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+{% endblock %}

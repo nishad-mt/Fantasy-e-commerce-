@@ -6,6 +6,7 @@ from .models import Order,OrderItem
 from addresses.models import Address
 from django.contrib import messages
 from datetime import date,timedelta
+from django.db import transaction
 
 def order(request):
     orders = Order.objects.filter(user=request.user).prefetch_related(
@@ -22,7 +23,7 @@ def checkout(request):
     addresses = Address.objects.filter(user=request.user)
     default_address = addresses.filter(is_default=True).first()
     
-    delivery_date = date.today + timedelta(days=3)
+    delivery_date = date.today() + timedelta(days=3)
 
     return render(request, "checkout.html", {
         "addresses": addresses,
@@ -104,6 +105,8 @@ def order_detail(request,order_id):
         }
                   )
 
+
+@transaction.atomic
 @login_required
 def place_order(request):
     if request.method != "POST":
@@ -115,37 +118,37 @@ def place_order(request):
     if not items.exists():
         messages.error(request, "Your cart is empty.")
         return redirect("cart:cart")
-    
-    order = Order.objects.filter(user=request.user, status="PENDING").first()
+
+    order_id = request.POST.get("order_id")
+    order = get_object_or_404(
+        Order,
+        order_id=order_id,
+        user=request.user,
+        status="PENDING"
+    )
     if not order or not order.address:
         messages.error(request, "Please select a delivery address.")
         return redirect("checkout")
-    
+
     subtotal = sum(item.variant.price * item.quantity for item in items)
     delivery = Decimal("0.00") if subtotal > 500 else Decimal("40.00")
     total = subtotal + delivery
-    delivery_date = date.today() + timedelta(days=3)
 
     order.total_amount = total
     order.delivery_charge = delivery
-    order.delivery_date = delivery_date
+    order.delivery_date = date.today() + timedelta(days=3)
 
     payment_method = request.POST.get("payment_method")
 
     if payment_method == "COD":
         order.payment_method = "COD"
         order.payment_status = "PENDING"
-        order.status = "CONFIRMED"
+       
+    else:
+        messages.error(request, "Invalid payment method.")
+        return redirect("checkout")
 
     order.save()
-
-    for item in items:
-        OrderItem.objects.create(
-            order=order,
-            variant=item.variant,
-            quantity=item.quantity,
-            price=item.variant.price
-        )
 
     cart.items.all().delete()
 
@@ -174,3 +177,16 @@ def order_success(request, order_id):
         user=request.user
     )
     return render(request, "order_success.html", {"order": order})
+
+def admin_order_detail(request, order_id):
+    order = get_object_or_404(Order, order_id=order_id)
+    items = order.items.select_related("variant", "variant__product")
+
+    return render(
+        request,
+        "admin_order_detail.html",
+        {
+            "order": order,
+            "items": items,
+        },
+    )

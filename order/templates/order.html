@@ -84,16 +84,23 @@
             </div>
 
             <!-- Actions -->
+            {% if order.status == "PENDING" or order.status == "CONFIRMED" %}
             <div class="relative">
                 <button onclick="toggleMenu(this)"
                         class="text-gray-400 hover:text-gray-700 text-2xl leading-none">⋮</button>
 
                 <div class="hidden absolute right-0 mt-2 w-40 bg-white border rounded-xl shadow-md z-10">
-                    <button class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-50 text-red-600">
-                        Cancel Request
-                    </button>
+                    <form method="POST" action="">
+                        {% csrf_token %}
+                        <button
+                            class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-50 text-red-600">
+                            Cancel Request
+                        </button>
+                    </form>
                 </div>
             </div>
+            {% endif %}
+
 
         </div>
 

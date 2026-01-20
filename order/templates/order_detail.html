@@ -106,12 +106,12 @@
                 </h3>
 
                 <p class="font-semibold text-gray-800">
-                    Nishad
+                    {{order.address.name}}
                 </p>
                 <p class="text-sm text-gray-600 mt-1 leading-relaxed">
-                    Flat 4B, Dream Castle Apartments <br>
-                    Malappuram, Kerala – 676505 <br>
-                    Phone: +91 98765 43210
+                    {{ order.address.street }} <br>
+                    {{ order.address.city }}, {{ order.address.state }} – {{ order.address.pincode }} <br>
+                    Phone: +91 {{ order.address.phone }}
                 </p>
             </div>
 
@@ -124,28 +124,32 @@
                 <div class="space-y-2 text-sm">
                     <div class="flex justify-between text-gray-600">
                         <span>Items Total</span>
-                        <span>₹620</span>
+                        <span>₹{{ order.order_items_total }}</span>
                     </div>
 
                     <div class="flex justify-between text-gray-600">
-                        <span>Delivery Fee</span>
-                        <span class="text-green-600 font-semibold">FREE</span>
+                        <span>Delivery Charges</span>
+                            {% if order.delivery_charge == 0 %}
+                                <span class="text-green-600 font-semibold">FREE</span>
+                            {% else %}
+                                <span>₹{{ order.delivery_charge|floatformat:2 }}</span>
+                            {% endif %}                    
                     </div>
 
                     <div class="flex justify-between text-green-600">
                         <span>Discount</span>
-                        <span>- ₹180</span>
+                        <span>- ₹0</span>
                     </div>
 
                     <div class="flex justify-between border-t pt-3 font-bold text-lg">
                         <span>Total</span>
                         <span class="text-fantasy-brown">
-                            ₹440
+                            ₹{{ order.total_amount }}
                         </span>
                     </div>
 
                     <p class="text-xs text-gray-500 mt-2">
-                        Payment Method: Cash on Delivery
+                        Payment Method: {{ order.get_payment_method_display }}
                     </p>
                 </div>
             </div>
@@ -156,10 +160,6 @@
         <div class="flex flex-wrap gap-4">
             <button class="px-6 py-2 rounded-lg border border-orange-500 text-orange-600 font-semibold hover:bg-orange-50">
                 Cancel Request
-            </button>
-
-            <button class="px-6 py-2 rounded-lg bg-fantasy-brown text-white font-semibold hover:opacity-90">
-                Reorder
             </button>
         </div>
 
