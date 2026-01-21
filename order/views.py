@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from decimal import Decimal
 from cart.models import Cart
 from .models import Order,OrderItem
+from products.models import SizeVariant
 from addresses.models import Address
 from django.contrib import messages
 from datetime import date,timedelta
@@ -105,7 +106,6 @@ def order_detail(request,order_id):
         }
                   )
 
-
 @transaction.atomic
 @login_required
 def place_order(request):
@@ -190,3 +190,77 @@ def admin_order_detail(request, order_id):
             "items": items,
         },
     )
+    
+@login_required
+def cancel_order_request(request, order_id):
+    order = get_object_or_404(Order,order_id=order_id,user=request.user)
+
+    if order.status not in ["PENDING", "CONFIRMED"]:
+        messages.error(
+            request,
+            "This order can no longer be cancelled."
+        )
+        return redirect("order_detail", order_id=order.order_id)
+
+    order.status = "CANCELLED"
+
+    if order.payment_method != "COD":
+        order.payment_status = "FAILED"
+
+    order.save()
+
+    messages.success(
+        request,
+        "Your order has been cancelled successfully."
+    )
+
+    return redirect("order_detail", order_id=order.order_id)
+
+@login_required
+def buy_now(request, variant_id):
+    variant = get_object_or_404(SizeVariant, id=variant_id)
+
+    quantity = int(request.POST.get("quantity", 1))
+    quantity = max(1, quantity)
+
+    subtotal = variant.price * quantity
+    delivery = Decimal("0.00") if subtotal > 500 else Decimal("40.00")
+    total = subtotal + delivery
+
+    order = Order.objects.create(
+        user=request.user,
+        address=Address.objects.filter(user=request.user, is_default=True).first(),
+        order_items_total=subtotal,
+        delivery_charge=delivery,
+        total_amount=total,
+        delivery_date=date.today() + timedelta(days=3),
+        status="PENDING"
+    )
+
+    OrderItem.objects.create(
+        order=order,
+        variant=variant,
+        quantity=quantity,
+        price=variant.price
+    )
+
+    return redirect("pay_order", order_id=order.order_id)
+
+@login_required
+def confirm_payment(request, order_id):
+    if request.method != "POST":
+        return redirect("pay_order", order_id=order_id)
+
+    order = get_object_or_404(Order, order_id=order_id, user=request.user)
+
+    payment_method = request.POST.get("payment_method")
+
+    if payment_method not in ["COD", "UPI", "CARD"]:
+        messages.error(request, "Please select a payment method.")
+        return redirect("pay_order", order_id=order_id)
+
+    order.payment_method = payment_method
+    order.payment_status = "PENDING"
+    order.save()
+
+    return redirect("order_success", order_id=order.order_id)

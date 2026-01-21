@@ -32,9 +32,12 @@
                             </div>
                             <div>
                                 <h5 class="font-bold text-fantasy-brown mb-1">Our Castle</h5>
-                                <p class="text-sm leading-relaxed">Fantasy Food Pvt Ltd<br>123 Coffee Lane,
-                                    Ponnani,<br>Kerala, India</p>
+                                <p class="text-sm font-semibold">Fantasy Food Pvt Ltd</p>
+                                <p class="text-sm leading-relaxed">
+                                    {{ contact.address|linebreaksbr }}
+                                </p>
                             </div>
+
                         </div>
 
                         <div class="flex items-start gap-4">
@@ -44,7 +47,7 @@
                             </div>
                             <div>
                                 <h5 class="font-bold text-fantasy-brown mb-1">Call Us</h5>
-                                <p class="text-sm font-mono">+91 98765 43210</p>
+                                <p class="text-sm font-mono">{{ contact.contact_number }}</p>
                             </div>
                         </div>
 
@@ -55,18 +58,7 @@
                             </div>
                             <div>
                                 <h5 class="font-bold text-fantasy-brown mb-1">Email Us</h5>
-                                <p class="text-sm font-mono">support@fantasyfood.com</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-start gap-4">
-                            <div
-                                class="w-10 h-10 rounded-full bg-fantasy-cream flex items-center justify-center text-fantasy-brown flex-shrink-0">
-                                <i class="fa-solid fa-clock"></i>
-                            </div>
-                            <div>
-                                <h5 class="font-bold text-fantasy-brown mb-1">Working Hours</h5>
-                                <p class="text-sm">Mon – Sat: 9 AM – 9 PM<br>Sun: 10 AM – 6 PM</p>
+                                <p class="text-sm font-mono">{{ contact.email }}</p>
                             </div>
                         </div>
                     </div>
@@ -87,61 +79,59 @@
 
                     <h3 class="text-2xl font-serif font-bold text-fantasy-brown mb-6">Send us a Message</h3>
 
-                    <form id="contactForm" class="space-y-5">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Full Name <span
-                                        class="text-red-400">*</span></label>
-                                <input type="text"
-                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-fantasy-gold focus:ring-1 focus:ring-fantasy-gold outline-none transition-colors bg-fantasy-cream/30"
-                                    placeholder="John Doe" required>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Email Address <span
-                                        class="text-red-400">*</span></label>
-                                <input type="email"
-                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-fantasy-gold focus:ring-1 focus:ring-fantasy-gold outline-none transition-colors bg-fantasy-cream/30"
-                                    placeholder="john@example.com" required>
-                            </div>
-                        </div>
+<form id="contactForm" method="POST" class="space-y-5">
+    {% csrf_token %}
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Phone Number</label>
-                                <input type="tel"
-                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-fantasy-gold focus:ring-1 focus:ring-fantasy-gold outline-none transition-colors bg-fantasy-cream/30"
-                                    placeholder="+91 ...">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Category <span
-                                        class="text-red-400">*</span></label>
-                                <select
-                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-fantasy-gold focus:ring-1 focus:ring-fantasy-gold outline-none transition-colors bg-fantasy-cream/30"
-                                    required>
-                                    <option disabled selected>Select Topic</option>
-                                    <option>Order Issue</option>
-                                    <option>Refund / Return</option>
-                                    <option>Partner & Wholesale</option>
-                                    <option>Feedback</option>
-                                    <option>Others</option>
-                                </select>
-                            </div>
-                        </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+            <label class="block text-sm font-bold text-gray-700 mb-2">
+                Full Name <span class="text-red-400">*</span>
+            </label>
+            <input type="text" name="name" required
+                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-fantasy-gold focus:ring-1 focus:ring-fantasy-gold bg-fantasy-cream/30"
+                placeholder="John Doe">
+        </div>
+    </div>
 
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2">Message <span
-                                    class="text-red-400">*</span></label>
-                            <textarea rows="5"
-                                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-fantasy-gold focus:ring-1 focus:ring-fantasy-gold outline-none transition-colors bg-fantasy-cream/30"
-                                placeholder="How can we help you today?" required></textarea>
-                        </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+            <label class="block text-sm font-bold text-gray-700 mb-2">Phone Number</label>
+            <input type="text" name="number"
+                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-fantasy-gold focus:ring-1 focus:ring-fantasy-gold bg-fantasy-cream/30"
+                placeholder="+91 9876543210">
+        </div>
 
-                        <button type="submit"
-                            class="w-full bg-fantasy-brown text-white font-bold py-4 rounded-xl hover:bg-opacity-90 hover:shadow-lg transition-all transform active:scale-95 flex justify-center items-center gap-2">
-                            <span>Send Message</span>
-                            <i class="fa-regular fa-paper-plane"></i>
-                        </button>
-                    </form>
+        <div>
+            <label class="block text-sm font-bold text-gray-700 mb-2">
+                Category <span class="text-red-400">*</span>
+            </label>
+            <select name="category" required
+                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-fantasy-gold focus:ring-1 focus:ring-fantasy-gold bg-fantasy-cream/30">
+                <option value="" disabled selected>Select Topic</option>
+                <option value="order">Order Issue</option>
+                <option value="payment">Cancel request</option>
+                <option value="partner">Partner & Wholesale</option>
+                <option value="feedback">Feedback</option>
+                <option value="other">Others</option>
+            </select>
+        </div>
+    </div>
+
+    <div>
+        <label class="block text-sm font-bold text-gray-700 mb-2">
+            Message <span class="text-red-400">*</span>
+        </label>
+        <textarea name="message" rows="5" required
+            class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-fantasy-gold focus:ring-1 focus:ring-fantasy-gold bg-fantasy-cream/30"
+            placeholder="Tell us more and we'll find the best solution for you"></textarea>
+    </div>
+
+    <button type="submit"
+        class="w-full bg-fantasy-brown text-white font-bold py-4 rounded-xl hover:bg-opacity-90 hover:shadow-lg transition-all">
+        <span>Send Message</span>
+        <i class="fa-regular fa-paper-plane"></i>
+    </button>
+</form>
                 </div>
             </div>
         </div>
@@ -150,12 +140,25 @@
 
 <script>
     document.getElementById("contactForm").addEventListener("submit", function (e) {
-        e.preventDefault();
-        const successMsg = document.getElementById("successMessage");
-        successMsg.classList.remove("hidden");
-        this.reset();
-        window.scrollTo({ top: successMsg.offsetTop - 100, behavior: 'smooth' });
-        setTimeout(() => { successMsg.classList.add('hidden'); }, 5000);
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    fetch("{% url 'contact_message' %}", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+            "X-Requested-With": "XMLHttpRequest"
+        },
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById("successMessage").classList.remove("hidden");
+            document.getElementById("contactForm").reset();
+        }
     });
+});
 </script>
 {% endblock %}

@@ -14,7 +14,8 @@ from django.db.models import Prefetch
 from accounts.decarators import admin_required
 from django.db.models import Avg, Count
 from datetime import date, timedelta
-
+from home.models import SiteContact,ContactMessage
+from django.utils.timezone import now
 
 User = get_user_model()
 
@@ -393,9 +394,29 @@ def Payments(request):
     return render(request,"payments.html")
 
 
-@never_cache
+@admin_required
 def admin_contact(request):
-    return render(request,"admin_contact.html")
+    contact_info, _ = SiteContact.objects.get_or_create(
+        id=1,
+        defaults={
+            "address": "",
+            "contact_number": "",
+            "email": "",
+            "is_active": True,
+        }
+    )
+
+    messages = ContactMessage.objects.all().order_by("-created_at")
+
+    context = {
+        "contact": contact_info,
+        "messages": messages,
+        "total_messages": messages.count(),
+        "pending_messages": messages.filter(status="pending").count(),
+        "replied_messages": messages.filter(status="replied").count(),
+    }
+
+    return render(request, "admin_contact.html", context)
 
 @never_cache
 @login_required

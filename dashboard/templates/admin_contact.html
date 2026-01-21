@@ -12,7 +12,7 @@
                 <p class="text-amber-700 mt-1">Manage public contact info and user messages</p>
             </div>
             <div class="flex items-center gap-3">
-                <a href="index.html" class="text-amber-700 hover:text-amber-900 font-medium text-sm">Dashboard</a>
+                <a href="{% url 'home' %}" class="text-amber-700 hover:text-amber-900 font-medium text-sm">Dashboard</a>
                 <span class="text-amber-300">/</span>
                 <span class="text-amber-900 font-medium text-sm">Contact</span>
             </div>
@@ -20,56 +20,56 @@
 
         <!-- Section 1: Contact Details Management -->
         <div class="bg-white rounded-xl shadow-sm overflow-hidden mb-8 border border-amber-100">
-            <div class="px-6 py-4 border-b border-amber-100 flex justify-between items-center bg-amber-50">
-                <h3 class="text-lg font-bold text-amber-900">Public Contact Details</h3>
-                <button onclick="openEditContactModal()"
-                    class="text-sm bg-amber-600 text-white px-3 py-2 rounded-lg hover:bg-amber-700 transition shadow-sm flex items-center gap-2">
-                    <i class="fa-solid fa-pen-to-square"></i> Edit Details
-                </button>
+    <div class="px-6 py-4 border-b border-amber-100 flex justify-between items-center bg-amber-50">
+        <h3 class="text-lg font-bold text-amber-900">Public Contact Details</h3>
+        <button onclick="openEditContactModal()"
+            class="text-sm bg-amber-600 text-white px-3 py-2 rounded-lg hover:bg-amber-700 transition shadow-sm flex items-center gap-2">
+            <i class="fa-solid fa-pen-to-square"></i> Edit Details
+        </button>
+    </div>
+
+    <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <!-- Address -->
+        <div class="p-4 rounded-lg bg-gray-50 border border-gray-100">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                    <i class="fa-solid fa-location-dot"></i>
+                </div>
+                <h4 class="font-semibold text-gray-900">Address</h4>
             </div>
-            <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- Address -->
-                <div class="p-4 rounded-lg bg-gray-50 border border-gray-100">
-                    <div class="flex items-center gap-3 mb-2">
-                        <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
-                            <i class="fa-solid fa-location-dot"></i></div>
-                        <h4 class="font-semibold text-gray-900">Address</h4>
-                    </div>
-                    <p class="text-sm text-gray-600 whitespace-pre-line" id="disp_address">123 Coffee Lane, Ponnani,
-                        Kerala, India</p>
-                </div>
+            <p class="text-sm text-gray-600 whitespace-pre-line" id="disp_address">
+                {{ contact.address|default:"—" }}
+            </p>
+        </div>
 
-                <!-- Phone -->
-                <div class="p-4 rounded-lg bg-gray-50 border border-gray-100">
-                    <div class="flex items-center gap-3 mb-2">
-                        <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
-                            <i class="fa-solid fa-phone"></i></div>
-                        <h4 class="font-semibold text-gray-900">Phone</h4>
-                    </div>
-                    <p class="text-sm text-gray-600 font-mono" id="disp_phone">+91 98765 43210</p>
+        <!-- Phone -->
+        <div class="p-4 rounded-lg bg-gray-50 border border-gray-100">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                    <i class="fa-solid fa-phone"></i>
                 </div>
-
-                <!-- Email -->
-                <div class="p-4 rounded-lg bg-gray-50 border border-gray-100">
-                    <div class="flex items-center gap-3 mb-2">
-                        <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
-                            <i class="fa-solid fa-envelope"></i></div>
-                        <h4 class="font-semibold text-gray-900">Email</h4>
-                    </div>
-                    <p class="text-sm text-gray-600" id="disp_email">support@fantasyfood.com</p>
-                </div>
-
-                <!-- Hours -->
-                <div class="p-4 rounded-lg bg-gray-50 border border-gray-100">
-                    <div class="flex items-center gap-3 mb-2">
-                        <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
-                            <i class="fa-solid fa-clock"></i></div>
-                        <h4 class="font-semibold text-gray-900">Working Hours</h4>
-                    </div>
-                    <p class="text-sm text-gray-600 whitespace-pre-line" id="disp_hours">Mon – Sat: 9 AM – 9 PM
-                        Sun: 10 AM – 6 PM</p>
-                </div>
+                <h4 class="font-semibold text-gray-900">Phone</h4>
             </div>
+            <p class="text-sm text-gray-600 font-mono" id="disp_phone">
+                {{ contact.contact_number|default:"—" }}
+            </p>
+        </div>
+
+        <!-- Email -->
+        <div class="p-4 rounded-lg bg-gray-50 border border-gray-100">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                    <i class="fa-solid fa-envelope"></i>
+                </div>
+                <h4 class="font-semibold text-gray-900">Email</h4>
+            </div>
+            <p class="text-sm text-gray-600" id="disp_email">
+                {{ contact.email|default:"—" }}
+            </p>
+        </div>
+
+    </div>
         </div>
 
         <!-- Section 2: Messages -->
@@ -80,7 +80,7 @@
             <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-blue-500 flex items-center justify-between">
                 <div>
                     <p class="text-xs font-bold text-blue-600 uppercase">Total Messages</p>
-                    <h3 class="text-2xl font-bold text-gray-900 mt-1" id="stat_total">14</h3>
+                    <h3 class="text-2xl font-bold text-gray-900 mt-1" id="stat_total">{{ total_messages}}</h3>
                 </div>
                 <div class="p-2 bg-blue-50 rounded-lg text-blue-600"><i class="fa-solid fa-inbox text-xl"></i></div>
             </div>
@@ -88,7 +88,7 @@
                 class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-amber-500 flex items-center justify-between">
                 <div>
                     <p class="text-xs font-bold text-amber-600 uppercase">Pending Reply</p>
-                    <h3 class="text-2xl font-bold text-gray-900 mt-1" id="stat_pending">5</h3>
+                    <h3 class="text-2xl font-bold text-gray-900 mt-1" id="stat_pending">{{ pending_messages }}</h3>
                 </div>
                 <div class="p-2 bg-amber-50 rounded-lg text-amber-600"><i
                         class="fa-solid fa-hourglass-half text-xl"></i></div>
@@ -97,7 +97,7 @@
                 class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-green-500 flex items-center justify-between">
                 <div>
                     <p class="text-xs font-bold text-green-600 uppercase">Replied</p>
-                    <h3 class="text-2xl font-bold text-gray-900 mt-1" id="stat_replied">9</h3>
+                    <h3 class="text-2xl font-bold text-gray-900 mt-1" id="stat_replied">{{ replied_messages }}</h3>
                 </div>
                 <div class="p-2 bg-green-50 rounded-lg text-green-600"><i class="fa-solid fa-check-double text-xl"></i>
                 </div>
@@ -142,19 +142,83 @@
                                 Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-amber-100" id="messagesTableBody">
-                        <!-- Populated by JS -->
-                    </tbody>
+<tbody class="bg-white divide-y divide-amber-100">
+
+    {% for msg in messages %}
+    <tr class="hover:bg-amber-50 transition-colors">
+
+        <!-- Date -->
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            {{ msg.created_at|date:"d M Y, h:i A" }}
+        </td>
+
+        <!-- Sender -->
+        <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm font-medium text-gray-900">
+                {{ msg.name }}
+            </div>
+            <div class="text-xs text-gray-500">
+                {% if msg.user %}
+                    {{ msg.user.username }} (User)
+                {% else %}
+                    Guest
+                {% endif %}
+            </div>
+        </td>
+
+        <!-- Category -->
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+            {{ msg.category|default:"—" }}
+        </td>
+
+        <!-- Message Preview -->
+        <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">
+            {{ msg.message|truncatechars:80 }}
+        </td>
+
+        <!-- Status -->
+        <td class="px-6 py-4 whitespace-nowrap">
+            {% if msg.status == "pending" %}
+                <span class="px-2 inline-flex text-xs font-semibold rounded-full
+                             bg-amber-100 text-amber-800">
+                    Pending
+                </span>
+            {% else %}
+                <span class="px-2 inline-flex text-xs font-semibold rounded-full
+                             bg-green-100 text-green-800">
+                    Replied
+                </span>
+            {% endif %}
+        </td>
+
+        <!-- Actions -->
+        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+            <button
+                onclick="openMessageModal({{ msg.id }})"
+                class="text-amber-600 hover:text-amber-900 bg-amber-50
+                       hover:bg-amber-100 px-3 py-1 rounded transition">
+                {% if msg.status == "pending" %}
+                    Reply
+                {% else %}
+                    View
+                {% endif %}
+            </button>
+        </td>
+
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+            No messages found.
+        </td>
+    </tr>
+    {% endfor %}
+
+</tbody>
+
                 </table>
             </div>
-            <!-- Pagination (Static) -->
-            <div class="px-6 py-3 border-t border-amber-100 flex items-center justify-between text-sm text-gray-500">
-                <span>Showing <span id="showingCount">0</span> results</span>
-                <div class="flex gap-1">
-                    <button class="px-3 py-1 border border-amber-200 rounded hover:bg-amber-50">Prev</button>
-                    <button class="px-3 py-1 border border-amber-200 rounded hover:bg-amber-50">Next</button>
-                </div>
-            </div>
+            
         </div>
 
     </div>
@@ -173,35 +237,45 @@
                     <button onclick="closeEditContactModal()" class="text-gray-400 hover:text-gray-600"><i
                             class="fa-solid fa-times text-xl"></i></button>
                 </div>
-                <div class="p-6 space-y-4">
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Address</label>
-                        <textarea id="edit_address" rows="3"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500"></textarea>
+                <form id="contactForm" method="POST">
+                    {% csrf_token %}
+
+                    <div class="p-6 space-y-4">
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Address</label>
+                            <textarea name="address" id="edit_address" rows="3"
+                                class="w-full px-3 py-2 border rounded-lg focus:ring-amber-500"></textarea>
+                            <p class="text-red-600 text-xs mt-1 hidden" id="error_address"></p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Phone</label>
+                            <input type="text" name="contact_number" id="edit_phone"
+                                placeholder="+91 9876543210"
+                                class="w-full px-3 py-2 border rounded-lg focus:ring-amber-500">
+                            <p class="text-red-600 text-xs mt-1 hidden" id="error_contact_number"></p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Email</label>
+                            <input type="email" name="email" id="edit_email"
+                                class="w-full px-3 py-2 border rounded-lg focus:ring-amber-500">
+                            <p class="text-red-600 text-xs mt-1 hidden" id="error_email"></p>
+                        </div>
+
                     </div>
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Phone</label>
-                        <input type="text" id="edit_phone"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+
+                    <div class="bg-gray-50 px-4 py-3 flex justify-end gap-2">
+                        <button type="button" onclick="closeEditContactModal()"
+                            class="px-4 py-2 border rounded-lg">Cancel</button>
+
+                        <button type="submit"
+                            class="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700">
+                            Save Changes
+                        </button>
                     </div>
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Email</label>
-                        <input type="email" id="edit_email"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Working Hours</label>
-                        <textarea id="edit_hours" rows="2"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500"></textarea>
-                    </div>
-                </div>
-                <div class="bg-gray-50 px-4 py-3 flex flex-row-reverse gap-2">
-                    <button onclick="saveContactInfo()"
-                        class="w-full sm:w-auto px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 font-medium shadow-sm">Save
-                        Changes</button>
-                    <button onclick="closeEditContactModal()"
-                        class="w-full sm:w-auto px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium">Cancel</button>
-                </div>
+                </form>                
             </div>
         </div>
     </div>
@@ -257,14 +331,7 @@
     </div>
 
     <script>
-        // --- Data ---
-        let contactInfo = {
-            address: "123 Coffee Lane, Ponnani,\nKerala, India",
-            phone: "+91 98765 43210",
-            email: "support@fantasyfood.com",
-            hours: "Mon – Sat: 9 AM – 9 PM\nSun: 10 AM – 6 PM"
-        };
-
+        
         let messages = [
             { id: 1, sender: "Alice Wonder", email: "alice@example.com", category: "Order Issue", subject: "Missing Item in Order #442", date: "2025-01-15", content: "Hi, I received my order yesterday but the Chocolate Fudge was missing. Please help.", status: "pending", reply: null },
             { id: 2, sender: "Bob Builder", email: "bob@construction.com", category: "Feedback", subject: "Loved the cake!", date: "2025-01-14", content: "Just wanted to say the cake was amazing. Will order again!", status: "replied", reply: "Thank you Bob! We are glad you liked it.", replyDate: "2025-01-14" },
@@ -276,13 +343,6 @@
         let currentMsgId = null;
 
         // --- Render Functions ---
-
-        function renderContactInfo() {
-            document.getElementById('disp_address').innerText = contactInfo.address;
-            document.getElementById('disp_phone').innerText = contactInfo.phone;
-            document.getElementById('disp_email').innerText = contactInfo.email;
-            document.getElementById('disp_hours').innerText = contactInfo.hours;
-        }
 
         function renderStats() {
             document.getElementById('stat_total').innerText = messages.length;
@@ -334,28 +394,92 @@
         // --- Modals & Actions ---
 
         // Contact Info Edit
-        function openEditContactModal() {
-            document.getElementById('edit_address').value = contactInfo.address;
-            document.getElementById('edit_phone').value = contactInfo.phone;
-            document.getElementById('edit_email').value = contactInfo.email;
-            document.getElementById('edit_hours').value = contactInfo.hours;
-            document.getElementById('editContactModal').classList.remove('hidden');
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    cookie = cookie.trim();
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
         }
+
+        function openEditContactModal() {
+            document.getElementById("edit_address").value = "{{ contact.address|escapejs }}";
+            document.getElementById("edit_phone").value = "{{ contact.contact_number|escapejs }}";
+            document.getElementById("edit_email").value = "{{ contact.email|escapejs }}";
+            document.getElementById("editContactModal").classList.remove("hidden");
+        }
+    
+        document.getElementById("contactForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        // clear previous errors
+        ["address", "contact_number", "email"].forEach(field => {
+            const el = document.getElementById(`error_${field}`);
+            el.classList.add("hidden");
+            el.innerText = "";
+        });
+
+        const formData = new FormData(this);
+
+        fetch("{% url 'update_site_contact' %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": getCookie("csrftoken"),
+                "X-Requested-With": "XMLHttpRequest"
+            },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                for (const field in data.errors) {
+                    const errorEl = document.getElementById(`error_${field}`);
+                    if (errorEl) {
+                        errorEl.innerText = data.errors[field][0];
+                        errorEl.classList.remove("hidden");
+                    }
+                }
+            }
+        });
+    });
 
         function closeEditContactModal() {
-            document.getElementById('editContactModal').classList.add('hidden');
+            document.getElementById("editContactModal").classList.add("hidden");
         }
 
-        function saveContactInfo() {
-            contactInfo.address = document.getElementById('edit_address').value;
-            contactInfo.phone = document.getElementById('edit_phone').value;
-            contactInfo.email = document.getElementById('edit_email').value;
-            contactInfo.hours = document.getElementById('edit_hours').value;
-            renderContactInfo();
-            closeEditContactModal();
-            // In a real app, send AJAX request here
-            alert("Contact details updated successfully!");
-        }
+        document.getElementById("contactForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch("{% url 'update_site_contact' %}", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken"),
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload(); // ✅ simplest & safest
+                } else {
+                    alert("Failed to save contact info");
+                    console.error(data.errors);
+                }
+            })
+            .catch(err => console.error("Error:", err));
+        });
 
         // Message View/Reply
         function openMessageModal(id) {

@@ -53,7 +53,7 @@
         <div class="min-h-screen pb-24 font-sans">
             <div class="container mx-auto px-2 md:px-4 pt-8">
 
-                <form method="POST" action="{% url 'place_order' %}" class="space-y-8">
+                <form method="POST" action="{% url 'confirm_payment' order.order_id %}" class="space-y-8">
                     {% csrf_token %}
                     <section
                         class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300">

@@ -153,42 +153,35 @@
                         </button>
                     </div>
 
-                    <!-- Add to Cart -->
-{% if messages %}
-    {% for message in messages %}
-        {% if message.tags == "success" %}
-            <div id="cart-success"
-                 class="flex-1 min-w-[240px] h-14 rounded-full
-                        bg-green-100 text-green-700 font-semibold text-lg
-                        flex items-center justify-center gap-2">
-                <i class="fa-solid fa-check"></i>
-                {{ message }}
-            </div>
-        {% endif %}
-    {% endfor %}
-{% else %}
-    <!-- Add to Cart -->
-    <form method="POST" action="{% url 'cart:toggle_cart' 0 %}" id="addToCartForm">
-        {% csrf_token %}
+                        <!-- Add to Cart -->
+                        <form method="POST" action="{% url 'cart:toggle_cart' 0 %}" id="addToCartForm">
+                            {% csrf_token %}
 
-        <input type="hidden" name="variant_id" id="selectedVariantInput">
-        <input type="hidden" name="quantity" id="quantityHidden" value="1">
+                            <input type="hidden" name="variant_id" id="selectedVariantInput">
+                            <input type="hidden" name="quantity" id="quantityHidden" value="1">
 
-        <button type="submit"
-            id="addToCartBtn"
-            class="flex-1 min-w-[240px] h-14 rounded-full bg-fantasy-brown
-                   text-white font-semibold text-lg">
-            <i class="fa-solid fa-cart-plus"></i> Add to Cart
-        </button>
-    </form>
-{% endif %}
+                            <button type="submit"
+                                id="addToCartBtn"
+                                class="flex-1 min-w-[240px] h-14 rounded-full bg-fantasy-brown
+                                    text-white font-semibold text-lg transition-all duration-300 ease-out hover:bg-fantasy-gold hover:text-fantasy-brown
+                                hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 active:shadow-md">
+                                <i class="fa-solid fa-cart-plus"></i> Add to Cart
+                            </button>
+                        </form>
 
                     <!-- Buy Now -->
-                    <a href="{% url 'checkout' %}"
-                        class="flex-1 bg-fantasy-gold text-fantasy-brown h-14 rounded-full font-bold shadow-lg hover:bg-opacity-90 hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2 text-lg">
-                        <i class="fa-solid fa-bolt"></i>
-                        Buy Now
-                    </a>
+                    <form method="POST"action="{% url 'buy_now' initial_variant.id %}"
+                        class="flex-1">
+                        {% csrf_token %}
+                        <input type="hidden" name="quantity" id="buyNowQuantity" value="1">
+                        <button
+                            class="w-full h-14 rounded-full font-semibold text-lg bg-fantasy-brown text-white
+                                transition-all duration-300 ease-out hover:bg-fantasy-gold hover:text-fantasy-brown
+                                hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 active:shadow-md">
+                            Buy Now
+                        </button>
+                    </form>
+
                 </div>
 
                 <!-- Coupon & Delivery -->
@@ -470,6 +463,11 @@ function selectVariant(btn) {
 
     // enable button
     document.getElementById('addToCartBtn').disabled = false;
+    document.getElementById('quantity-input').value = 1;
+    document.getElementById('quantityHidden').value = 1;
+    document.getElementById('buyNowQuantity').value = 1;
+
+    updateTotalPrice(1);
 }
 
     // Quantity Logic
@@ -490,6 +488,7 @@ function updateQuantity(change) {
 
     // ✅ sync quantity to form
     document.getElementById('quantityHidden').value = qty;
+    document.getElementById('buyNowQuantity').value = qty;   
 
     updateTotalPrice(qty);
     toggleQtyButtons(qty);
