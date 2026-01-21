@@ -107,22 +107,40 @@
         <!-- Messages Table -->
         <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-amber-100">
             <!-- Filters -->
-            <div class="p-4 border-b border-amber-100 bg-amber-50 flex flex-col sm:flex-row gap-4 justify-between">
-                <div class="relative w-full sm:w-64">
-                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-amber-400"><i
-                            class="fa-solid fa-search"></i></span>
-                    <input type="text" id="searchInput" onkeyup="renderMessages()"
-                        placeholder="Search sender or subject..."
-                        class="pl-10 pr-4 py-2 w-full rounded-lg border-amber-200 focus:ring-amber-500 focus:border-amber-500 border text-sm">
-                </div>
-                <select id="filterStatus" onchange="renderMessages()"
-                    class="rounded-lg border-amber-200 focus:ring-amber-500 focus:border-amber-500 border text-sm py-2 px-3 text-amber-900">
-                    <option value="all">All Status</option>
-                    <option value="pending">Pending</option>
-                    <option value="replied">Replied</option>
-                </select>
-            </div>
+            <form method="get"
+                class="p-4 border-b border-amber-100 bg-amber-50
+                        flex flex-col sm:flex-row gap-4 justify-between">
 
+                <!-- Search -->
+                <div class="relative w-full sm:w-64">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-amber-400">
+                        <i class="fa-solid fa-search"></i>
+                    </span>
+                    <input type="text"
+                        name="q"
+                        value="{{ request.GET.q }}"
+                        placeholder="Search name, phone or message..."
+                        class="pl-10 pr-4 py-2 w-full rounded-lg border-amber-200
+                                focus:ring-amber-500 focus:border-amber-500 border text-sm">
+                </div>
+
+                <!-- Status Filter -->
+                <select name="status"
+                        onchange="this.form.submit()"
+                        class="rounded-lg border-amber-200 focus:ring-amber-500
+                            focus:border-amber-500 border text-sm py-2 px-3 text-amber-900">
+
+                    <option value="">All Status</option>
+                    <option value="pending" {% if request.GET.status == "pending" %}selected{% endif %}>
+                        Pending
+                    </option>
+                    <option value="replied" {% if request.GET.status == "replied" %}selected{% endif %}>
+                        Replied
+                    </option>
+                </select>
+
+            </form>
+            <!-- table -->
             <div class="overflow-x-auto custom-scrollbar">
                 <table class="min-w-full divide-y divide-amber-200">
                     <thead class="bg-amber-50">
@@ -192,18 +210,23 @@
         </td>
 
         <!-- Actions -->
-        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-            <button
-                onclick="openMessageModal({{ msg.id }})"
-                class="text-amber-600 hover:text-amber-900 bg-amber-50
-                       hover:bg-amber-100 px-3 py-1 rounded transition">
-                {% if msg.status == "pending" %}
-                    Reply
-                {% else %}
-                    View
-                {% endif %}
-            </button>
-        </td>
+<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+    <button
+        onclick="openMessageModal(
+            '{{ msg.id }}',
+            '{{ msg.name|escapejs }}',
+            '{{ msg.number|escapejs }}',
+            '{{ msg.category|escapejs }}',
+            '{{ msg.message|escapejs }}',
+            '{{ msg.reply|default:""|escapejs }}',
+            '{{ msg.status }}'
+        )"
+        class="text-amber-600 hover:text-amber-900 bg-amber-50
+               hover:bg-amber-100 px-3 py-1 rounded transition">
+        View
+    </button>
+</td>
+
 
     </tr>
     {% empty %}
@@ -281,65 +304,55 @@
     </div>
 
     <!-- Modal: View/Reply Message -->
-    <div id="messageModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog"
-        aria-modal="true">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeMessageModal()"></div>
-            <div
-                class="relative bg-white rounded-xl shadow-xl w-full max-w-2xl overflow-hidden border-t-4 border-amber-600">
-                <div class="bg-amber-50 px-6 py-4 border-b border-amber-100 flex justify-between items-start">
-                    <div>
-                        <h3 class="text-xl font-bold text-amber-900 mb-1" id="msg_subject">Message Subject</h3>
-                        <div class="flex items-center gap-2 text-sm text-gray-500">
-                            <span id="msg_sender">John Doe</span> &bull; <span id="msg_email">john@example.com</span>
-                        </div>
-                    </div>
-                    <button onclick="closeMessageModal()" class="text-gray-400 hover:text-gray-600"><i
-                            class="fa-solid fa-times text-xl"></i></button>
-                </div>
+   <div id="messageModal"
+     class="fixed inset-0 z-50 hidden bg-black/40 flex items-center justify-center">
 
-                <div class="p-6 overflow-y-auto max-h-[60vh]">
-                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 mb-6">
-                        <p class="text-xs text-gray-400 mb-2 uppercase font-bold tracking-wide">Received: <span
-                                id="msg_date">Oct 12, 2025</span></p>
-                        <p class="text-gray-800 text-base leading-relaxed whitespace-pre-line" id="msg_content">Message
-                            content goes here...</p>
-                    </div>
+    <div class="bg-white w-full max-w-2xl rounded-xl shadow-lg overflow-hidden">
 
-                    <div id="replySection">
-                        <label class="block text-sm font-bold text-amber-900 mb-2">Reply to Customer</label>
-                        <textarea id="replyText" rows="4"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-amber-500 focus:border-amber-500 mb-3"
-                            placeholder="Type your reply here..."></textarea>
-                        <button onclick="sendReply()"
-                            class="bg-amber-600 text-white px-6 py-2 rounded-lg hover:bg-amber-700 font-medium transition flex items-center gap-2 shadow-sm">
-                            <i class="fa-solid fa-paper-plane"></i> Send Reply
-                        </button>
-                    </div>
-
-                    <div id="repliedSection" class="hidden">
-                        <div class="bg-green-50 border border-green-100 p-4 rounded-lg">
-                            <p class="text-green-800 font-medium flex items-center gap-2"><i
-                                    class="fa-solid fa-check-circle"></i> Replied on <span id="msg_reply_date"></span>
-                            </p>
-                            <p class="text-gray-600 mt-2 text-sm italic" id="msg_reply_content"></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="px-6 py-4 border-b flex justify-between items-center bg-amber-50">
+            <h3 class="text-lg font-bold text-amber-900">Message Details</h3>
+            <button onclick="closeMessageModal()">&times;</button>
         </div>
+
+        <div class="p-6 space-y-4">
+
+            <p><strong>Name:</strong> <span id="modalName"></span></p>
+            <p><strong>Phone:</strong> <span id="modalPhone"></span></p>
+            <p><strong>Category:</strong> <span id="modalCategory"></span></p>
+
+            <div class="bg-gray-50 p-4 rounded">
+                <p class="font-semibold mb-1">Message</p>
+                <p id="modalMessage" class="text-sm whitespace-pre-line"></p>
+            </div>
+
+            <div id="replySection">
+                <label class="font-semibold">Reply</label>
+                <textarea id="modalReply"
+                          class="w-full mt-1 border rounded-lg p-3"
+                          rows="4"
+                          placeholder="Type your reply..."></textarea>
+            </div>
+
+        </div>
+
+        <div class="px-6 py-4 border-t flex justify-end gap-3">
+            <button onclick="closeMessageModal()"
+                    class="px-4 py-2 border rounded-lg">
+                Close
+            </button>
+
+            <button onclick="sendReply()"
+                    class="px-4 py-2 bg-amber-600 text-white rounded-lg">
+                Send Reply
+            </button>
+        </div>
+
+        <input type="hidden" id="modalMessageId">
     </div>
+</div>
 
     <script>
-        
-        let messages = [
-            { id: 1, sender: "Alice Wonder", email: "alice@example.com", category: "Order Issue", subject: "Missing Item in Order #442", date: "2025-01-15", content: "Hi, I received my order yesterday but the Chocolate Fudge was missing. Please help.", status: "pending", reply: null },
-            { id: 2, sender: "Bob Builder", email: "bob@construction.com", category: "Feedback", subject: "Loved the cake!", date: "2025-01-14", content: "Just wanted to say the cake was amazing. Will order again!", status: "replied", reply: "Thank you Bob! We are glad you liked it.", replyDate: "2025-01-14" },
-            { id: 3, sender: "Charlie Brown", email: "charlie@peanuts.com", category: "Partner", subject: "Wholesale Inquiry", date: "2025-01-12", content: "Do you supply to local cafes? I would like to discuss a partnership.", status: "pending", reply: null },
-            { id: 4, sender: "David Rose", email: "david@schitts.town", category: "Refund", subject: "Refund for cancelled order", date: "2025-01-10", content: "When will I get my refund for the order I cancelled last week?", status: "pending", reply: null },
-            { id: 5, sender: "Eve Polastri", email: "eve@mi6.gov", category: "Others", subject: "Job Opening", date: "2025-01-08", content: "Are you hiring for a security manager position?", status: "replied", reply: "Hi Eve, currently we have no openings.", replyDate: "2025-01-09" },
-        ];
-
+ 
         let currentMsgId = null;
 
         // --- Render Functions ---
@@ -482,59 +495,51 @@
         });
 
         // Message View/Reply
-        function openMessageModal(id) {
-            currentMsgId = id;
-            const m = messages.find(msg => msg.id === id);
-            if (!m) return;
+        function openMessageModal(id, name, phone, category, message, reply, status) {
+            document.getElementById("modalMessageId").value = id;
+            document.getElementById("modalName").innerText = name;
+            document.getElementById("modalPhone").innerText = phone || "—";
+            document.getElementById("modalCategory").innerText = category || "—";
+            document.getElementById("modalMessage").innerText = message;
+            document.getElementById("modalReply").value = reply || "";
 
-            document.getElementById('msg_subject').innerText = m.subject;
-            document.getElementById('msg_sender').innerText = m.sender;
-            document.getElementById('msg_email').innerText = m.email;
-            document.getElementById('msg_date').innerText = m.date;
-            document.getElementById('msg_content').innerText = m.content;
-
-            const replySection = document.getElementById('replySection');
-            const repliedSection = document.getElementById('repliedSection');
-            const replyText = document.getElementById('replyText');
-
-            if (m.status === 'replied') {
-                replySection.classList.add('hidden');
-                repliedSection.classList.remove('hidden');
-                document.getElementById('msg_reply_date').innerText = m.replyDate;
-                document.getElementById('msg_reply_content').innerText = m.reply;
-            } else {
-                replySection.classList.remove('hidden');
-                repliedSection.classList.add('hidden');
-                replyText.value = ''; // clear previous text
-            }
-
-            document.getElementById('messageModal').classList.remove('hidden');
+            document.getElementById("messageModal").classList.remove("hidden");
         }
 
         function closeMessageModal() {
-            document.getElementById('messageModal').classList.add('hidden');
+            document.getElementById("messageModal").classList.add("hidden");
         }
 
         function sendReply() {
-            const replyText = document.getElementById('replyText').value.trim();
-            if (!replyText) {
-                alert("Please type a reply.");
+            const messageId = document.getElementById("modalMessageId").value;
+            const reply = document.getElementById("modalReply").value.trim();
+
+            if (!reply) {
+                alert("Reply cannot be empty");
                 return;
             }
 
-            const mIndex = messages.findIndex(msg => msg.id === currentMsgId);
-            if (mIndex > -1) {
-                messages[mIndex].status = 'replied';
-                messages[mIndex].reply = replyText;
-                messages[mIndex].replyDate = new Date().toISOString().split('T')[0];
-
-                renderMessages();
-                renderStats();
-                closeMessageModal();
-                alert("Reply sent successfully!");
-            }
+            fetch("{% url 'reply_contact_message' %}", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    message_id: messageId,
+                    reply: reply
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    closeMessageModal();
+                    location.reload();
+                }
+            });
         }
 
+       
         // --- Init ---
         renderContactInfo();
         renderStats();

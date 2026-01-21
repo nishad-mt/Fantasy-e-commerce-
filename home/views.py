@@ -4,12 +4,15 @@ from django.views.decorators.cache import never_cache
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from products.models import Categories,Product
-from django.shortcuts import get_object_or_404
 from .models import SiteContact
 from django.http import JsonResponse
 from .forms import SiteContactForm
 from accounts.decarators import admin_required
 from .models import SiteContact,ContactMessage
+from django.http import JsonResponse
+from django.utils import timezone
+import json
+
 
 def home(request):
     category = Categories.objects.all()[:5]
@@ -52,6 +55,22 @@ def contact_message(request):
             category=request.POST.get("category"),
             message=request.POST.get("message"),
         )
+        return JsonResponse({"success": True})
+
+    return JsonResponse({"success": False})
+
+
+@admin_required
+def reply_contact_message(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+
+        msg = ContactMessage.objects.get(id=data["message_id"])
+        msg.reply = data["reply"]
+        msg.status = "replied"
+        msg.replied_at = timezone.now()
+        msg.save()
+
         return JsonResponse({"success": True})
 
     return JsonResponse({"success": False})

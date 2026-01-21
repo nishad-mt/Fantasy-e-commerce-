@@ -7,5 +7,7 @@ urlpatterns = [
     path("contact_us/",views.contact,name="contact"),
     path("admin_contact/update/",views.update_site_contact,name="update_site_contact"),
     path("contact_message/update/",views.contact_message,name="contact_message"),
+    path("contact-message/reply/",views.reply_contact_message,name="reply_contact_message")
+
     
 ]

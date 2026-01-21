@@ -3,11 +3,13 @@ from django.contrib.auth.decorators import login_required
 from decimal import Decimal
 from cart.models import Cart
 from .models import Order,OrderItem
+from payment.models import Payment
 from products.models import SizeVariant
 from addresses.models import Address
 from django.contrib import messages
 from datetime import date,timedelta
 from django.db import transaction
+import uuid
 
 def order(request):
     orders = Order.objects.filter(user=request.user).prefetch_related(
@@ -264,3 +266,18 @@ def confirm_payment(request, order_id):
     order.save()
 
     return redirect("order_success", order_id=order.order_id)
+
+def mark_order_delivered(order):
+    order.status = "DELIVERED"
+    order.payment_status = "SUCCESS"
+    order.save()
+
+    Payment.objects.get_or_create(
+        order=order,
+        method=order.payment_method,
+        defaults={
+            "txn_id": f"{order.payment_method}-{uuid.uuid4()}",
+            "status": "SUCCESS",
+            "amount": order.total_amount,
+        }
+    )

@@ -233,8 +233,8 @@
             <div id="statProducts" class="text-3xl font-bold text-stone-800 mt-2">{{ total_products }}</div>
           </div>
           <div class="p-5 card flex flex-col justify-between">
-            <div class="text-xs font-bold text-stone-400 uppercase tracking-wider">Pending Refunds</div>
-            <div id="statRefunds" class="text-3xl font-bold text-amber-600 mt-2">0</div>
+            <div class="text-xs font-bold text-stone-400 uppercase tracking-wider">Total Revenue</div>
+            <div id="statRefunds" class="text-3xl font-bold text-green-600 mt-2"> ₹{{total_revenue|floatformat:2}}</div>
           </div>
         </div>
 
@@ -281,6 +281,7 @@
                           <th class="text-left p-2">Product</th>
                           <th class="text-center p-2">Wishlists</th>
                           <th class="text-center p-2">Carts</th>
+                          <th class="text-center p-2">Orders</th>
                           <th class="text-center p-2">Demand</th>
                       </tr>
                   </thead>
@@ -297,15 +298,20 @@
                           <td class="p-2 text-center text-amber-600">
                               {{ p.cart_count }}
                           </td>
-                          <td class="p-2 text-center text-xs font-semibold">
-                              {% if p.cart_count > p.wishlist_count %}
-                                  <span class="text-green-600">Hot</span>
-                              {% elif p.wishlist_count > 10 %}
-                                  <span class="text-amber-600">Trending</span>
-                              {% else %}
-                                  <span class="text-stone-400">Normal</span>
-                              {% endif %}
+                          <td class="p-2 text-center text-emerald-600 font-semibold">
+                              {{ p.ordered_count }}
                           </td>
+                          <td class="p-2 text-center text-xs font-semibold">
+                                {% if p.ordered_count > 5 %}
+                                    <span class="text-emerald-600">High Demand</span>
+                                {% elif p.cart_count > p.wishlist_count %}
+                                    <span class="text-green-600">Hot</span>
+                                {% elif p.wishlist_count > 10 %}
+                                    <span class="text-amber-600">Trending</span>
+                                {% else %}
+                                    <span class="text-stone-400">Normal</span>
+                                {% endif %}
+                            </td>
                       </tr>
                       {% endfor %}
                   </tbody>

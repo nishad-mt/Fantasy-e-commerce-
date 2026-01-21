@@ -6,16 +6,19 @@ from .forms import LoginForm
 from django.contrib.auth.decorators import login_required
 from products.models import Categories,Product,ProductReview
 from order.models import Order
+from payment.models import Payment
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from django.views.decorators.cache import never_cache
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Prefetch
 from accounts.decarators import admin_required
-from django.db.models import Avg, Count
+from django.db.models import Avg, Count, Sum
 from datetime import date, timedelta
 from home.models import SiteContact,ContactMessage
 from django.utils.timezone import now
+import uuid
+import json
 
 User = get_user_model()
 
@@ -47,14 +50,24 @@ def dashboard(request):
     rec_users = User.objects.order_by('-joined_at')[:5]
     products = Product.objects.annotate(
     wishlist_count=Count("wishlistitem", distinct=True),
-    cart_count=Count("variants__cartitem", distinct=True)
-).order_by("-wishlist_count", "-cart_count")
+    cart_count=Count("variants__cartitem", distinct=True),
+    ordered_count=Count(
+        "variants__orderitem",
+        filter=Q(variants__orderitem__order__status__in=["CONFIRMED", "PACKED", "DELIVERED"]),
+        distinct=True
+    )
+    ).order_by("-ordered_count", "-cart_count", "-wishlist_count")
+    total_revenue = (
+        Payment.objects.filter(status="SUCCESS")
+        .aggregate(total=Sum("amount"))["total"] or 0
+    )
     
     context = {
         'total_users': total_users,
         'total_products':total_products, 
         'rec_users':rec_users,
-        'products':products
+        'products':products,
+        'total_revenue':total_revenue
     }
 
     return render(request, "dashboard.html", context)
@@ -349,7 +362,6 @@ def admin_order_list(request):
         "PACKED": ["DELIVERED"],
     }
 
-    # Attach next actions to each order
     for order in orders:
         order.next_actions = STATUS_FLOW.get(order.status, [])
 
@@ -363,16 +375,24 @@ def admin_order_list(request):
             messages.error(request, "Payment not verified.")
             return redirect("orders")
 
-        # 🚦 Status validation
         if new_status not in STATUS_FLOW.get(order.status, []):
             messages.error(request, "Invalid status update.")
             return redirect("orders")
 
         order.status = new_status
 
-        # COD payment success on delivery
         if new_status == "DELIVERED" and order.payment_method == "COD":
             order.payment_status = "SUCCESS"
+
+            Payment.objects.get_or_create(
+                order=order,
+                method="COD",
+                defaults={
+                    "txn_id": f"COD-{uuid.uuid4()}",
+                    "status": "SUCCESS",
+                    "amount": order.total_amount,
+                }
+            )
 
         order.save()
         messages.success(request, "Order status updated.")
@@ -388,10 +408,88 @@ def admin_order_list(request):
         }
     })
 
-@never_cache
+
+@admin_required
 @login_required
-def Payments(request):
-    return render(request,"payments.html")
+def admin_payments_dashboard(request):
+    today = now().date()
+    start_month = today.replace(day=1)
+
+    total_revenue = (
+        Payment.objects.filter(status="SUCCESS")
+        .aggregate(total=Sum("amount"))["total"] or 0
+    )
+
+    today_collection = (
+        Payment.objects.filter(
+            status="SUCCESS",
+            created_at__date=today
+        ).aggregate(total=Sum("amount"))["total"] or 0
+    )
+
+    successful_txns = Payment.objects.filter(
+        status="SUCCESS",
+        created_at__date__gte=start_month
+    ).count()
+
+    transactions = Payment.objects.select_related(
+        "order", "order__user"
+    ).order_by("-created_at")
+
+    txn_list = []
+    for txn in transactions:
+        user_obj = txn.order.user
+
+        customer_name = (
+            f"{getattr(user_obj, 'first_name', '')} {getattr(user_obj, 'last_name', '')}".strip()
+            or getattr(user_obj, "username", "")
+            or getattr(user_obj, "email", "")
+        )
+
+        txn_list.append({
+            "id": txn.txn_id,
+            "orderId": str(txn.order.order_id),
+            "customer": customer_name,
+            "method": txn.method,
+            "amount": float(txn.amount),
+            "status": txn.status.title(),
+            "date": txn.created_at.strftime("%Y-%m-%d %I:%M %p"),
+        })
+
+    method_data = (
+        Payment.objects.filter(status="SUCCESS")
+        .values("method")
+        .annotate(count=Count("id"))
+    )
+
+    method_chart = {m["method"]: m["count"] for m in method_data}
+
+    last_7_days = []
+    revenue_data = []
+
+    for i in range(6, -1, -1):
+        day = today - timedelta(days=i)
+        amount = (
+            Payment.objects.filter(
+                status="SUCCESS",
+                created_at__date=day
+            ).aggregate(total=Sum("amount"))["total"] or 0
+        )
+        last_7_days.append(day.strftime("%a"))
+        revenue_data.append(float(amount))
+
+    context = {
+        "total_revenue": total_revenue,
+        "today_collection": today_collection,
+        "successful_txns": successful_txns,
+        
+        "transactions": json.dumps(txn_list),         
+        "revenue_labels": json.dumps(last_7_days),     
+        "revenue_data": json.dumps(revenue_data),      
+        "method_chart": json.dumps(method_chart),
+    }
+
+    return render(request, "payments.html", context)
 
 
 @admin_required
@@ -407,6 +505,18 @@ def admin_contact(request):
     )
 
     messages = ContactMessage.objects.all().order_by("-created_at")
+    q = request.GET.get("q")
+    status = request.GET.get("status")
+
+    if q:
+        messages = messages.filter(
+            Q(name__icontains=q) |
+            Q(number__icontains=q) |
+            Q(message__icontains=q)
+        )
+
+    if status:
+        messages = messages.filter(status=status)
 
     context = {
         "contact": contact_info,

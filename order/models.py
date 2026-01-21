@@ -1,7 +1,6 @@
 from django.db import models
 from django.conf import settings
 from products.models import SizeVariant
-from addresses.models import Address
 import uuid
 
 class Order(models.Model):
@@ -27,8 +26,7 @@ class Order(models.Model):
         ("DELIVERED", "Delivered"),
         ("CANCELLED", "Cancelled"),
     ]
-
-
+    
     order_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     order_items_total = models.DecimalField(max_digits=10, decimal_places=2, null=True,blank=True)
@@ -52,7 +50,6 @@ class Order(models.Model):
     def __str__(self):
         return str(self.order_id)
 
-
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
     variant = models.ForeignKey(SizeVariant, on_delete=models.CASCADE)
@@ -64,3 +61,4 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.variant.product.name} ({self.variant.size_name})"
+
