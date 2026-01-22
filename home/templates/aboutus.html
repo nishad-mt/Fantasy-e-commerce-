@@ -1,4 +1,5 @@
 {% extends 'index.html' %}
+{% load static %}
 {% block content %}
 
 <style>
@@ -31,33 +32,113 @@
 </style>
 
 <!-- PAGE WRAPPER (fixes navbar overlap) -->
-<div class="pt-32">
+<div class="pt-20">
+  <section class="bg-fantasy-cream">
+    <div class="container mx-auto px-6 py-16">
 
-  <!-- HERO SECTION -->
-  <div class="max-w-7xl mx-auto px-6 hero-section text-center">
-    <h1 class="text-4xl font-bold text-[#5a3e2b]">
-      Welcome to Fantasy Foods
-    </h1>
-    <p class="text-gray-700 mt-3 text-lg max-w-2xl mx-auto">
-      Where tradition meets taste — delivering freshly made, authentic Kerala snacks right to your doorstep!
-    </p>
-  </div>
+        <!-- Header -->
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <span class="inline-block mb-4 px-4 py-1 rounded-full bg-fantasy-pink/40 text-fantasy-brown text-sm font-semibold">
+                Our Journey
+            </span>
+            <h1 class="text-4xl md:text-5xl font-serif font-bold text-fantasy-brown mb-4">
+                About Fantasy Food Products
+            </h1>
+            <p class="text-gray-600 text-base md:text-lg">
+                From a mother’s kitchen to a growing food brand — built with love, trust, and hard work.
+            </p>
+        </div>
 
-  <!-- OUR STORY -->
-  <div class="max-w-7xl mx-auto px-6 mt-12">
-    <h2 class="text-3xl font-bold mb-4 text-[#5a3e2b]">Our Story</h2>
+        <!-- Story Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-20">
 
-    <div class="info-card">
-      <p class="text-gray-700 leading-relaxed text-lg">
-        Fantasy Foods began with a simple mission — to bring the nostalgic flavors of Kerala’s traditional snacks to every home across India.
-        What started as a small family-run kitchen has now grown into a trusted online brand loved for freshness, authenticity, and quality.
-      </p>
-      <p class="text-gray-700 mt-3 leading-relaxed text-lg">
-        From crispy banana chips to soft unniyappams, every product is made fresh,
-        using time-tested recipes passed down through generations — giving you the taste of home with every bite.
-      </p>
+            <div>
+                <h2 class="text-2xl md:text-3xl font-serif font-bold text-fantasy-brown mb-4">
+                    It All Started at Home
+                </h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    began with a simple dream
+                    and a lot of love. Our mother started cooking traditional, homemade food using
+                    authentic recipes and quality ingredients, right from our home kitchen.
+                </p>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    Our father personally delivered every order on his scooter, ensuring each customer
+                    received fresh food with care and a smile. There were no shortcuts — only honesty,
+                    dedication, and passion.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-fantasy-pink-dark/20">
+                <ul class="space-y-4 text-gray-700">
+                    <li class="flex gap-3">
+                        <i class="fa-solid fa-heart text-fantasy-gold mt-1"></i>
+                        Home-style cooking with authentic taste
+                    </li>
+                    <li class="flex gap-3">
+                        <i class="fa-solid fa-motorcycle text-fantasy-gold mt-1"></i>
+                        Personal scooter deliveries in the early days
+                    </li>
+                    <li class="flex gap-3">
+                        <i class="fa-solid fa-handshake text-fantasy-gold mt-1"></i>
+                        Built on trust and customer relationships
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Growth Section -->
+        <div class="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-fantasy-pink-dark/20 mb-20">
+            <h2 class="text-2xl md:text-3xl font-serif font-bold text-fantasy-brown mb-6 text-center">
+                Growing Step by Step
+            </h2>
+
+            <p class="text-gray-700 leading-relaxed max-w-4xl mx-auto text-center mb-8">
+                With customer support and growing demand, our small home-based business gradually evolved.
+                From upgrading delivery vehicles to expanding our workforce, every step was taken with care
+                and responsibility.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                <div class="bg-fantasy-cream rounded-2xl p-6">
+                    <i class="fa-solid fa-truck text-3xl text-fantasy-gold mb-3"></i>
+                    <h4 class="font-bold text-fantasy-brown mb-2">Improved Delivery</h4>
+                    <p class="text-sm text-gray-600">
+                        From a scooter to upgraded delivery vehicles for faster and safer service.
+                    </p>
+                </div>
+
+                <div class="bg-fantasy-cream rounded-2xl p-6">
+                    <i class="fa-solid fa-users text-3xl text-fantasy-gold mb-3"></i>
+                    <h4 class="font-bold text-fantasy-brown mb-2">Growing Team</h4>
+                    <p class="text-sm text-gray-600">
+                        Increased workforce to support production, packing, and operations.
+                    </p>
+                </div>
+
+                <div class="bg-fantasy-cream rounded-2xl p-6">
+                    <i class="fa-solid fa-scale-balanced text-3xl text-fantasy-gold mb-3"></i>
+                    <h4 class="font-bold text-fantasy-brown mb-2">Better Production</h4>
+                    <p class="text-sm text-gray-600">
+                        Enhanced weighing, packing, and hygiene standards for consistent quality.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mission -->
+        <div class="text-center max-w-3xl mx-auto">
+            <h2 class="text-2xl md:text-3xl font-serif font-bold text-fantasy-brown mb-4">
+                Our Promise
+            </h2>
+            <p class="text-gray-700 leading-relaxed">
+                No matter how much we grow, our heart remains the same —
+                delivering food made with care, honesty, and the warmth of home.
+                Every order carries our family’s commitment to quality and trust.
+            </p>
+        </div>
+
     </div>
-  </div>
+</section>
 
   <!-- MISSION & VISION -->
   <div class="max-w-7xl mx-auto px-6 mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -107,42 +188,61 @@
   </div>
 
   <!-- TEAM SECTION -->
-  <div class="max-w-7xl mx-auto px-6 mt-12">
-    <h2 class="text-3xl font-bold mb-4 text-[#5a3e2b]">Meet Our Team</h2>
+ <div class="max-w-7xl mx-auto px-6 mt-16">
+    <h2 class="text-3xl font-bold mb-8 text-[#5a3e2b] text-center">
+        Meet Our Team
+    </h2>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="team-card">
-        <img src="chef1.jpg" class="w-28 h-28 object-cover rounded-full mx-auto mb-3">
-        <h4 class="font-semibold">Rahul Menon</h4>
-        <p class="text-gray-600 text-sm">Head Chef</p>
-      </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
 
-      <div class="team-card">
-        <img src="chef2.jpg" class="w-28 h-28 object-cover rounded-full mx-auto mb-3">
-        <h4 class="font-semibold">Aisha Nair</h4>
-        <p class="text-gray-600 text-sm">Quality Supervisor</p>
-      </div>
+        <!-- Founder -->
+        <div class="team-card">
+            <div class="w-28 h-28 mx-auto mb-4 rounded-full bg-fantasy-cream border-2 border-fantasy-gold
+                        flex items-center justify-center text-2xl font-bold text-fantasy-brown">
+                SM
+            </div>
+            <h4 class="font-semibold text-lg">Shareef MT</h4>
+            <p class="text-gray-600 text-sm">Founder</p>
+        </div>
 
-      <div class="team-card">
-        <img src="chef3.jpg" class="w-28 h-28 object-cover rounded-full mx-auto mb-3">
-        <h4 class="font-semibold">Nishad TK</h4>
-        <p class="text-gray-600 text-sm">Founder</p>
-      </div>
+        <!-- Co-Founder -->
+        <div class="team-card">
+            <div class="w-28 h-28 mx-auto mb-4 rounded-full bg-fantasy-cream border-2 border-fantasy-gold
+                        flex items-center justify-center text-2xl font-bold text-fantasy-brown">
+                BM
+            </div>
+            <h4 class="font-semibold text-lg">Basheera Mol</h4>
+            <p class="text-gray-600 text-sm">Co-Founder</p>
+        </div>
+
+        <!-- Delivery -->
+        <div class="team-card">
+            <img src="{% static 'images/nishad.jpg' %}"
+                 alt="Nishad MT"
+                 class="w-28 h-28 object-cover rounded-full mx-auto mb-4 border-2 border-fantasy-gold">
+            <h4 class="font-semibold text-lg">Nishad MT</h4>
+            <p class="text-gray-600 text-sm">Delivery</p>
+        </div>
+
     </div>
-  </div>
+</div>
+
 
   <!-- CONTACT SECTION -->
   <div class="max-w-7xl mx-auto px-6 mt-12 mb-16">
     <h2 class="text-3xl font-bold mb-4 text-[#5a3e2b]">Get in Touch</h2>
 
     <div class="info-card">
-      <p class="text-gray-700 mb-1"><strong>Email:</strong> support@fantasyfoods.com</p>
-      <p class="text-gray-700 mb-1"><strong>Phone:</strong> +91 98765 43210</p>
-      <p class="text-gray-700"><strong>Location:</strong> Malappuram, Kerala, India</p>
+      <p class="text-gray-700 mb-1"><strong>Email:</strong> {{contact_details.email}}</p>
+      <p class="text-gray-700 mb-1"><strong>Phone:</strong> {{contact_details.contact_number}}</p>
+      <p class="text-gray-700"><strong>Address:</strong>{{contact_details.address}}</p>
 
-      <button class="mt-4 bg-[#5a3e2b] text-white px-6 py-2 rounded-lg hover:bg-[#4a3223] transition">
-        Contact Us
-      </button>
+      <a href="{% url 'contact' %}"
+   class="inline-block mt-4 bg-[#5a3e2b] text-white px-6 py-2 rounded-lg
+          hover:bg-[#4a3223] transition">
+    Contact Us
+</a>
+
     </div>
   </div>
 

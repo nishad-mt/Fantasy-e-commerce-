@@ -165,8 +165,36 @@
 
 </div>
 {% endif %}
-
-
   </div>
+<!-- Related Products -->
+<section class="py-16 bg-white">
+    <div class="container mx-auto px-6">
+        <h2 class="text-3xl font-serif font-bold text-fantasy-brown mb-8 text-center">You Might also like</h2>
 
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-5">
+            {% for latest in latest_products %}
+
+            <a href="{% url 'user_product' latest.slug %}"
+            class="group cursor-pointer block">
+
+                <div class="relative overflow-hidden rounded-xl bg-gray-100 aspect-[4/5] mb-3">
+                    <img src="{{ latest.main_image.url }}"
+                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                </div>
+
+                <h3 class="font-bold text-gray-800 text-sm group-hover:text-fantasy-gold transition-colors">
+                    {{ latest.name }}
+                </h3>
+
+                <span class="font-bold text-fantasy-brown">
+                    ₹{{ latest.starting_price }}
+                </span>
+
+            </a>
+
+            {% endfor %}
+        </div>
+
+    </div>
+</section>
 {% endblock %}

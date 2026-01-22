@@ -19,6 +19,8 @@ from home.models import SiteContact,ContactMessage
 from django.utils.timezone import now
 import uuid
 import json
+from django.utils import timezone
+
 
 User = get_user_model()
 
@@ -45,9 +47,17 @@ def admin_login(request):
 @never_cache
 @login_required
 def dashboard(request):
+    
     total_users = User.objects.count()
     total_products = Product.objects.count()
+    
+    today = timezone.now().date()
+    todays_order_count = Order.objects.filter(
+        created_at__date=today
+    ).count()
+    
     rec_users = User.objects.order_by('-joined_at')[:5]
+    
     products = Product.objects.annotate(
     wishlist_count=Count("wishlistitem", distinct=True),
     cart_count=Count("variants__cartitem", distinct=True),
@@ -57,17 +67,26 @@ def dashboard(request):
         distinct=True
     )
     ).order_by("-ordered_count", "-cart_count", "-wishlist_count")
-    total_revenue = (
-        Payment.objects.filter(status="SUCCESS")
-        .aggregate(total=Sum("amount"))["total"] or 0
-    )
     
+    todays_revenue = Order.objects.filter(
+    created_at__date=today,
+    status__in=["CONFIRMED", "PACKED", "DELIVERED"]
+).aggregate(total=Sum('total_amount'))['total'] or 0
+
+    sitedetails = SiteContact.objects.first()
+    pending_orders = Order.objects.filter(
+    status__in=["PENDING", "CONFIRMED"]
+).order_by("-created_at")
+
     context = {
         'total_users': total_users,
         'total_products':total_products, 
         'rec_users':rec_users,
         'products':products,
-        'total_revenue':total_revenue
+        'sitedetails':sitedetails,
+        'todays_order_count':todays_order_count,
+        'todays_revenue':todays_revenue,
+        'pending_orders':pending_orders
     }
 
     return render(request, "dashboard.html", context)
@@ -76,6 +95,8 @@ def dashboard(request):
 @login_required
 def user(request):
     users = User.objects.select_related('profile').all()
+    
+    ordered_user_count = User.objects.filter(order__isnull=False).distinct().count()
 
     total_users = User.objects.count()
     active_users_count = User.objects.filter(is_active = True).count()
@@ -112,6 +133,7 @@ def user(request):
         'active_users_count': active_users_count,
         'blocked_users_count': blocked_users_count,
         'query':query,
+        'ordered_user_count':ordered_user_count
     }
 
     return render(request, "user.html", context)

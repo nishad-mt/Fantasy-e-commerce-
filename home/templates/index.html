@@ -43,7 +43,7 @@
         class="fixed w-full z-50 transition-all duration-300 bg-fantasy-cream/90 backdrop-blur-md shadow-sm py-4">
         <div class="container mx-auto px-6 flex justify-between items-center">
             <!-- Logo -->
-            <a href="#" class="text-3xl font-serif font-bold text-fantasy-brown flex items-center gap-2">
+            <a href="{% url 'home' %}" class="text-3xl font-serif font-bold text-fantasy-brown flex items-center gap-2">
             <i class="fa-solid fa-basket-shopping text-fantasy-gold"></i>
                 Fantasy Bakery
             </a>
@@ -61,19 +61,18 @@
             <!-- Icons -->
             <div class="flex items-center space-x-6 text-fantasy-brown">
                 
-<form method="GET" action="{% url 'products' %}" class="flex items-center gap-2">
-    <input
-        type="text"
-        name="q"
-        placeholder="Search products..."
-        value="{{ request.GET.q }}"
-        class="border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-fantasy-gold"
-    />
+            <form method="GET" action="{% url 'products' %}" class="flex items-center gap-2">
+                <input
+                    type="text"
+                    name="q"
+                    placeholder="Search products..."
+                    value="{{ request.GET.q }}"
+                    class="border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-fantasy-gold"/>
 
-    <button type="submit" class="hover:text-fantasy-gold transition-colors">
-        <i class="fa-solid fa-magnifying-glass text-xl"></i>
-    </button>
-</form>
+                <button type="submit" class="hover:text-fantasy-gold transition-colors">
+                    <i class="fa-solid fa-magnifying-glass text-xl"></i>
+                </button>
+            </form>
                         
                 <a href="{% url 'wishlist:wishlist'  %}" class="hover:text-fantasy-gold transition-colors relative">
                     <i class="fa-regular fa-heart text-xl"></i></a>
@@ -103,11 +102,11 @@
             class="hidden md:hidden bg-white border-t border-gray-100 absolute w-full left-0 top-full shadow-lg">
             <div class="flex flex-col p-4 space-y-4 font-medium text-fantasy-brown">
                 <a href="{% url 'home' %}" class="hover:text-fantasy-gold">Home</a>
-                <a href="#categories" class="hover:text-fantasy-gold">Categories</a>
-                <a href="#track" class="hover:text-fantasy-gold">Track Order</a>
-                <a href="#about" class="hover:text-fantasy-gold">About</a>
-                <a href="#contact" class="hover:text-fantasy-gold">Contact</a>             
-                <a href="#offers" class="hover:text-fantasy-gold">Sign up</a>               
+                <a href="{% url 'products' %}" class="hover:text-fantasy-gold">Products</a>
+                <a href="{% url 'order' %}" class="hover:text-fantasy-gold">Track Order</a>
+                <a href="{% url 'aboutus' %}" class="hover:text-fantasy-gold">About</a>
+                <a href="{% url 'contact' %}" class="hover:text-fantasy-gold">Contact</a>             
+                <a href="{% url 'signup' %}" class="hover:text-fantasy-gold">Sign up</a>               
             </div>
         </div>
     </nav>
@@ -222,10 +221,6 @@
                     <div class="p-4">
                         <div class="flex justify-between items-start mb-2">
                             <h3 class="font-serif font-bold text-lg text-fantasy-brown">{{ pdc.name }}</h3>
-                            <div class="flex items-center text-yellow-400 text-sm">
-                                <i class="fa-solid fa-star"></i>
-                                <span class="text-gray-400 ml-1">4.9</span>
-                            </div>
                         </div>
                         <p class="text-sm text-gray-500 mb-3 line-clamp-2">{{pdc.description}}</p>
                         <div class="flex items-baseline gap-2">

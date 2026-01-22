@@ -5,7 +5,8 @@ from .models import Cart, CartItem
 from wishlist.models import WishlistModel, WishlistItem
 from products.models import SizeVariant
 from django.contrib import messages
-from decimal import Decimal
+from products.models import Product
+from django.db.models import Min
 
 @login_required
 def toggle_cart(request, variant_id):
@@ -35,6 +36,8 @@ def toggle_cart(request, variant_id):
 def cart(request):
     cart = Cart.objects.get(user=request.user)
     items = (CartItem.objects.filter(cart__user=request.user).select_related('variant', 'variant__product')).order_by('-added_at')
+    latest_products = Product.objects.filter(is_active=True).annotate(starting_price=Min('variants__price')).order_by('-created_at')[:10]
+
     
     subtotal = 0
     total_items = 0
@@ -56,7 +59,8 @@ def cart(request):
         "delivery_charge": delivery_charge,
         "discount": discount,
         "total": total,
-        "item_count":item_count
+        "item_count":item_count,
+        "latest_products":latest_products,
     }
     return render(request, 'cartlist.html', context)
 

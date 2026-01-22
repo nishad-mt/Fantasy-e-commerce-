@@ -10,17 +10,30 @@ from django.contrib import messages
 from datetime import date,timedelta
 from django.db import transaction
 import uuid
+from django.db.models import Case, When, IntegerField,Value
+
 
 def order(request):
-    orders = Order.objects.filter(user=request.user).prefetch_related(
-        "items__variant__product"
-    ).order_by("-created_at")
-
-    return render(request,"order.html",{
-        'orders':orders,
-        }
-                  )
-
+    orders = (
+        Order.objects
+        .filter(user=request.user)
+        .prefetch_related("items__variant__product")
+        .annotate(
+            status_priority=Case(
+                When(status="CONFIRMED", then=Value(1)),
+                When(status="PACKED", then=Value(2)),
+                When(status="DELIVERED", then=Value(3)),
+                When(status="CANCELLED", then=Value(4)),
+                default=Value(5),
+                output_field=IntegerField(),
+            )
+        )
+        .order_by("status_priority", "-created_at")
+    )
+    return render(request, "order.html", {
+        "orders": orders,
+    })
+    
 @login_required
 def checkout(request):
     addresses = Address.objects.filter(user=request.user)
@@ -97,10 +110,7 @@ def pay_order(request, order_id):
     })
 
 def order_detail(request,order_id):
-    order = get_object_or_404(Order,
-                              order_id=order_id,
-                              user=request.user
-                              )
+    order = get_object_or_404(Order,order_id=order_id,user=request.user)
     items = order.items.select_related('variant','variant__product')
     return render(request,"order_detail.html",{
         'order':order,

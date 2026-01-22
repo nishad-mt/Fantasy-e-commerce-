@@ -212,7 +212,7 @@
           </div>
           <div class="hidden sm:block">
             <div class="text-sm font-medium text-stone-800">Admin</div>
-            <div class="text-[10px] text-stone-500">fantasy@gmail.com</div>
+            <div class="text-[10px] text-stone-500">{{sitedetails.email}}</div>
           </div>
         </div>
       </div>
@@ -223,7 +223,7 @@
 
       <!-- Dashboard -->
       <div id="tab-dashboard" class="tab-panel">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div class="p-5 card flex flex-col justify-between">
             <div class="text-xs font-bold text-stone-400 uppercase tracking-wider">Users</div>
             <div id="statUsers" class="text-3xl font-bold text-stone-800 mt-2">{{ total_users }}</div>
@@ -233,8 +233,12 @@
             <div id="statProducts" class="text-3xl font-bold text-stone-800 mt-2">{{ total_products }}</div>
           </div>
           <div class="p-5 card flex flex-col justify-between">
-            <div class="text-xs font-bold text-stone-400 uppercase tracking-wider">Total Revenue</div>
-            <div id="statRefunds" class="text-3xl font-bold text-green-600 mt-2"> ₹{{total_revenue|floatformat:2}}</div>
+            <div class="text-xs font-bold text-stone-400 uppercase tracking-wider">🛒 Today’s Orders</div>
+            <div id="statRefunds" class="text-3xl font-bold mt-2"> {{todays_order_count}}</div>
+          </div>
+          <div class="p-5 card flex flex-col justify-between">
+            <div class="text-xs font-bold text-stone-400 uppercase tracking-wider">Today’s Revenue</div>
+            <div id="statRefunds" class="text-3xl font-bold text-green-600 mt-2"> ₹{{todays_revenue|floatformat:2}}</div>
           </div>
         </div>
 
@@ -317,7 +321,86 @@
                   </tbody>
               </table>
           </div>
+        </div>
+        
+        <!-- PENDING ORDERS (FULL WIDTH) -->
+        <div class="card mt-10">
 
+            <!-- Header -->
+            <div class="px-16 py-4 border-b border-stone-100 flex items-center justify-between">
+                <h3 class="text-lg font-bold text-stone-800">
+                    Pending Orders
+                </h3>
+                <span class="text-xs text-stone-500">
+                    {{ pending_orders|length }} orders
+                </span>
+            </div>
+
+            {% if pending_orders %}
+            <!-- Table -->
+            <div class="table-scroll">
+                <table class="w-full text-sm">
+                    <thead class="bg-stone-50 text-stone-500 uppercase text-xs">
+                        <tr>
+                            <th class="px-6 py-3 text-left">Order ID</th>
+                            <th class="px-6 py-3 text-left">Customer</th>
+                            <th class="px-6 py-3 text-left">Total</th>
+                            <th class="px-6 py-3 text-left">Placed</th>
+                            <th class="px-6 py-3 text-left">Status</th>
+                            <th class="px-6 py-3 text-right">Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="divide-y divide-stone-100">
+                        {% for order in pending_orders %}
+                        <tr class="hover:bg-stone-50 transition">
+
+                            <td class="px-6 py-4 font-medium text-stone-800">
+                                #{{ order.order_id }}
+                            </td>
+
+                            <td class="px-6 py-4 text-stone-700">
+                                {{ order.user.get_full_name|default:order.user.username }}
+                            </td>
+
+                            <td class="px-6 py-4 font-semibold text-stone-800">
+                                ₹{{ order.total_amount }}
+                            </td>
+
+                            <td class="px-6 py-4 text-stone-500">
+                                {{ order.created_at|timesince }} ago
+                            </td>
+
+                            <td class="px-6 py-4">
+                                {% if order.status == "PENDING" %}
+                                    <span class="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
+                                        Pending
+                                    </span>
+                                {% elif order.status == "CONFIRMED" %}
+                                    <span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                                        Confirmed
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td class="px-6 py-4 text-right">
+                                <a href="{% url 'admin_order_detail' order.order_id %}"
+                                  class="text-amber-700 hover:text-amber-900 font-semibold text-sm">
+                                    View →
+                                </a>
+                            </td>
+
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+                <div class="p-6 text-center text-stone-500">
+                    🎉 No pending orders at the moment
+                </div>
+            {% endif %}
+        </div>
     </section>
   </main>
 {% endblock %}

@@ -12,6 +12,7 @@ class ContactMessage(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     name = models.CharField(max_length=20)
+    email = models.EmailField(null=True, blank=True)
     number = models.CharField(max_length=16)
     category = models.CharField(max_length=50, blank=True, null=True)
     message = models.TextField()

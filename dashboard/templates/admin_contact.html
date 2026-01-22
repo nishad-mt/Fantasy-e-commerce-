@@ -545,6 +545,37 @@
         renderStats();
         renderMessages();
 
+        function sendReply() {
+    const btn = event.target;
+    btn.disabled = true;
+    btn.innerText = "Sending...";
+
+    const messageId = document.getElementById("modalMessageId").value;
+    const reply = document.getElementById("modalReply").value.trim();
+
+    fetch("{% url 'reply_contact_message' %}", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ message_id: messageId, reply })
+    })
+    .then(res => res.json())
+    .then(data => {
+        btn.disabled = false;
+        btn.innerText = "Send Reply";
+
+        if (data.success) {
+            closeMessageModal();
+            location.reload();
+        } else {
+            alert(data.error || "Failed to send reply");
+        }
+    });
+}
+
+
     </script>
 </body>
 

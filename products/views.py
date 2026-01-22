@@ -3,7 +3,8 @@ from .forms import CategoriesForm,ProductsForm
 from django.shortcuts import get_object_or_404
 from .models import Categories,Product,SizeVariant,ProductImage,ProductReview
 from wishlist.models import WishlistItem,WishlistModel
-from cart.models import Cart,CartItem
+from cart.models import Cart
+from order.models import OrderItem
 from django.utils.safestring import mark_safe
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -21,10 +22,16 @@ from django.http import HttpResponseForbidden
 User = get_user_model()
 
 def products(request, slug=None):
-    cats = Categories.objects.all()
+    cats = Categories.objects.annotate(
+    product_count=Count(
+        "products",
+        filter=Q(products__is_active=True),
+        distinct=True
+    )
+)
     selected_category = None
+    total_product_count = Product.objects.filter(is_active=True).count()
 
-    
     products = Product.objects.filter(is_active=True).annotate(
         min_price=Min('variants__price'),
         avg_rating=Avg("reviews__rating", filter=Q(reviews__is_approved=True), distinct=True),
@@ -77,6 +84,7 @@ def products(request, slug=None):
         'selected_category': selected_category,
         'query': query,
         'wishlist_product_ids': wishlist_product_ids,
+        'total_product_count':total_product_count
     }
 
     return render(request, 'products.html', context)
@@ -329,10 +337,10 @@ def write_review(request, slug):
         user=request.user,
         rating=int(request.POST.get("rating")),
         review=request.POST.get("review"),
-        is_verified_purchase=CartItem.objects.filter(
-            cart__user=request.user,
-            product=product,
-            order__status="DELIVERED" 
+        is_verified_purchase = OrderItem.objects.filter(
+            order__user=request.user,
+            order__status="DELIVERED",
+            variant__product=product,
         ).exists()
     )
 

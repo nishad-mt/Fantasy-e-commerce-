@@ -3,4 +3,4 @@ from .models import ContactMessage,SiteContact
 
 @admin.register(ContactMessage)
 class MessageAdmin(admin.ModelAdmin):
-    list_display = ['user','name','number','category','message','status']
+    list_display = ['user','name','email','number','category','message','status']
