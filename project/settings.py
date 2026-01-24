@@ -169,6 +169,11 @@ DEFAULT_FROM_EMAIL = f"Fantasy Bakery <{EMAIL_HOST_USER}>"
 
 SITE_ID = 1
 
+#--- razorpayment ------
+
+RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID")
+RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")
+
 # ----- ALLAUTH CORE FIX -----
 
 SOCIALACCOUNT_PROVIDERS = {

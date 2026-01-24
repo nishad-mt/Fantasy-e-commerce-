@@ -53,7 +53,7 @@
         <div class="min-h-screen pb-24 font-sans">
             <div class="container mx-auto px-2 md:px-4 pt-8">
 
-                <form method="POST" action="{% url 'confirm_payment' order.order_id %}" class="space-y-8">
+                <form id="checkout-form" method="POST" action="{% url 'confirm_payment' order.order_id %}" class="space-y-8">
                     {% csrf_token %}
                     <section
                         class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300">
@@ -154,8 +154,7 @@
                                     class="relative flex items-center p-4 border border-fantasy-gold bg-orange-50/20 rounded-xl cursor-pointer transition-all">
                                     <div class="flex items-center h-5">
                                         <input type="radio" name="payment_method" value="COD"
-                                            class="w-5 h-5 text-fantasy-brown border-gray-300 focus:ring-fantasy-gold"
-                                            checked>
+                                            class="w-5 h-5 text-fantasy-brown border-gray-300 focus:ring-fantasy-gold">
                                     </div>
                                     <div class="ml-4 flex-1">
                                         <div class="flex items-center justify-between">
@@ -259,19 +258,20 @@
         </div>
     </div>
 
-    <button type="submit"
-    class="w-full mt-6 py-4 bg-fantasy-brown text-white rounded-xl font-bold text-lg shadow-xl">
-    <span>Place Order</span>
-    <i class="fa-solid fa-arrow-right-long"></i>
-</button>
+<p id="payment-error"
+   class="hidden text-sm text-red-600 font-medium mt-3 flex items-center gap-2">
+    <i class="fa-solid fa-circle-exclamation"></i>
+    Please select a payment method to continue
+</p>
+
+<!-- place order button -->
+    <button type="button"
+        id="place-order-btn"
+        class="w-full mt-6 py-4 bg-fantasy-brown text-white rounded-xl font-bold text-lg shadow-xl">
+        Place Order
+    </button>
 
 
-    <div class="mt-4 text-center">
-        <p class="text-[10px] text-gray-400 font-medium flex items-center justify-center gap-1.5">
-            <i class="fa-solid fa-shield-halved text-green-500"></i>
-            Secure & encrypted payment
-        </p>
-    </div>
 </div>
 
                     </section>
@@ -333,6 +333,167 @@
     </form>
   </div>
 </div>
+
+<!-- Confirm Order Modal -->
+<div id="confirm-modal"
+     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 backdrop-blur-sm">
+
+    <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 text-center">
+        <div class="flex justify-center mb-4">
+            <div class="w-12 h-12 flex items-center justify-center rounded-full bg-orange-100">
+                <i class="fa-solid fa-circle-exclamation text-orange-500 text-xl"></i>
+            </div>
+        </div>
+
+        <h3 class="text-lg font-bold text-gray-900">
+            Confirm Your Order
+        </h3>
+
+        <p class="text-sm text-gray-500 mt-2">
+             Please confirm to place your order using the selected payment method.
+        </p>
+
+        <div class="flex gap-3 mt-6">
+            <button type="button"
+                    id="cancel-confirm"
+                    class="w-1/2 py-2 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-50">
+                Cancel
+            </button>
+
+            <button type="button"
+                    id="confirm-order"
+                    class="w-1/2 py-2 rounded-xl bg-fantasy-brown text-white font-bold hover:opacity-90">
+                Yes, Place Order
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+const placeOrderBtn = document.getElementById("place-order-btn");
+const checkoutForm = document.getElementById("checkout-form");
+const paymentError = document.getElementById("payment-error");
+
+// Confirm modal elements
+const confirmModal = document.getElementById("confirm-modal");
+const cancelConfirmBtn = document.getElementById("cancel-confirm");
+const confirmOrderBtn = document.getElementById("confirm-order");
+
+let selectedPaymentMethod = null;
+
+/* -----------------------------
+   PLACE ORDER CLICK
+----------------------------- */
+placeOrderBtn.addEventListener("click", function (e) {
+    const selectedInput = document.querySelector(
+        'input[name="payment_method"]:checked'
+    );
+
+    // ❌ No payment selected
+    if (!selectedInput) {
+        paymentError.classList.remove("hidden");
+        paymentError.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+    }
+
+    paymentError.classList.add("hidden");
+    selectedPaymentMethod = selectedInput.value;
+
+    // ✅ Show confirmation modal
+    confirmModal.classList.remove("hidden");
+    confirmModal.classList.add("flex");
+});
+
+/* -----------------------------
+   CANCEL CONFIRMATION
+----------------------------- */
+cancelConfirmBtn.addEventListener("click", function () {
+    confirmModal.classList.add("hidden");
+    confirmModal.classList.remove("flex");
+});
+
+/* -----------------------------
+   CONFIRM ORDER
+----------------------------- */
+confirmOrderBtn.addEventListener("click", function () {
+    confirmModal.classList.add("hidden");
+    confirmModal.classList.remove("flex");
+
+    // =========================
+    // COD → normal submit
+    // =========================
+    if (selectedPaymentMethod === "COD") {
+        checkoutForm.submit();
+        return;
+    }
+
+    // =========================
+    // ONLINE → Razorpay
+    // =========================
+    fetch("{% url 'create_razorpay_order' %}", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: "amount={{ order.total_amount }}"
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        const options = {
+            key: data.key,
+            amount: data.amount,
+            currency: "INR",
+            order_id: data.order_id,
+            name: "Fantasy Bakery",
+            description: "Order Payment",
+
+            handler: function (response) {
+                fetch("{% url 'verify_payment' %}", {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}",
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_signature: response.razorpay_signature,
+                        order_id: "{{ order.order_id }}",
+                        payment_method: selectedPaymentMethod
+                    })
+                })
+                .then(res => res.json())
+                .then(result => {
+                    if (result.status === "success") {
+                        window.location.href =
+                            "{% url 'order_success' order.order_id %}";
+                    } else {
+                        alert("Payment verification failed. Please try again.");
+                    }
+                });
+            },
+
+            modal: {
+                ondismiss: function () {
+                    placeOrderBtn.disabled = false;
+                }
+            }
+        };
+
+        placeOrderBtn.disabled = true;
+        new Razorpay(options).open();
+    })
+    .catch(() => {
+        alert("Unable to initiate payment. Please try again.");
+    });
+});
+</script>
+
 </body>
 
 </html>

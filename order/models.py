@@ -10,8 +10,7 @@ class Order(models.Model):
     )
     PAYMENT_METHOD_CHOICES = [
         ("COD", "Cash on Delivery"),
-        ("UPI", "UPI"),
-        ("CARD", "Credit / Debit Card"),
+        ("ONLINE", "Online Payment")
     ]
     PAYMENT_STATUS_CHOICES = [
         ("PENDING", "Pending"),
@@ -35,6 +34,7 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     delivery_charge = models.DecimalField(max_digits=8, decimal_places=2, default=0)
     delivery_date = models.DateField()
+    paid_at = models.DateTimeField(null=True, blank=True)
     payment_method = models.CharField(
         max_length=10,
         choices=PAYMENT_METHOD_CHOICES

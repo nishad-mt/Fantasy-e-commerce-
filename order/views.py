@@ -10,9 +10,17 @@ from django.contrib import messages
 from datetime import date,timedelta
 from django.db import transaction
 import uuid
+import json
 from django.db.models import Case, When, IntegerField,Value
+from django.utils import timezone
+from django.http import JsonResponse
+import razorpay
+from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
 
 
+
+@login_required
 def order(request):
     orders = (
         Order.objects
@@ -20,11 +28,12 @@ def order(request):
         .prefetch_related("items__variant__product")
         .annotate(
             status_priority=Case(
-                When(status="CONFIRMED", then=Value(1)),
-                When(status="PACKED", then=Value(2)),
-                When(status="DELIVERED", then=Value(3)),
-                When(status="CANCELLED", then=Value(4)),
-                default=Value(5),
+                When(status="PENDING", then=Value(1)),
+                When(status="CONFIRMED", then=Value(2)),
+                When(status="PACKED", then=Value(3)),
+                When(status="DELIVERED", then=Value(4)),
+                When(status="CANCELLED", then=Value(5)),
+                default=Value(6),
                 output_field=IntegerField(),
             )
         )
@@ -162,7 +171,9 @@ def place_order(request):
 
     order.save()
 
-    cart.items.all().delete()
+    if payment_method == "COD":
+        cart.items.all().delete()
+
 
     return redirect("order_success", order_id=order.order_id)
 
@@ -267,11 +278,11 @@ def confirm_payment(request, order_id):
 
     payment_method = request.POST.get("payment_method")
 
-    if payment_method not in ["COD", "UPI", "CARD"]:
+    if payment_method != "COD":
         messages.error(request, "Please select a payment method.")
         return redirect("pay_order", order_id=order_id)
 
-    order.payment_method = payment_method
+    order.payment_method = "COD"
     order.payment_status = "PENDING"
     order.save()
 
@@ -280,14 +291,56 @@ def confirm_payment(request, order_id):
 def mark_order_delivered(order):
     order.status = "DELIVERED"
     order.payment_status = "SUCCESS"
+    order.paid_at = timezone.now()  
     order.save()
+    
+    method = (order.payment_method or "COD").upper(),
 
     Payment.objects.get_or_create(
         order=order,
-        method=order.payment_method,
         defaults={
-            "txn_id": f"{order.payment_method}-{uuid.uuid4()}",
+            "txn_id": f"COD-{uuid.uuid4()}",
+            "method": method,
             "status": "SUCCESS",
             "amount": order.total_amount,
         }
     )
+
+@login_required
+def verify_payment(request):
+    if request.method != "POST":
+        return JsonResponse({"status": "failed"}, status=400)
+
+    data = json.loads(request.body)
+
+    client = razorpay.Client(
+        auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
+    )
+
+    try:
+        client.utility.verify_payment_signature({
+            "razorpay_order_id": data["razorpay_order_id"],
+            "razorpay_payment_id": data["razorpay_payment_id"],
+            "razorpay_signature": data["razorpay_signature"],
+        })
+
+        order = Order.objects.get(order_id=data["order_id"], user=request.user)
+        
+        order.payment_method = "ONLINE"
+        order.payment_status = "SUCCESS"
+        order.status = "CONFIRMED"
+        order.paid_at = timezone.now()
+        order.save()
+
+        Payment.objects.create(
+            order=order,
+            txn_id=data["razorpay_payment_id"],
+            method="ONLINE",
+            status="SUCCESS",
+            amount=order.total_amount
+        )
+
+        return JsonResponse({"status": "success"})
+
+    except Exception as e:
+        return JsonResponse({"status": "failed"})

@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.core.mail import send_mail, BadHeaderError
 from django.conf import settings
-from django.utils import timezone   #gets aware of current time
-from datetime import timedelta      #countdown by substracting 
+from django.utils import timezone   
+from datetime import timedelta      
 import random
 from django.contrib.auth import authenticate, login as auth_login, logout 
 from django.contrib.auth.decorators import login_required
@@ -48,7 +48,6 @@ def signup(request):
         form = CustomUserForm()
 
     return render(request, 'signup.html', {'form': form})
-
 
 #(who, what)
 def send_otp(email, otp):

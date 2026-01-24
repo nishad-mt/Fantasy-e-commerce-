@@ -69,9 +69,12 @@ def dashboard(request):
     ).order_by("-ordered_count", "-cart_count", "-wishlist_count")
     
     todays_revenue = Order.objects.filter(
-    created_at__date=today,
-    status__in=["CONFIRMED", "PACKED", "DELIVERED"]
-).aggregate(total=Sum('total_amount'))['total'] or 0
+    paid_at__date=today,
+    payment_status="SUCCESS"
+).aggregate(
+    total=Sum("total_amount")
+)["total"] or 0
+
 
     sitedetails = SiteContact.objects.first()
     pending_orders = Order.objects.filter(
@@ -371,13 +374,21 @@ def admin_order_list(request):
     today = date.today()
 
     if date_filter == "today":
-        orders = orders.filter(created_at__date=today)
+        orders = orders.filter(
+            Q(paid_at__date=today) |
+            Q(paid_at__isnull=True, created_at__date=today)
+        )
     elif date_filter == "week":
-        orders = orders.filter(created_at__date__gte=today - timedelta(days=7))
+        orders = orders.filter(
+            Q(paid_at__date__gte=today - timedelta(days=7)) |
+            Q(paid_at__isnull=True, created_at__date__gte=today - timedelta(days=7))
+        )
     elif date_filter == "month":
-        orders = orders.filter(created_at__month=today.month)
+        orders = orders.filter(
+            Q(paid_at__month=today.month) |
+            Q(paid_at__isnull=True, created_at__month=today.month)
+        )
 
-    
     STATUS_FLOW = {
         "PENDING": ["CONFIRMED", "CANCELLED"],
         "CONFIRMED": ["PACKED"],
@@ -405,6 +416,7 @@ def admin_order_list(request):
 
         if new_status == "DELIVERED" and order.payment_method == "COD":
             order.payment_status = "SUCCESS"
+            order.paid_at = timezone.now()
 
             Payment.objects.get_or_create(
                 order=order,
@@ -454,65 +466,71 @@ def admin_payments_dashboard(request):
         created_at__date__gte=start_month
     ).count()
 
-    transactions = Payment.objects.select_related(
-        "order", "order__user"
-    ).order_by("-created_at")
+    transactions_qs = (
+        Payment.objects
+        .select_related("order", "order__user")
+        .order_by("-created_at")
+    )
 
     txn_list = []
-    for txn in transactions:
-        user_obj = txn.order.user
+    for txn in transactions_qs:
+        user = txn.order.user
 
         customer_name = (
-            f"{getattr(user_obj, 'first_name', '')} {getattr(user_obj, 'last_name', '')}".strip()
-            or getattr(user_obj, "username", "")
-            or getattr(user_obj, "email", "")
+            f"{user.username}"
+            or user.username
+            or user.email
         )
 
         txn_list.append({
             "id": txn.txn_id,
             "orderId": str(txn.order.order_id),
             "customer": customer_name,
-            "method": txn.method,
+            "method": (txn.method or "UNKNOWN").upper(),   
             "amount": float(txn.amount),
             "status": txn.status.title(),
             "date": txn.created_at.strftime("%Y-%m-%d %I:%M %p"),
         })
 
-    method_data = (
+    method_chart = dict(
         Payment.objects.filter(status="SUCCESS")
-        .values("method")
+        .values_list("method")
         .annotate(count=Count("id"))
     )
 
-    method_chart = {m["method"]: m["count"] for m in method_data}
+    method_chart = {
+        (k or "UNKNOWN").upper(): v
+        for k, v in method_chart.items()
+    }
 
-    last_7_days = []
+    revenue_labels = []
     revenue_data = []
 
     for i in range(6, -1, -1):
         day = today - timedelta(days=i)
+
         amount = (
             Payment.objects.filter(
                 status="SUCCESS",
                 created_at__date=day
             ).aggregate(total=Sum("amount"))["total"] or 0
         )
-        last_7_days.append(day.strftime("%a"))
+
+        revenue_labels.append(day.strftime("%a"))
         revenue_data.append(float(amount))
 
     context = {
-        "total_revenue": total_revenue,
-        "today_collection": today_collection,
+        "total_revenue": float(total_revenue),
+        "today_collection": float(today_collection),
         "successful_txns": successful_txns,
-        
-        "transactions": json.dumps(txn_list),         
-        "revenue_labels": json.dumps(last_7_days),     
-        "revenue_data": json.dumps(revenue_data),      
+
+        "transactions": json.dumps(txn_list),
+        "revenue_labels": json.dumps(revenue_labels),
+        "revenue_data": json.dumps(revenue_data),
         "method_chart": json.dumps(method_chart),
     }
 
     return render(request, "payments.html", context)
-
 
 @admin_required
 def admin_contact(request):
