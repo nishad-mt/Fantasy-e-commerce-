@@ -18,6 +18,7 @@ from django.contrib.auth import get_user_model
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
 from django.urls import reverse
+from wallet.models import Wallet
 
 
 User = get_user_model()
@@ -170,11 +171,13 @@ def profile(request):
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
     addresses = Address.objects.filter(user=request.user)
     default_address = addresses.filter(is_default=True).first()
+    wallet, _ = Wallet.objects.get_or_create(user=request.user)
 
     return render(request, 'user_profile.html', {
         'profile': profile,
         'addresses': addresses,
-        'default_address': default_address
+        'default_address': default_address,
+        'wallet': wallet,   
     })
 
 @login_required

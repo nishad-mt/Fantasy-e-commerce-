@@ -10,12 +10,15 @@ class Order(models.Model):
     )
     PAYMENT_METHOD_CHOICES = [
         ("COD", "Cash on Delivery"),
-        ("ONLINE", "Online Payment")
+        ("ONLINE", "Online Payment"),
+        ("WALLET", "wallet")
     ]
     PAYMENT_STATUS_CHOICES = [
         ("PENDING", "Pending"),
         ("SUCCESS", "success"),
         ("FAILED", "Failed"),
+        ("REFUNDED", "Refunded"),
+
     ]
     STATUS_CHOICES = [
         ("PENDING", "Pending"),

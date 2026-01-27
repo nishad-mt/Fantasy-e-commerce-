@@ -129,49 +129,39 @@
 
   <!-- REFERRAL SECTION -->
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-    <h4 class="text-lg font-bold text-fantasy-brown mb-2">Referral Benefits</h4>
-    <p class="text-sm text-gray-500 mb-6">Invite your friends and earn rewards!</p>
+    <h4 class="text-lg font-bold text-fantasy-brown mb-2">Wallet</h4>
+    <p class="text-sm text-gray-500 mb-6">
+        Your available balance and transaction history
+    </p>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <div>
-        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Your Referral Code</label>
-        <div
-          class="bg-fantasy-cream rounded-lg border border-fantasy-brown/10 p-4 font-mono font-bold text-lg text-fantasy-brown text-center tracking-widest border-dashed">
-          FFN-NISHAD90
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <!-- Wallet Balance -->
+        <div>
+            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">
+                Available Balance
+            </label>
+
+            <div
+                class="bg-fantasy-cream rounded-lg border border-fantasy-brown/10 p-4 font-bold text-2xl text-fantasy-brown text-center border-dashed">
+                ₹{{ wallet.balance }}
+            </div>
         </div>
-      </div>
 
-      <div>
-        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Your Referral Link</label>
-        <div class="flex gap-2">
-          <div
-            class="flex-1 bg-gray-50 rounded-lg border border-gray-200 px-4 py-3 text-sm text-gray-600 truncate font-mono"
-            id="refLink">
-            https://fantasyfoods.com/ref/FFN-NISHAD90
-          </div>
-          <button onclick="copyReferral()"
-            class="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors">
-            Copy
-          </button>
+        <!-- Wallet Actions -->
+        <div>
+            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">
+                Actions
+            </label>
+                <a href="{% url 'wallet' %}"
+                   class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-lg text-sm font-bold hover:bg-gray-200 transition-colors">
+                    <i class="fa-solid fa-wallet"></i>
+                    Wallet Details
+                </a>
+            </div>
         </div>
-      </div>
     </div>
+</div>
 
-    <!-- SHARE BUTTONS -->
-    <div class="mt-6 pt-6 border-t border-gray-50 flex gap-4">
-      <a href="https://wa.me/?text=Join Fantasy Foods using my link: https://fantasyfoods.com/ref/FFN-NISHAD90"
-        target="_blank"
-        class="flex items-center gap-2 px-4 py-2 bg-[#25D366] text-white rounded-lg text-sm font-bold hover:opacity-90 transition-opacity">
-        <i class="fa-brands fa-whatsapp text-lg"></i> Share on WhatsApp
-      </a>
-
-      <a href="mailto:?subject=Fantasy Foods Referral&body=Join using my link: https://fantasyfoods.com/ref/FFN-NISHAD90"
-        target="_blank"
-        class="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg text-sm font-bold hover:bg-gray-700 transition-colors">
-        <i class="fa-regular fa-envelope text-lg"></i> Send Email
-      </a>
-    </div>
-  </div>
 
   <!-- Actions -->
   <div class="flex justify-end mb-12">

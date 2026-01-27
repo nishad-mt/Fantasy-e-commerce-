@@ -163,15 +163,34 @@ def place_order(request):
     if payment_method == "COD":
         order.payment_method = "COD"
         order.payment_status = "PENDING"
-       
+
+    elif payment_method == "WALLET":
+        order.payment_method = "WALLET"
+
+        wallet = Wallet.objects.select_for_update().get(user=request.user)
+
+        if wallet.balance < total:
+            messages.error(request, "Insufficient wallet balance.")
+            return redirect("checkout")
+
+        # Debit wallet
+        wallet.balance -= total
+        wallet.save()
+
+        WalletTransaction.objects.create(
+            wallet=wallet,
+            order=order,
+            amount=total,
+            txn_type="DEBIT"
+        )
+  
     else:
         messages.error(request, "Invalid payment method.")
         return redirect("checkout")
 
     order.save()
 
-    if payment_method == "COD":
-        cart.items.all().delete()
+    cart.items.all().delete()
 
 
     return redirect("order_success", order_id=order.order_id)
@@ -221,6 +240,9 @@ def cancel_order_request(request, order_id):
         order_id=order_id,
         user=request.user
     )
+    if order.status == "CANCELLED":
+        messages.error(request, "Order already cancelled.")
+        return redirect("order_detail", order_id=order.order_id)
 
     if order.status not in ["PENDING", "CONFIRMED"]:
         messages.error(request, "This order cannot be cancelled.")
@@ -233,21 +255,20 @@ def cancel_order_request(request, order_id):
             messages.error(request, "Please select a cancellation reason.")
             return redirect("order_detail", order_id=order.order_id)
 
-        # -------------------------
+        
         # CANCEL ORDER
-        # -------------------------
         order.status = "CANCELLED"
         order.cancel_reason = reason
         order.cancelled_at = timezone.now()
 
-        # -------------------------
         # WALLET REFUND (ONLINE)
-        # -------------------------
         if (
             order.payment_method == "ONLINE"
             and order.payment_status == "SUCCESS"
         ):
-            wallet = Wallet.objects.select_for_update().get(user=request.user)
+            wallet, created = Wallet.objects.select_for_update().get_or_create(
+                user=request.user
+            )
 
             wallet.balance += order.total_amount
             wallet.save()
@@ -271,11 +292,8 @@ def cancel_order_request(request, order_id):
 
         return redirect("order_detail", order_id=order.order_id)
 
-    # GET → show cancel confirmation page
-    return render(request, "cancel_order.html", {
-        "order": order,
-        "reasons": Order.CANCEL_REASONS
-    })
+    return redirect("order_detail", order_id=order.order_id)
+
     
 @login_required
 def buy_now(request, variant_id):

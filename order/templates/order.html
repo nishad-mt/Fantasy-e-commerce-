@@ -18,7 +18,8 @@
         {% load static %}
 {% if orders %}
     {% for order in orders %}
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-8">
+<div class="order-card bg-white rounded-2xl shadow-sm border border-gray-100 mb-8
+            {% if forloop.counter > 2 %} hidden {% endif %}">
 
         <!-- Header -->
         <div class="flex flex-wrap justify-between items-center gap-4 p-6 border-b">
@@ -93,26 +94,6 @@
                     ₹{{ order.total_amount }}
                 </p>
             </div>
-
-            <!-- Actions -->
-            {% if order.status == "PENDING" or order.status == "CONFIRMED" %}
-            <div class="relative">
-                <button onclick="toggleMenu(this)"
-                        class="text-gray-400 hover:text-gray-700 text-2xl leading-none">⋮</button>
-
-                <div class="hidden absolute right-0 mt-2 w-40 bg-white border rounded-xl shadow-md z-10">
-                    <form method="POST" action="">
-                        {% csrf_token %}
-                        <button
-                            class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-50 text-red-600">
-                            Cancel Request
-                        </button>
-                    </form>
-                </div>
-            </div>
-            {% endif %}
-
-
         </div>
 
         <!-- Footer -->
@@ -136,72 +117,39 @@
 
     </div>
     {% endfor %}
+    {% if orders|length > 2 %}
+<div class="text-center mt-6">
+    <button
+        id="toggleOrdersBtn"
+        onclick="toggleOrders()"
+        class="px-6 py-2 rounded-lg border border-gray-300 text-gray-700 font-semibold hover:bg-gray-100">
+        Show more 
+    </button>
+</div>
+{% endif %}
+
 {% else %}
     <p class="text-center text-gray-500 mt-10">No orders found.</p>
 {% endif %}
 
     </div>
 </section>
-
-<!-- RETURN MODAL -->
-<div id="returnModal"
-     class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-2xl w-full max-w-md p-6">
-
-        <h3 class="text-lg font-bold text-fantasy-brown mb-4">
-            Return Request
-        </h3>
-
-        <form class="space-y-3">
-            <label class="flex items-center gap-2">
-                <input type="radio" name="reason" required>
-                Product was damaged
-            </label>
-            <label class="flex items-center gap-2">
-                <input type="radio" name="reason">
-                Expired product
-            </label>
-            <label class="flex items-center gap-2">
-                <input type="radio" name="reason">
-                Wrong item delivered
-            </label>
-            <label class="flex items-center gap-2">
-                <input type="radio" name="reason">
-                Not satisfied
-            </label>
-
-            <textarea rows="3"
-                      placeholder="Additional comments (optional)"
-                      class="w-full border rounded-lg p-3 mt-3"></textarea>
-
-            <div class="flex justify-end gap-3 mt-5">
-                <button type="button"
-                        onclick="closeReturnModal()"
-                        class="px-4 py-2 rounded-lg border">
-                    Cancel
-                </button>
-                <button type="submit"
-                        class="px-4 py-2 rounded-lg bg-red-600 text-white font-semibold">
-                    Submit Return
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
 <script>
-function toggleMenu(btn) {
-    const menu = btn.nextElementSibling;
-    document.querySelectorAll('.relative div').forEach(d => d.classList.add('hidden'));
-    menu.classList.toggle('hidden');
-}
+let expanded = false;
 
-function openReturnModal() {
-    document.getElementById('returnModal').classList.remove('hidden');
-}
+function toggleOrders() {
+    const orders = document.querySelectorAll(".order-card");
+    const button = document.getElementById("toggleOrdersBtn");
 
-function closeReturnModal() {
-    document.getElementById('returnModal').classList.add('hidden');
+    orders.forEach((order, index) => {
+        if (index >= 2) {
+            order.classList.toggle("hidden");
+        }
+    });
+
+    expanded = !expanded;
+    button.innerText = expanded ? "Show less orders" : "Show more orders";
 }
 </script>
+
 {% endblock %}
