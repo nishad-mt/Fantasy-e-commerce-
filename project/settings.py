@@ -24,12 +24,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("SECRET_KEY")
-DEBUG = os.getenv("DEBUG") == "True"
+DEBUG = os.getenv("DEBUG","True") == "True"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+CSRF_TRUSTED_ORIGINS = [
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+]
+
 
 
 # Application definition
@@ -57,7 +62,8 @@ INSTALLED_APPS = [
     'cart',
     'promortions',
     'wishlist',
-    'addresses'
+    'addresses',
+    'wallet',
 ]
 
 MIDDLEWARE = [

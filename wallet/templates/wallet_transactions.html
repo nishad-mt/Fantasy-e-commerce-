@@ -1,0 +1,29 @@
+{% extends "index.html" %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto mt-10 bg-white rounded-xl shadow p-6">
+
+    <h2 class="text-xl font-bold mb-4">Wallet Transactions</h2>
+
+    {% if transactions %}
+        <ul class="divide-y">
+            {% for txn in transactions %}
+            <li class="py-3 flex justify-between text-sm">
+                <span>
+                    {{ txn.txn_type }}
+                    {% if txn.order %}
+                        (Order {{ txn.order.order_id }})
+                    {% endif %}
+                </span>
+                <span class="{% if txn.txn_type == 'CREDIT' %}text-green-600{% else %}text-red-600{% endif %}">
+                    ₹{{ txn.amount }}
+                </span>
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="text-gray-500">No transactions yet.</p>
+    {% endif %}
+
+</div>
+{% endblock %}

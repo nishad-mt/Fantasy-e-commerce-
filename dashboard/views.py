@@ -20,7 +20,8 @@ from django.utils.timezone import now
 import uuid
 import json
 from django.utils import timezone
-
+from addresses.models import Address
+from django.http import JsonResponse
 
 User = get_user_model()
 
@@ -97,8 +98,27 @@ def dashboard(request):
 @never_cache
 @login_required
 def user(request):
-    users = User.objects.select_related('profile').all()
-    
+    users = (
+    User.objects
+    .select_related('profile')
+    .prefetch_related(
+        Prefetch(
+            'address_set',
+            queryset=Address.objects.order_by('-is_default'),
+            to_attr='prefetched_addresses'
+        )
+    )
+    .annotate(
+        total_spent=Sum(
+            'order__total_amount',
+            filter=Q(order__payment_status='SUCCESS')
+        ),
+        orders_count=Count(
+            'order',
+            distinct=True
+        )
+    )
+)
     ordered_user_count = User.objects.filter(order__isnull=False).distinct().count()
 
     total_users = User.objects.count()
@@ -140,6 +160,22 @@ def user(request):
     }
 
     return render(request, "user.html", context)
+
+@login_required
+def user_orders_api(request, user_id):
+    orders = Order.objects.filter(user_id=user_id).order_by('-created_at')
+
+    data = []
+    for o in orders:
+        data.append({
+            "id": str(o.order_id)[:8],
+            "date": o.created_at.strftime("%d %b %Y"),
+            "status": o.status,
+            "total": float(o.total_amount),
+        })
+
+    return JsonResponse({"orders": data})
+
 
 @never_cache
 @login_required

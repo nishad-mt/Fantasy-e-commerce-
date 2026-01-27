@@ -16,8 +16,7 @@ from django.utils import timezone
 from django.http import JsonResponse
 import razorpay
 from django.conf import settings
-from django.views.decorators.csrf import csrf_exempt
-
+from wallet.models import WalletTransaction,Wallet
 
 
 @login_required
@@ -215,30 +214,69 @@ def admin_order_detail(request, order_id):
     )
     
 @login_required
+@transaction.atomic
 def cancel_order_request(request, order_id):
-    order = get_object_or_404(Order,order_id=order_id,user=request.user)
-
-    if order.status not in ["PENDING", "CONFIRMED"]:
-        messages.error(
-            request,
-            "This order can no longer be cancelled."
-        )
-        return redirect("order_detail", order_id=order.order_id)
-
-    order.status = "CANCELLED"
-
-    if order.payment_method != "COD":
-        order.payment_status = "FAILED"
-
-    order.save()
-
-    messages.success(
-        request,
-        "Your order has been cancelled successfully."
+    order = get_object_or_404(
+        Order,
+        order_id=order_id,
+        user=request.user
     )
 
-    return redirect("order_detail", order_id=order.order_id)
+    if order.status not in ["PENDING", "CONFIRMED"]:
+        messages.error(request, "This order cannot be cancelled.")
+        return redirect("order_detail", order_id=order.order_id)
 
+    if request.method == "POST":
+        reason = request.POST.get("cancel_reason")
+
+        if not reason:
+            messages.error(request, "Please select a cancellation reason.")
+            return redirect("order_detail", order_id=order.order_id)
+
+        # -------------------------
+        # CANCEL ORDER
+        # -------------------------
+        order.status = "CANCELLED"
+        order.cancel_reason = reason
+        order.cancelled_at = timezone.now()
+
+        # -------------------------
+        # WALLET REFUND (ONLINE)
+        # -------------------------
+        if (
+            order.payment_method == "ONLINE"
+            and order.payment_status == "SUCCESS"
+        ):
+            wallet = Wallet.objects.select_for_update().get(user=request.user)
+
+            wallet.balance += order.total_amount
+            wallet.save()
+
+            WalletTransaction.objects.create(
+                wallet=wallet,
+                order=order,
+                amount=order.total_amount,
+                txn_type="CREDIT"
+            )
+
+            order.payment_status = "REFUNDED"
+
+        order.save()
+
+        messages.success(
+            request,
+            "Order cancelled successfully. "
+            + ("Amount refunded to wallet." if order.payment_method == "ONLINE" else "")
+        )
+
+        return redirect("order_detail", order_id=order.order_id)
+
+    # GET → show cancel confirmation page
+    return render(request, "cancel_order.html", {
+        "order": order,
+        "reasons": Order.CANCEL_REASONS
+    })
+    
 @login_required
 def buy_now(request, variant_id):
     variant = get_object_or_404(SizeVariant, id=variant_id)

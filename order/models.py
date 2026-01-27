@@ -25,6 +25,17 @@ class Order(models.Model):
         ("DELIVERED", "Delivered"),
         ("CANCELLED", "Cancelled"),
     ]
+    CANCEL_REASONS = [
+        ("CHANGED_MIND", "Changed my mind"),
+        ("WRONG_ADDRESS", "Wrong delivery address"),
+        ("FOUND_CHEAPER", "Found a better price elsewhere"),
+        ("ORDERED_BY_MISTAKE", "Ordered by mistake"),
+        ("DELIVERY_DELAY", "Delivery is taking too long"),
+        ("OTHER", "Other"),
+    ]
+
+    cancel_reason = models.CharField(max_length=50,choices=CANCEL_REASONS,blank=True,null=True)
+    cancelled_at = models.DateTimeField(blank=True, null=True)
     
     order_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
