@@ -4,27 +4,27 @@ from products.models import SizeVariant
 import uuid
 
 class Order(models.Model):
-    address = models.ForeignKey(
-        "addresses.Address",
-        on_delete=models.PROTECT,
-    )
+    address = models.ForeignKey("addresses.Address",on_delete=models.PROTECT,)
+    SOURCE_CHOICES = [
+        ("CART", "Cart"),
+        ("BUY_NOW", "Buy Now"),
+    ]
     PAYMENT_METHOD_CHOICES = [
         ("COD", "Cash on Delivery"),
         ("ONLINE", "Online Payment"),
-        ("WALLET", "wallet")
+        ("WALLET", "Wallet")
     ]
     PAYMENT_STATUS_CHOICES = [
         ("PENDING", "Pending"),
-        ("SUCCESS", "success"),
+        ("SUCCESS", "Success"),
         ("FAILED", "Failed"),
         ("REFUNDED", "Refunded"),
-
     ]
     STATUS_CHOICES = [
         ("PENDING", "Pending"),
         ("CONFIRMED", "Confirmed"),
         ("PREPARING", "Preparing"),
-        ("PACKED", "packed"),
+        ("PACKED", "Packed"),
         ("DELIVERED", "Delivered"),
         ("CANCELLED", "Cancelled"),
     ]
@@ -48,6 +48,7 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     delivery_charge = models.DecimalField(max_digits=8, decimal_places=2, default=0)
     delivery_date = models.DateField()
+    delivered_at = models.DateTimeField(null=True, blank=True)
     paid_at = models.DateTimeField(null=True, blank=True)
     payment_method = models.CharField(
         max_length=10,
@@ -58,6 +59,11 @@ class Order(models.Model):
         max_length=10,
         choices=PAYMENT_STATUS_CHOICES,
         default="PENDING"
+    )
+    source = models.CharField(
+        max_length=10,
+        choices=SOURCE_CHOICES,
+        default="CART"
     )
 
 

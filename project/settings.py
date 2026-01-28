@@ -29,7 +29,11 @@ DEBUG = os.getenv("DEBUG","True") == "True"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+ALLOWED_HOSTS = [
+    "127.0.0.1", 
+    "localhost",
+    "depauperate-overanxiously-jeffrey.ngrok-free.dev",
+]
 CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:8000",
     "http://localhost:8000",
@@ -179,6 +183,8 @@ SITE_ID = 1
 
 RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID")
 RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")
+RAZORPAY_WEBHOOK_SECRET = os.getenv("RAZORPAY_WEBHOOK_SECRET")
+
 
 # ----- ALLAUTH CORE FIX -----
 

@@ -1,84 +1,115 @@
-from django.shortcuts import render
-import razorpay
+from django.shortcuts import render, get_object_or_404
 from django.conf import settings
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+
+import razorpay
 import hmac
 import json
 import hashlib
-from django.http import HttpResponse
+import razorpay
+
 from payment.models import Payment
+from order.models import Order
+from cart.models import Cart
 
-@csrf_exempt
+@csrf_protect
+@login_required
 def create_razorpay_order(request):
-    if request.method == "POST":
-        amount = int(float(request.POST.get("amount")) * 100)  # ₹ → paise
+    if request.method != "POST":
+        return HttpResponseBadRequest("Invalid request")
 
-        client = razorpay.Client(
-            auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
-        )
+    order_id = request.POST.get("order_id")
+    if not order_id:
+        return HttpResponseBadRequest("Order ID missing")
 
-        order = client.order.create({
-            "amount": amount,
-            "currency": "INR",
-            "payment_capture": 1
-        })
+    order = get_object_or_404(Order, order_id=order_id, user=request.user)
 
-        return JsonResponse({
-            "order_id": order["id"],
-            "key": settings.RAZORPAY_KEY_ID,
-            "amount": amount
-        })
+    order.payment_method = "ONLINE"
+    order.payment_status = "PENDING"
+    order.save()
 
+    amount_paise = int(order.total_amount * 100)
 
-def test_payment(request):
     client = razorpay.Client(
         auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
     )
 
-    order = client.order.create({
-        "amount": 100,        
+    razorpay_order = client.order.create({
+        "amount": amount_paise,
         "currency": "INR",
         "payment_capture": 1
     })
 
-    return render(request, "test_payment.html", {
-        "order_id": order["id"],
-        "key": settings.RAZORPAY_KEY_ID,
-        "amount": 100
-    })
+    Payment.objects.create(
+        user=request.user,
+        order=order,
+        razorpay_order_id=razorpay_order["id"],
+        amount=order.total_amount,
+        status="CREATED"
+    )
 
-def success(request):
-    return render(request,"success.html")
+    return JsonResponse({
+        "razorpay_order_id": razorpay_order["id"],
+        "key": settings.RAZORPAY_KEY_ID,
+        "amount": amount_paise,
+        "currency": "INR",
+    })
 
 
 @csrf_exempt
 def razorpay_webhook(request):
-    payload = request.body
-    received_signature = request.headers.get("X-Razorpay-Signature")
+    payload = request.body.decode("utf-8")  
+    received_signature = request.META.get("HTTP_X_RAZORPAY_SIGNATURE")
+    
+    if not received_signature:
+        return HttpResponse(status=400)
 
-    # Verify webhook signature
-    expected_signature = hmac.new(
-        bytes(settings.RAZORPAY_WEBHOOK_SECRET, "utf-8"),
-        payload,
-        hashlib.sha256
-    ).hexdigest()
+    client = razorpay.Client(
+        auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
+    )
 
-    if not hmac.compare_digest(received_signature, expected_signature):
+    try:
+        client.utility.verify_webhook_signature(
+            payload,
+            received_signature,
+            settings.RAZORPAY_WEBHOOK_SECRET
+        )
+    except razorpay.errors.SignatureVerificationError:
         return HttpResponse(status=400)
 
     data = json.loads(payload)
 
     if data.get("event") == "payment.captured":
-        payment_entity = data["payload"]["payment"]["entity"]
+        entity = data["payload"]["payment"]["entity"]
 
-        razorpay_payment_id = payment_entity["id"]
-        method = payment_entity["method"]  # 🔥 REAL METHOD
+        razorpay_order_id = entity["order_id"]
+        razorpay_payment_id = entity["id"]
+        method = entity["method"]
 
-        # Update your Payment record
-        payment = Payment.objects.filter(txn_id=razorpay_payment_id).first()
-        if payment:
+        payment = Payment.objects.select_related("order").filter(
+            razorpay_order_id=razorpay_order_id
+        ).first()
+
+        if payment and payment.status != "SUCCESS":
+            payment.razorpay_payment_id = razorpay_payment_id
             payment.gateway_method = method
+            payment.status = "SUCCESS"
             payment.save()
 
+            order = payment.order
+            order.payment_status = "SUCCESS"
+            order.status = "CONFIRMED"
+            order.paid_at = timezone.now()
+            order.save()
+
+            cart = Cart.objects.filter(user=order.user).first()
+            if cart:
+                cart.items.all().delete()
+
     return HttpResponse(status=200)
+
+def success(request):
+    return render(request, "success.html")

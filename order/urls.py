@@ -7,13 +7,13 @@ urlpatterns = [
     path("admin_order_detail/<uuid:order_id>/", views.admin_order_detail, name="admin_order_detail"),
     path("choose_address/", views.select_address, name="select_address"),
     path("place/", views.place_order, name="place_order"),
+    path("confirm-cod/", views.confirm_cod, name="confirm_cod"),
     path("pay/<uuid:order_id>/", views.pay_order, name="pay_order"),
-    path("confirm-payment/<uuid:order_id>/", views.confirm_payment, name="confirm_payment"),
     path("checkout-order/",views.checkout,name="checkout"),
     path("order-detail/<uuid:order_id>",views.order_detail,name="order_detail"),
     path("success/<str:order_id>/", views.order_success, name="order_success"),
     path("order/<uuid:order_id>/cancel/",views.cancel_order_request,name="cancel_order_request"),
-    path("buy_now/<int:variant_id>/", views.buy_now, name="buy_now"),
-    path("verify-payment/", views.verify_payment, name="verify_payment"),
+    path("buy-now/<int:variant_id>/", views.buy_now, name="buy_now"),
+    
   
 ]

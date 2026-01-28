@@ -440,31 +440,37 @@ def admin_order_list(request):
 
         order = get_object_or_404(Order, order_id=order_id)
 
-        if order.payment_method != "COD" and order.payment_status != "SUCCESS":
-            messages.error(request, "Payment not verified.")
-            return redirect("orders")
-
         if new_status not in STATUS_FLOW.get(order.status, []):
             messages.error(request, "Invalid status update.")
             return redirect("orders")
 
+        # 🔒 Only restrict DELIVERY
+        if new_status == "DELIVERED":
+            if order.payment_method != "COD" and order.payment_status != "SUCCESS":
+                messages.error(request, "Payment not verified.")
+                return redirect("orders")
+
+            order.delivered_at = timezone.now()
+
+            # COD → collect money now
+            if order.payment_method == "COD":
+                order.payment_status = "SUCCESS"
+                order.paid_at = timezone.now()
+
+                Payment.objects.get_or_create(
+                    order=order,
+                    defaults={
+                        "user": order.user,
+                        "razorpay_order_id": f"COD-{uuid.uuid4()}",
+                        "amount": order.total_amount,
+                        "status": "SUCCESS",
+                        "gateway_method": "COD",
+                    }
+                )
+
         order.status = new_status
-
-        if new_status == "DELIVERED" and order.payment_method == "COD":
-            order.payment_status = "SUCCESS"
-            order.paid_at = timezone.now()
-
-            Payment.objects.get_or_create(
-                order=order,
-                method="COD",
-                defaults={
-                    "txn_id": f"COD-{uuid.uuid4()}",
-                    "status": "SUCCESS",
-                    "amount": order.total_amount,
-                }
-            )
-
         order.save()
+
         messages.success(request, "Order status updated.")
         return redirect("orders")
 
@@ -485,60 +491,61 @@ def admin_payments_dashboard(request):
     today = now().date()
     start_month = today.replace(day=1)
 
+    delivered_orders = Order.objects.filter(status="DELIVERED")
+
     total_revenue = (
-        Payment.objects.filter(status="SUCCESS")
-        .aggregate(total=Sum("amount"))["total"] or 0
+        delivered_orders.aggregate(total=Sum("total_amount"))["total"] or 0
     )
 
     today_collection = (
-        Payment.objects.filter(
-            status="SUCCESS",
+        delivered_orders.filter(
             created_at__date=today
-        ).aggregate(total=Sum("amount"))["total"] or 0
+        ).aggregate(total=Sum("total_amount"))["total"] or 0
     )
 
-    successful_txns = Payment.objects.filter(
-        status="SUCCESS",
+    successful_txns = delivered_orders.filter(
         created_at__date__gte=start_month
     ).count()
 
+    # Transactions list (admin table)
     transactions_qs = (
-        Payment.objects
-        .select_related("order", "order__user")
+        delivered_orders
+        .select_related("user")
         .order_by("-created_at")
     )
 
     txn_list = []
-    for txn in transactions_qs:
-        user = txn.order.user
+    for order in transactions_qs:
+        user = order.user
 
         customer_name = (
-            f"{user.username}"
-            or user.username
+            user.username
             or user.email
         )
 
         txn_list.append({
-            "id": txn.txn_id,
-            "orderId": str(txn.order.order_id),
+            "id": str(order.order_id),      
+            "orderId": str(order.order_id),
             "customer": customer_name,
-            "method": (txn.method or "UNKNOWN").upper(),   
-            "amount": float(txn.amount),
-            "status": txn.status.title(),
-            "date": txn.created_at.strftime("%Y-%m-%d %I:%M %p"),
+            "method": order.payment_method.upper(),   # COD / ONLINE / WALLET
+            "amount": float(order.total_amount),
+            "status": order.status,
+            "date": order.created_at.strftime("%Y-%m-%d %I:%M %p"),
         })
 
+    # Payment method distribution (DELIVERED only)
     method_chart = dict(
-        Payment.objects.filter(status="SUCCESS")
-        .values_list("method")
-        .annotate(count=Count("id"))
+        delivered_orders
+        .values("payment_method")
+        .annotate(count=Count("pk"))
     )
 
     method_chart = {
-        (k or "UNKNOWN").upper(): v
+        k.upper(): v
         for k, v in method_chart.items()
     }
 
+    # Revenue chart (last 7 days, delivered)
     revenue_labels = []
     revenue_data = []
 
@@ -546,10 +553,9 @@ def admin_payments_dashboard(request):
         day = today - timedelta(days=i)
 
         amount = (
-            Payment.objects.filter(
-                status="SUCCESS",
+            delivered_orders.filter(
                 created_at__date=day
-            ).aggregate(total=Sum("amount"))["total"] or 0
+            ).aggregate(total=Sum("total_amount"))["total"] or 0
         )
 
         revenue_labels.append(day.strftime("%a"))
@@ -567,7 +573,6 @@ def admin_payments_dashboard(request):
     }
 
     return render(request, "payments.html", context)
-
 @admin_required
 def admin_contact(request):
     contact_info, _ = SiteContact.objects.get_or_create(

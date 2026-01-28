@@ -53,8 +53,9 @@
         <div class="min-h-screen pb-24 font-sans">
             <div class="container mx-auto px-2 md:px-4 pt-8">
 
-                <form id="checkout-form" method="POST" action="{% url 'confirm_payment' order.order_id %}" class="space-y-8">
+                <form id="checkout-form" action="{% url 'place_order' %}" method="post"class="space-y-8"> 
                     {% csrf_token %}
+                    <input type="hidden" name="order_id" value="{{ order.order_id }}">
                     <section
                         class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300">
                         <div class="p-4 border-b border-gray-50">
@@ -172,7 +173,7 @@
                                 <label
                                     class="relative flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer hover:border-gray-300 transition-all opacity-75 hover:opacity-100 group hover:bg-gray-50">
                                     <div class="flex items-center h-5">
-                                        <input type="radio" name="payment_method" value="UPI"
+                                        <input type="radio" name="payment_method" value="ONLINE"
                                             class="w-5 h-5 text-fantasy-brown border-gray-300 focus:ring-fantasy-gold">
                                     </div>
                                     <div class="ml-4 flex-1">
@@ -339,8 +340,8 @@
 
     <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 text-center">
         <div class="flex justify-center mb-4">
-            <div class="w-12 h-12 flex items-center justify-center rounded-full bg-orange-100">
-                <i class="fa-solid fa-circle-exclamation text-orange-500 text-xl"></i>
+            <div class="w-12 h-12 flex items-center justify-center rounded-full bg-green-100">
+            <i class="fa-solid fa-circle-check text-green-500 text-xl"></i>
             </div>
         </div>
 
@@ -376,22 +377,17 @@ const placeOrderBtn = document.getElementById("place-order-btn");
 const checkoutForm = document.getElementById("checkout-form");
 const paymentError = document.getElementById("payment-error");
 
-// Confirm modal elements
 const confirmModal = document.getElementById("confirm-modal");
 const cancelConfirmBtn = document.getElementById("cancel-confirm");
 const confirmOrderBtn = document.getElementById("confirm-order");
 
 let selectedPaymentMethod = null;
 
-/* -----------------------------
-   PLACE ORDER CLICK
------------------------------ */
-placeOrderBtn.addEventListener("click", function (e) {
+placeOrderBtn.addEventListener("click", function () {
     const selectedInput = document.querySelector(
         'input[name="payment_method"]:checked'
     );
 
-    // ❌ No payment selected
     if (!selectedInput) {
         paymentError.classList.remove("hidden");
         paymentError.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -401,97 +397,92 @@ placeOrderBtn.addEventListener("click", function (e) {
     paymentError.classList.add("hidden");
     selectedPaymentMethod = selectedInput.value;
 
-    // ✅ Show confirmation modal
     confirmModal.classList.remove("hidden");
     confirmModal.classList.add("flex");
 });
 
-/* -----------------------------
-   CANCEL CONFIRMATION
------------------------------ */
 cancelConfirmBtn.addEventListener("click", function () {
     confirmModal.classList.add("hidden");
     confirmModal.classList.remove("flex");
 });
 
-/* -----------------------------
-   CONFIRM ORDER
------------------------------ */
 confirmOrderBtn.addEventListener("click", function () {
+    confirmOrderBtn.disabled = true;
+    confirmOrderBtn.classList.add("opacity-60", "cursor-not-allowed");
+
     confirmModal.classList.add("hidden");
     confirmModal.classList.remove("flex");
 
-    // =========================
-    // COD → normal submit
-    // =========================
-    if (selectedPaymentMethod === "COD") {
-        checkoutForm.submit();
-        return;
-    }
+    const formData = new FormData(checkoutForm);
+    formData.append("payment_method", selectedPaymentMethod);
+    formData.append("order_id", "{{ order.order_id }}");
 
-    // =========================
-    // ONLINE → Razorpay
-    // =========================
-    fetch("{% url 'create_razorpay_order' %}", {
+    fetch(checkoutForm.action, {
         method: "POST",
         headers: {
             "X-CSRFToken": "{{ csrf_token }}",
-            "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: "amount={{ order.total_amount }}"
+        body: formData,
     })
     .then(res => res.json())
     .then(data => {
 
-        const options = {
-            key: data.key,
-            amount: data.amount,
-            currency: "INR",
-            order_id: data.order_id,
-            name: "Fantasy Bakery",
-            description: "Order Payment",
+        if (data.status === "cod_confirm") {
+            fetch("{% url 'confirm_cod' %}", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ order_id: data.order_id })
+            }).then(() => {
+                window.location.href = `/order/success/${data.order_id}/`;
+            });
+        }
 
-            handler: function (response) {
-                fetch("{% url 'verify_payment' %}", {
-                    method: "POST",
-                    headers: {
-                        "X-CSRFToken": "{{ csrf_token }}",
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        razorpay_payment_id: response.razorpay_payment_id,
-                        razorpay_order_id: response.razorpay_order_id,
-                        razorpay_signature: response.razorpay_signature,
-                        order_id: "{{ order.order_id }}",
-                        payment_method: selectedPaymentMethod
-                    })
-                })
-                .then(res => res.json())
-                .then(result => {
-                    if (result.status === "success") {
-                        window.location.href =
-                            "{% url 'order_success' order.order_id %}";
-                    } else {
-                        alert("Payment verification failed. Please try again.");
+        else if (data.status === "wallet_success") {
+            window.location.href = `/order/success/${data.order_id}/`;
+        }
+
+        else if (data.status === "online") {
+            fetch("{% url 'create_razorpay_order' %}", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: new URLSearchParams({ order_id: data.order_id })
+            })
+            .then(res => res.json())
+            .then(rzp => {
+                new Razorpay({
+                    key: rzp.key,
+                    amount: rzp.amount,
+                    currency: "INR",
+                    name: "Fantasy Bakery",
+                    order_id: rzp.razorpay_order_id,
+                    handler: function () {
+                        window.location.href = `/order/success/${data.order_id}/`;
                     }
-                });
-            },
+                }).open();
+            });
+        }
 
-            modal: {
-                ondismiss: function () {
-                    placeOrderBtn.disabled = false;
-                }
-            }
-        };
+        else if (data.message) {
+            alert(data.message);
+            confirmOrderBtn.disabled = false;
+            confirmOrderBtn.classList.remove("opacity-60", "cursor-not-allowed");
+        }
 
-        placeOrderBtn.disabled = true;
-        new Razorpay(options).open();
-    })
-    .catch(() => {
-        alert("Unable to initiate payment. Please try again.");
+        else {
+            alert("Unexpected error. Please try again.");
+            confirmOrderBtn.disabled = false;
+            confirmOrderBtn.classList.remove("opacity-60", "cursor-not-allowed");
+        }
     });
 });
 </script>
+
 
 </body>
 

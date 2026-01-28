@@ -170,9 +170,9 @@
                         </form>
 
                     <!-- Buy Now -->
-                    <form method="POST"action="{% url 'buy_now' initial_variant.id %}"
-                        class="flex-1">
+                    <form method="POST"action="{% url 'buy_now' 0 %}" id="buyNowForm" class="flex-1">
                         {% csrf_token %}
+                        <input type="hidden" name="variant_id" id="buyNowVariantInput">
                         <input type="hidden" name="quantity" id="buyNowQuantity" value="1">
                         <button
                             class="w-full h-14 rounded-full font-semibold text-lg bg-fantasy-brown text-white
@@ -461,18 +461,18 @@ function selectVariant(btn) {
 
     // set hidden input
     document.getElementById('selectedVariantInput').value = variantId;
+    document.getElementById('addToCartForm').action = `/cart/toggle/${variantId}/`;
 
-    // update form action (/cart/toggle/<id>/)
-    const form = document.getElementById('addToCartForm');
-    form.action = `/cart/toggle/${variantId}/`;
+    document.getElementById('buyNowVariantInput').value = variantId;
+    document.getElementById('buyNowForm').action = `/order/buy-now/${variantId}/`;
 
-    // enable button
-    document.getElementById('addToCartBtn').disabled = false;
+    // reset quantity
     document.getElementById('quantity-input').value = 1;
     document.getElementById('quantityHidden').value = 1;
     document.getElementById('buyNowQuantity').value = 1;
 
     updateTotalPrice(1);
+
 }
 
     // Quantity Logic

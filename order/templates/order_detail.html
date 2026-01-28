@@ -122,11 +122,12 @@
         "></div>
     </div>
 
-    {% if order.status == "DELIVERED" %}
-        <p class="text-xs text-green-600 mt-4 font-semibold">
-            ✅ Delivered on {{ order.delivery_date|date:"d M Y" }}
-        </p>
-    {% endif %}
+    {% if order.status == "DELIVERED" and order.delivered_at %}
+    <p class="text-xs text-green-600 mt-4 font-semibold">
+        ✅ Delivered on {{ order.delivered_at|date:"d M Y, h:i A" }}
+    </p>
+{% endif %}
+
 
     {% if order.status == "CANCELLED" %}
         <div class="mt-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">
@@ -190,38 +191,47 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
             <div class="bg-white rounded-2xl shadow-sm border p-6">
-                <h4 class="font-bold text-lg text-fantasy-brown mb-3">Payment Details</h4>
+    <h4 class="font-bold text-lg text-fantasy-brown mb-3">Payment Details</h4>
 
-                <div class="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                        <p class="text-gray-500">Payment Method</p>
-                        <p class="font-medium">{{ order.payment_method }}</p>
-                    </div>
+    <div class="grid grid-cols-2 gap-4 text-sm">
 
-                    <div>
-                        <p class="text-gray-500">Payment Status</p>
-                        <p class="font-medium">
-                            {{ order.payment_status }}
-                        </p>
-                    </div>
+        <div>
+            <p class="text-gray-500">Payment Method</p>
+            <p class="font-medium">
+                {{ order.get_payment_method_display }}
+            </p>
+        </div>
 
-                    {% if order.paid_at %}
-                    <div>
-                        <p class="text-gray-500">Paid On</p>
-                        <p class="font-medium">{{ order.paid_at|date:"d M Y, h:i A" }}</p>
-                    </div>
-                    {% endif %}
+        <div>
+            <p class="text-gray-500">Payment Status</p>
+            <p class="font-medium">
+                {{ order.get_payment_status_display }}
+            </p>
+        </div>
 
-                    {% if order.payment_status == "REFUNDED" %}
-                    <div>
-                        <p class="text-gray-500">Refund</p>
-                        <p class="font-medium text-green-600">
-                            Refunded to wallet
-                        </p>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
+        <div>
+            <p class="text-gray-500">Paid On</p>
+            <p class="font-medium">
+                {% if order.paid_at %}
+                    {{ order.paid_at|date:"d M Y, h:i A" }}
+                {% else %}
+                    —
+                {% endif %}
+            </p>
+        </div>
+
+        {% if order.payment_status == "REFUNDED" %}
+        <div>
+            <p class="text-gray-500">Refund</p>
+            <p class="font-medium text-green-600">
+                Refunded to wallet
+            </p>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
 
             <!-- PAYMENT SUMMARY -->
             <div class="bg-white rounded-2xl shadow-sm border p-6">
@@ -274,7 +284,7 @@
             </button>
         </div>
         {% endif %}
-    </div>
+    </div> 
 </section>
 <div id="cancelModal"
      class="fixed inset-0 hidden bg-black/50 z-50 items-center justify-center">

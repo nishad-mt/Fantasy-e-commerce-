@@ -3,4 +3,4 @@ from .models import Payment
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ['txn_id','order','method','amount','status']
+    list_display = ['amount']

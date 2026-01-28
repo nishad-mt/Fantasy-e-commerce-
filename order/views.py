@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib.auth.decorators import login_required
 from decimal import Decimal
-from cart.models import Cart
+from cart.models import Cart,CartItem
 from .models import Order,OrderItem
 from payment.models import Payment
 from products.models import SizeVariant
@@ -44,6 +44,12 @@ def order(request):
     
 @login_required
 def checkout(request):
+    if not Address.objects.filter(user=request.user).exists():
+        messages.warning(
+            request,
+            "Please add a delivery address before placing an order."
+        )
+        return redirect("create_address")
     addresses = Address.objects.filter(user=request.user)
     default_address = addresses.filter(is_default=True).first()
     
@@ -88,7 +94,8 @@ def create_from_cart(request):
         total_amount=total,
         delivery_charge=delivery,
         delivery_date=delivery_date,
-        status="PENDING"
+        status="PENDING",
+        source="CART"
 
     )
 
@@ -108,6 +115,13 @@ def pay_order(request, order_id):
     order = get_object_or_404(Order, order_id=order_id, user=request.user)
 
     addresses = Address.objects.filter(user=request.user)
+    if not addresses.exists():
+        messages.warning(
+            request,
+            "Please add a delivery address to continue."
+        )
+        return redirect("create_address")
+
     default_address = addresses.filter(is_default=True).first()
 
     return render(request, "checkout.html", {
@@ -130,50 +144,68 @@ def order_detail(request,order_id):
 @login_required
 def place_order(request):
     if request.method != "POST":
-        return redirect("checkout")
-
-    cart = get_object_or_404(Cart, user=request.user)
-    items = cart.items.select_related("variant")
-
-    if not items.exists():
-        messages.error(request, "Your cart is empty.")
-        return redirect("cart:cart")
+        return JsonResponse({"error": "Invalid request"}, status=400)
 
     order_id = request.POST.get("order_id")
+
     order = get_object_or_404(
         Order,
         order_id=order_id,
         user=request.user,
         status="PENDING"
     )
-    if not order or not order.address:
-        messages.error(request, "Please select a delivery address.")
-        return redirect("checkout")
 
+    items = order.items.select_related("variant")
+
+    if not items.exists():
+        return JsonResponse({
+            "status": "error",
+            "message": "Order has no items."
+        }, status=400)
+
+    if not order.address:
+        return JsonResponse({
+            "status": "no_address",
+            "message": "Please select a delivery address."
+        })
+
+    # ---------- Recalculate totals (SECURITY) ----------
     subtotal = sum(item.variant.price * item.quantity for item in items)
     delivery = Decimal("0.00") if subtotal > 500 else Decimal("40.00")
     total = subtotal + delivery
 
-    order.total_amount = total
+    order.order_items_total = subtotal
     order.delivery_charge = delivery
+    order.total_amount = total
     order.delivery_date = date.today() + timedelta(days=3)
 
     payment_method = request.POST.get("payment_method")
 
+    # =================================================
+    # CASH ON DELIVERY
+    # =================================================
     if payment_method == "COD":
         order.payment_method = "COD"
         order.payment_status = "PENDING"
+        order.save()
 
+        return JsonResponse({
+            "status": "cod_confirm",
+            "order_id": order.order_id
+        })
+
+    # =================================================
+    # WALLET PAYMENT
+    # =================================================
     elif payment_method == "WALLET":
-        order.payment_method = "WALLET"
-
         wallet = Wallet.objects.select_for_update().get(user=request.user)
 
         if wallet.balance < total:
-            messages.error(request, "Insufficient wallet balance.")
-            return redirect("checkout")
+            return JsonResponse({
+                "status": "wallet_insufficient",
+                "message": "Insufficient wallet balance."
+            })
 
-        # Debit wallet
         wallet.balance -= total
         wallet.save()
 
@@ -183,17 +215,80 @@ def place_order(request):
             amount=total,
             txn_type="DEBIT"
         )
-  
-    else:
-        messages.error(request, "Invalid payment method.")
-        return redirect("checkout")
 
+        order.payment_method = "WALLET"
+        order.payment_status = "SUCCESS"
+        order.paid_at = timezone.now()
+        order.save()
+
+        Payment.objects.create(
+            user=request.user,
+            order=order,
+            razorpay_order_id=f"WALLET-{uuid.uuid4()}",
+            razorpay_payment_id=f"WALLET-{uuid.uuid4()}",
+            gateway_method="WALLET",
+            amount=total,
+            status="SUCCESS"
+        )
+
+        # 🧹 clear cart ONLY if order came from cart
+        if order.source == "CART":
+            CartItem.objects.filter(cart__user=request.user).delete()
+
+        return JsonResponse({
+            "status": "wallet_success",
+            "order_id": order.order_id
+        })
+
+    # =================================================
+    # ONLINE PAYMENT (RAZORPAY)
+    # =================================================
+    elif payment_method == "ONLINE":
+        order.payment_method = "ONLINE"
+        order.payment_status = "PENDING"
+        order.save()
+
+        return JsonResponse({
+            "status": "online",
+            "order_id": order.order_id
+        })
+
+    return JsonResponse({
+        "status": "invalid_payment",
+        "message": "Invalid payment method."
+    }, status=400)
+
+@login_required
+@transaction.atomic
+def confirm_cod(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid request"}, status=400)
+
+    data = json.loads(request.body)
+    order_id = data.get("order_id")
+
+    order = get_object_or_404(
+        Order,
+        order_id=order_id,
+        user=request.user,
+        status="PENDING"
+    )
+
+    # Finalize COD order
+    order.payment_method = "COD"
+    order.payment_status = "PENDING"
     order.save()
 
-    cart.items.all().delete()
+    # Clear cart
+    cart = Cart.objects.filter(user=request.user).first()
+    if cart:
+        cart.items.all().delete()
 
+    return JsonResponse({
+        "status": "success",
+        "order_id": order.order_id
+    })
 
-    return redirect("order_success", order_id=order.order_id)
 
 @login_required
 def select_address(request):
@@ -262,10 +357,8 @@ def cancel_order_request(request, order_id):
         order.cancelled_at = timezone.now()
 
         # WALLET REFUND (ONLINE)
-        if (
-            order.payment_method == "ONLINE"
-            and order.payment_status == "SUCCESS"
-        ):
+        if order.payment_method in ["ONLINE", "WALLET"] and order.payment_status == "SUCCESS":
+
             wallet, created = Wallet.objects.select_for_update().get_or_create(
                 user=request.user
             )
@@ -297,6 +390,14 @@ def cancel_order_request(request, order_id):
     
 @login_required
 def buy_now(request, variant_id):
+
+    if not Address.objects.filter(user=request.user).exists():
+        messages.warning(
+            request,
+            "Please add a delivery address before placing an order."
+        )
+        return redirect("create_address")
+    
     variant = get_object_or_404(SizeVariant, id=variant_id)
 
     quantity = int(request.POST.get("quantity", 1))
@@ -313,7 +414,8 @@ def buy_now(request, variant_id):
         delivery_charge=delivery,
         total_amount=total,
         delivery_date=date.today() + timedelta(days=3),
-        status="PENDING"
+        status="PENDING",
+        source="BUY_NOW"
     )
 
     OrderItem.objects.create(
@@ -325,78 +427,4 @@ def buy_now(request, variant_id):
 
     return redirect("pay_order", order_id=order.order_id)
 
-@login_required
-def confirm_payment(request, order_id):
-    if request.method != "POST":
-        return redirect("pay_order", order_id=order_id)
 
-    order = get_object_or_404(Order, order_id=order_id, user=request.user)
-
-    payment_method = request.POST.get("payment_method")
-
-    if payment_method != "COD":
-        messages.error(request, "Please select a payment method.")
-        return redirect("pay_order", order_id=order_id)
-
-    order.payment_method = "COD"
-    order.payment_status = "PENDING"
-    order.save()
-
-    return redirect("order_success", order_id=order.order_id)
-
-def mark_order_delivered(order):
-    order.status = "DELIVERED"
-    order.payment_status = "SUCCESS"
-    order.paid_at = timezone.now()  
-    order.save()
-    
-    method = (order.payment_method or "COD").upper(),
-
-    Payment.objects.get_or_create(
-        order=order,
-        defaults={
-            "txn_id": f"COD-{uuid.uuid4()}",
-            "method": method,
-            "status": "SUCCESS",
-            "amount": order.total_amount,
-        }
-    )
-
-@login_required
-def verify_payment(request):
-    if request.method != "POST":
-        return JsonResponse({"status": "failed"}, status=400)
-
-    data = json.loads(request.body)
-
-    client = razorpay.Client(
-        auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
-    )
-
-    try:
-        client.utility.verify_payment_signature({
-            "razorpay_order_id": data["razorpay_order_id"],
-            "razorpay_payment_id": data["razorpay_payment_id"],
-            "razorpay_signature": data["razorpay_signature"],
-        })
-
-        order = Order.objects.get(order_id=data["order_id"], user=request.user)
-        
-        order.payment_method = "ONLINE"
-        order.payment_status = "SUCCESS"
-        order.status = "CONFIRMED"
-        order.paid_at = timezone.now()
-        order.save()
-
-        Payment.objects.create(
-            order=order,
-            txn_id=data["razorpay_payment_id"],
-            method="ONLINE",
-            status="SUCCESS",
-            amount=order.total_amount
-        )
-
-        return JsonResponse({"status": "success"})
-
-    except Exception as e:
-        return JsonResponse({"status": "failed"})
