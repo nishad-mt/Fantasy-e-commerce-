@@ -222,6 +222,15 @@
                             </div>
                             <span class="font-bold text-stone-800" id="codPercent">0%</span>
                         </div>
+
+                        <!-- WALLET -->
+                        <div class="flex items-center justify-between text-sm">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 rounded-full bg-purple-500"></div>
+                                <span class="text-stone-600">Wallet</span>
+                            </div>
+                            <span class="font-bold text-stone-800" id="walletPercent">0%</span>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -450,7 +459,11 @@ function closeModal() {
    DOM READY
 ===================================================== */
 document.addEventListener('DOMContentLoaded', () => {
-
+    
+    const setText = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = value;
+    };
     /* Filters */
     document.getElementById('tableSearch')?.addEventListener('input', applyFilters);
     document.getElementById('statusFilter')?.addEventListener('change', applyFilters);
@@ -501,13 +514,14 @@ document.addEventListener('DOMContentLoaded', () => {
         new Chart(methodCanvas, {
             type: 'doughnut',
             data: {
-                labels: ['Online', 'Cash on Delivery'],
+                labels: ['Online', 'Cash on Delivery', 'Wallet'],
                 datasets: [{
                     data: [
                         methodChart.ONLINE || 0,
-                        methodChart.COD || 0
+                        methodChart.COD || 0,
+                        methodChart.WALLET || 0
                     ],
-                    backgroundColor: ['#2563EB', '#DC2626'],
+                    backgroundColor: ['#2563EB', '#DC2626','#9333EA'],
                     borderWidth: 0
                 }]
             },
@@ -523,15 +537,18 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ======================
        PERCENTAGES
     ====================== */
-    const total =
-        (methodChart.ONLINE || 0) +
-        (methodChart.COD || 0);
+    const online = methodChart.ONLINE || 0;
+    const cod = methodChart.COD || 0;
+    const wallet = methodChart.WALLET || 0;
+
+    const total = online + cod + wallet;
 
     const percent = v => total ? Math.round((v / total) * 100) + '%' : '0%';
 
-    document.getElementById('onlinePercent').innerText = percent(methodChart.ONLINE || 0);
-    document.getElementById('codPercent').innerText = percent(methodChart.COD || 0);
-});
+    setText('onlinePercent', percent(online));
+    setText('codPercent', percent(cod));
+    setText('walletPercent', percent(wallet));
+    });
 </script>
 
 

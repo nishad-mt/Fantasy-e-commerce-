@@ -4,6 +4,7 @@ from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from promortions.models import CouponUsage
 
 import razorpay
 import hmac
@@ -104,7 +105,13 @@ def razorpay_webhook(request):
             order.status = "CONFIRMED"
             order.paid_at = timezone.now()
             order.save()
-
+            
+            if order.discount_type == "COUPON" and order.coupon:
+                CouponUsage.objects.get_or_create(
+                    user=order.user,
+                    coupon=order.coupon,
+                    order=order
+                )
             cart = Cart.objects.filter(user=order.user).first()
             if cart:
                 cart.items.all().delete()

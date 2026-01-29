@@ -7,13 +7,14 @@ from django.contrib.auth.decorators import login_required
 from products.models import Categories,Product,ProductReview
 from order.models import Order
 from payment.models import Payment
+from wallet.models import Wallet
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from django.views.decorators.cache import never_cache
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Prefetch
 from accounts.decarators import admin_required
-from django.db.models import Avg, Count, Sum
+from django.db.models import Avg, Count, Sum, Max
 from datetime import date, timedelta
 from home.models import SiteContact,ContactMessage
 from django.utils.timezone import now
@@ -404,7 +405,9 @@ def admin_order_list(request):
     if payment == "COD":
         orders = orders.filter(payment_method="COD")
     elif payment == "Online":
-        orders = orders.exclude(payment_method="COD")
+        orders = orders.filter(payment_method="ONLINE")
+    elif payment == "Wallet":
+        orders = orders.filter(payment_method="WALLET")
 
     date_filter = request.GET.get("date")
     today = date.today()
@@ -534,17 +537,15 @@ def admin_payments_dashboard(request):
         })
 
     # Payment method distribution (DELIVERED only)
-    method_chart = dict(
+    method_chart = {}
+
+    for row in (
         delivered_orders
         .values("payment_method")
         .annotate(count=Count("pk"))
-    )
-
-    method_chart = {
-        k.upper(): v
-        for k, v in method_chart.items()
-    }
-
+    ):
+        method_chart[row["payment_method"].upper()] = row["count"]
+        
     # Revenue chart (last 7 days, delivered)
     revenue_labels = []
     revenue_data = []
@@ -573,6 +574,7 @@ def admin_payments_dashboard(request):
     }
 
     return render(request, "payments.html", context)
+
 @admin_required
 def admin_contact(request):
     contact_info, _ = SiteContact.objects.get_or_create(
@@ -608,6 +610,46 @@ def admin_contact(request):
     }
 
     return render(request, "admin_contact.html", context)
+
+@admin_required
+@login_required
+def admin_wallet_dashboard(request):
+    wallets = (
+        Wallet.objects
+        .select_related("user")
+        .annotate(
+            total_credits=Sum(
+                "transactions__amount",
+                filter=Q(transactions__txn_type="CREDIT")
+            ),
+            total_debits=Sum(
+                "transactions__amount",
+                filter=Q(transactions__txn_type="DEBIT")
+            ),
+            txn_count=Count("transactions"),
+            last_activity=Max("transactions__created_at")
+        )
+        .order_by("-last_activity")
+    )
+
+    wallet_data = []
+    for wallet in wallets:
+        wallet_data.append({
+            "user_id": wallet.user.id,
+            "email": wallet.user.email,
+            "balance": wallet.balance,
+            "total_credits": wallet.total_credits or 0,
+            "total_debits": wallet.total_debits or 0,
+            "txn_count": wallet.txn_count,
+            "last_activity": wallet.last_activity,
+        })
+
+    context = {
+        "wallets": wallet_data,
+        "total_wallet_balance": sum(w["balance"] for w in wallet_data),
+    }
+
+    return render(request, "wallet_dashboard.html", context)
 
 @never_cache
 @login_required

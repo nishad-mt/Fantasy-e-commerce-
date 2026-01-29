@@ -1,0 +1,87 @@
+{% extends "dashboard.html" %}
+{% block content %}
+
+<div class="p-6 space-y-6">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-stone-800">
+            Wallet Dashboard
+        </h1>
+
+        <div class="text-sm text-stone-500">
+            Total Wallet Balance:
+            <span class="font-semibold text-stone-800">
+                ₹{{ total_wallet_balance }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Wallet Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden">
+        <table class="w-full text-sm">
+            <thead class="bg-stone-50 text-stone-600">
+                <tr>
+                    <th class="p-4 text-left">User</th>
+                    <th class="p-4 text-right">Balance</th>
+                    <th class="p-4 text-right">Credits</th>
+                    <th class="p-4 text-right">Debits</th>
+                    <th class="p-4 text-center">Txns</th>
+                    <th class="p-4 text-left">Last Activity</th>
+                    <th class="p-4 text-right">Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for w in wallets %}
+                <tr class="border-t hover:bg-stone-50">
+                    <td class="p-4">
+                        <div class="font-medium text-stone-800">
+                            {{ w.email }}
+                        </div>
+                        <div class="text-xs text-stone-500">
+                            {{ w.user_id }}
+                        </div>
+                    </td>
+
+                    <td class="p-4 text-right font-semibold">
+                        ₹{{ w.balance }}
+                    </td>
+
+                    <td class="p-4 text-right text-emerald-600">
+                        +₹{{ w.total_credits }}
+                    </td>
+
+                    <td class="p-4 text-right text-red-600">
+                        -₹{{ w.total_debits }}
+                    </td>
+
+                    <td class="p-4 text-center">
+                        {{ w.txn_count }}
+                    </td>
+
+                    <td class="p-4 text-sm text-stone-500">
+                        {{ w.last_activity|default:"—" }}
+                    </td>
+
+                    <td class="p-4 text-right">
+                        <a href="{% url 'admin_user_wallet_detail' w.user_id %}"
+                           class="text-amber-600 hover:underline font-medium">
+                            View
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="p-8 text-center text-stone-500">
+                        No wallets found
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}

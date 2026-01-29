@@ -136,7 +136,6 @@
                         <option value="all">All Statuses</option>
                         <option value="PENDING" {% if filters.status == "PENDING" %}selected{% endif %}>Pending</option>
                         <option value="CONFIRMED" {% if filters.status == "CONFIRMED" %}selected{% endif %}>Confirmed</option>
-                        <option value="PREPARING" {% if filters.status == "PREPARING" %}selected{% endif %}>Preparing</option>
                         <option value="PACKED" {% if filters.status == "PACKED" %}selected{% endif %}>Packed</option>
                         <option value="DELIVERED" {% if filters.status == "DELIVERED" %}selected{% endif %}>Delivered</option>
                         <option value="CANCELLED" {% if filters.status == "CANCELLED" %}selected{% endif %}>Cancelled</option>
@@ -147,6 +146,8 @@
                         <option value="all">All Payment Types</option>
                         <option value="COD" {% if filters.payment == "COD" %}selected{% endif %}>Cash on Delivery</option>
                         <option value="Online" {% if filters.payment == "Online" %}selected{% endif %}>Online Payment</option>
+                        <option value="Wallet" {% if filters.payment == "Wallet" %}selected{% endif %}>Wallet</option>
+
                     </select>
 
                     <!-- Date Range -->
@@ -215,7 +216,7 @@
                                     <span class="px-2 py-1 rounded-md text-xs font-semibold
                                         {% if order.payment_method == 'COD' %}
                                             bg-yellow-100 text-yellow-700
-                                        {% elif order.payment_method == 'UPI' %}
+                                        {% elif order.payment_method == 'ONLINE' %}
                                             bg-blue-100 text-blue-700
                                         {% else %}
                                             bg-purple-100 text-purple-700
@@ -286,7 +287,7 @@
                                     <span class="px-2 py-1 rounded-md text-xs font-semibold
                                         {% if order.payment_method == 'COD' %}
                                             bg-yellow-100 text-yellow-700
-                                        {% elif order.payment_method == 'UPI' %}
+                                        {% elif order.payment_method == 'ONLINE' %}
                                             bg-blue-100 text-blue-700
                                         {% else %}
                                             bg-purple-100 text-purple-700

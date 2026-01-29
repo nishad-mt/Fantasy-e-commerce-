@@ -60,11 +60,11 @@ class Order(models.Model):
         choices=PAYMENT_STATUS_CHOICES,
         default="PENDING"
     )
-    source = models.CharField(
-        max_length=10,
-        choices=SOURCE_CHOICES,
-        default="CART"
-    )
+    source = models.CharField(max_length=10,choices=SOURCE_CHOICES,default="CART")
+
+    discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    discount_type = models.CharField(max_length=20,blank=True,null=True)  # COUPON / FIRST_ORDER / AUTO
+    coupon = models.ForeignKey("promortions.Coupon",on_delete=models.SET_NULL,null=True,blank=True)
 
 
     def __str__(self):
@@ -74,7 +74,7 @@ class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
     variant = models.ForeignKey(SizeVariant, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
-    price = models.DecimalField(max_digits=10, decimal_places=2)  # snapshot price
+    price = models.DecimalField(max_digits=10, decimal_places=2)  
     
     class Meta:
         unique_together = ("order", "variant")

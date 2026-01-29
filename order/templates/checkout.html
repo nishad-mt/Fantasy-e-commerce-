@@ -209,13 +209,11 @@
                      
                     <!-- 4. Order Summary (Footer Style) -->
                     <section class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden relative">
-                        <!-- Decorative top border -->
-                        <div class="h-1.5 bg-gradient-to-r from-fantasy-brown via-fantasy-gold to-fantasy-brown"></div>
+                    
+        <div class="p-6 md:p-8">
+        <h3 class="font-serif font-bold text-xl text-fantasy-brown mb-6">Bill Details</h3>
 
-                        <div class="p-6 md:p-8">
-    <h3 class="font-serif font-bold text-xl text-fantasy-brown mb-6">Bill Details</h3>
-
-    <div class="space-y-3 text-sm border-b border-dashed border-gray-200 pb-6 mb-6">
+        <div class="space-y-3 text-sm border-b border-dashed border-gray-200 pb-6 mb-6">
 
         <!-- Item total -->
         <div class="flex justify-between text-gray-600">
@@ -227,7 +225,7 @@
 
         <div class="flex justify-between text-gray-600">
             <span>Total</span>
-            <span>
+            <span class="font-semibold text-gray-800">
                 ₹{{ order.order_items_total|floatformat:2 }}
             </span>
         </div>
@@ -243,7 +241,23 @@
                 </span>
             {% endif %}
         </div>
-
+        <!-- Discount -->
+{% if preview_discount > 0 %}
+<div class="flex justify-between text-green-600 font-semibold">
+    <span>
+        {% if preview_discount_type == "FIRST_ORDER" %}
+            🎉 First-order discount
+        {% elif preview_discount_type == "AUTO" %}
+            Special offer discount
+        {% elif preview_discount_type == "COUPON" %}
+            Coupon ({{ order.coupon.code }})
+        {% endif %}
+    </span>
+    <span>
+        −₹{{ preview_discount|floatformat:2 }}
+    </span>
+</div>
+{% endif %}
 
     </div>
 
@@ -252,7 +266,7 @@
         <span class="font-bold text-gray-800 text-lg">To Pay</span>
         <div class="text-right">
             <span class="font-serif font-bold text-3xl text-fantasy-brown">
-                ₹{{ order.total_amount|floatformat:2 }}
+                ₹{{ preview_total|floatformat:2 }}
             </span>
             <p class="text-[10px] text-gray-400">Inclusive of all taxes</p>
         </div>
@@ -272,10 +286,7 @@
     </button>
 
 
-</div>
-
                     </section>
-
                 </form>
             </div>
         </div>

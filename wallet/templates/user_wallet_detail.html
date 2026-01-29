@@ -1,0 +1,93 @@
+{% extends "dashboard.html" %}
+{% block content %}
+
+<div class="p-6 space-y-6">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-stone-800">
+                User Wallet Details
+            </h1>
+            <p class="text-sm text-stone-500">
+                {{ wallet.user.email }}
+            </p>
+        </div>
+
+        <a href="{% url 'admin_wallet_dashboard' %}"
+           class="text-sm text-stone-600 hover:text-stone-900">
+            ← Back
+        </a>
+    </div>
+
+    <!-- Wallet Summary -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-white border rounded-xl p-4">
+            <p class="text-sm text-stone-500">Balance</p>
+            <p class="text-xl font-bold text-stone-800">
+                ₹{{ wallet.balance }}
+            </p>
+        </div>
+        <div class="bg-white border rounded-xl p-4">
+            <p class="text-sm text-stone-500">Total Transactions</p>
+            <p class="text-xl font-bold text-stone-800">
+                {{ wallet.transactions.count }}
+            </p>
+        </div>
+        <div class="bg-white border rounded-xl p-4">
+            <p class="text-sm text-stone-500">Wallet ID</p>
+            <p class="text-xs text-stone-600 break-all">
+                {{ wallet.id }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Transactions Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden">
+        <table class="w-full text-sm">
+            <thead class="bg-stone-50 text-stone-600">
+                <tr>
+                    <th class="p-4 text-left">Type</th>
+                    <th class="p-4 text-right">Amount</th>
+                    <th class="p-4 text-left">Order</th>
+                    <th class="p-4 text-left">Date</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for txn in transactions %}
+                <tr class="border-t hover:bg-stone-50">
+                    <td class="p-4 font-medium">
+                        {% if txn.txn_type == "CREDIT" %}
+                            <span class="text-emerald-600">Credit</span>
+                        {% else %}
+                            <span class="text-red-600">Debit</span>
+                        {% endif %}
+                    </td>
+
+                    <td class="p-4 text-right font-semibold">
+                        ₹{{ txn.amount }}
+                    </td>
+
+                    <td class="p-4 text-stone-600">
+                        {{ txn.order.order_id|default:"—" }}
+                    </td>
+
+                    <td class="p-4 text-sm text-stone-500">
+                        {{ txn.created_at }}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="p-8 text-center text-stone-500">
+                        No wallet transactions found
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+{% endblock %}

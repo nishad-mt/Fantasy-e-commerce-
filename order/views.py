@@ -17,22 +17,24 @@ from django.http import JsonResponse
 import razorpay
 from django.conf import settings
 from wallet.models import WalletTransaction,Wallet
+from .utils import calculate_best_discount
 
 
 @login_required
 def order(request):
     orders = (
         Order.objects
-        .filter(user=request.user)
+        .filter(user=request.user,
+        status__in=["CONFIRMED", "PACKED", "DELIVERED", "CANCELLED"]
+        )
         .prefetch_related("items__variant__product")
         .annotate(
             status_priority=Case(
-                When(status="PENDING", then=Value(1)),
-                When(status="CONFIRMED", then=Value(2)),
-                When(status="PACKED", then=Value(3)),
-                When(status="DELIVERED", then=Value(4)),
-                When(status="CANCELLED", then=Value(5)),
-                default=Value(6),
+                When(status="CONFIRMED", then=Value(1)),
+                When(status="PACKED", then=Value(2)),
+                When(status="DELIVERED", then=Value(3)),
+                When(status="CANCELLED", then=Value(4)),
+                default=Value(5),
                 output_field=IntegerField(),
             )
         )
@@ -42,24 +44,6 @@ def order(request):
         "orders": orders,
     })
     
-@login_required
-def checkout(request):
-    if not Address.objects.filter(user=request.user).exists():
-        messages.warning(
-            request,
-            "Please add a delivery address before placing an order."
-        )
-        return redirect("create_address")
-    addresses = Address.objects.filter(user=request.user)
-    default_address = addresses.filter(is_default=True).first()
-    
-    delivery_date = date.today() + timedelta(days=3)
-
-    return render(request, "checkout.html", {
-        "addresses": addresses,
-        "default_address": default_address,
-        'delivery_date':delivery_date
-    })
 
 @login_required
 def create_from_cart(request):
@@ -113,6 +97,14 @@ def create_from_cart(request):
 def pay_order(request, order_id):
 
     order = get_object_or_404(Order, order_id=order_id, user=request.user)
+    items = order.items.select_related("variant", "variant__product")
+
+    subtotal = sum(item.variant.price * item.quantity for item in items)
+    delivery = Decimal("0.00") if subtotal > 500 else Decimal("40.00")
+
+    discount, discount_type = calculate_best_discount(request.user, subtotal, order)
+
+    preview_total = max(subtotal + delivery - discount, Decimal("0.00"))
 
     addresses = Address.objects.filter(user=request.user)
     if not addresses.exists():
@@ -123,12 +115,18 @@ def pay_order(request, order_id):
         return redirect("create_address")
 
     default_address = addresses.filter(is_default=True).first()
+    delivery_date = date.today() + timedelta(days=3)
 
     return render(request, "checkout.html", {
         "order": order,
-        "items": order.items.select_related("variant", "variant__product"),
+        "items": items,
         "addresses": addresses,
-        "default_address": default_address
+        "default_address": default_address,
+        "delivery_date": delivery_date,
+
+        "preview_discount": discount,
+        "preview_discount_type": discount_type,
+        "preview_total": preview_total,
     })
 
 def order_detail(request,order_id):
@@ -172,10 +170,34 @@ def place_order(request):
     # ---------- Recalculate totals (SECURITY) ----------
     subtotal = sum(item.variant.price * item.quantity for item in items)
     delivery = Decimal("0.00") if subtotal > 500 else Decimal("40.00")
-    total = subtotal + delivery
+    discount = Decimal("0.00")
+    discount_type = None
+
+    if order.discount_type == "COUPON":
+        discount = order.discount_amount
+        discount_type = "COUPON"
+
+    else:
+        is_first_order = not Order.objects.filter(
+            user=request.user,
+            status__in=["CONFIRMED", "DELIVERED"]
+        ).exists()
+
+        if is_first_order:
+            discount = (Decimal("5") / Decimal("100")) * subtotal
+            discount_type = "FIRST_ORDER"
+
+        elif subtotal >= Decimal("1000"):
+            discount = (Decimal("10") / Decimal("100")) * subtotal
+            discount_type = "AUTO"
+
+    total = subtotal + delivery - discount
+    total = max(total, Decimal("0.00"))
 
     order.order_items_total = subtotal
     order.delivery_charge = delivery
+    order.discount_amount = discount
+    order.discount_type = discount_type
     order.total_amount = total
     order.delivery_date = date.today() + timedelta(days=3)
 
@@ -220,6 +242,14 @@ def place_order(request):
         order.payment_status = "SUCCESS"
         order.paid_at = timezone.now()
         order.save()
+
+        # ✅ Mark coupon as used (AFTER success)
+        if order.discount_type == "COUPON" and order.coupon:
+            CouponUsage.objects.get_or_create(
+                user=request.user,
+                coupon=order.coupon,
+                order=order
+            )
 
         Payment.objects.create(
             user=request.user,
@@ -288,7 +318,6 @@ def confirm_cod(request):
         "status": "success",
         "order_id": order.order_id
     })
-
 
 @login_required
 def select_address(request):
@@ -391,28 +420,31 @@ def cancel_order_request(request, order_id):
 @login_required
 def buy_now(request, variant_id):
 
-    if not Address.objects.filter(user=request.user).exists():
-        messages.warning(
-            request,
-            "Please add a delivery address before placing an order."
-        )
-        return redirect("create_address")
-    
-    variant = get_object_or_404(SizeVariant, id=variant_id)
+    if request.method != "POST":
+        return redirect("home")
 
-    quantity = int(request.POST.get("quantity", 1))
-    quantity = max(1, quantity)
+    if not Address.objects.filter(user=request.user).exists():
+        messages.warning(request, "Please add a delivery address.")
+        return redirect("create_address")
+
+    Order.objects.filter(
+        user=request.user,
+        status="PENDING",
+        source="BUY_NOW"
+    ).delete()
+
+    variant = get_object_or_404(SizeVariant, id=variant_id)
+    quantity = max(1, int(request.POST.get("quantity", 1)))
 
     subtotal = variant.price * quantity
     delivery = Decimal("0.00") if subtotal > 500 else Decimal("40.00")
-    total = subtotal + delivery
 
     order = Order.objects.create(
         user=request.user,
         address=Address.objects.filter(user=request.user, is_default=True).first(),
         order_items_total=subtotal,
         delivery_charge=delivery,
-        total_amount=total,
+        total_amount=subtotal + delivery,
         delivery_date=date.today() + timedelta(days=3),
         status="PENDING",
         source="BUY_NOW"
@@ -426,5 +458,3 @@ def buy_now(request, variant_id):
     )
 
     return redirect("pay_order", order_id=order.order_id)
-
-
