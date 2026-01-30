@@ -4,7 +4,7 @@ from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from promortions.models import CouponUsage
+from promotions.models import PromotionUsage
 
 import razorpay
 import hmac

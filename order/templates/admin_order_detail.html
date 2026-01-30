@@ -95,6 +95,23 @@
                                 <span>₹{{ order.delivery_charge|floatformat:2 }}</span>
                             {% endif %}
                         </div>
+                         <!--Discount  -->
+                        {% if order.discount_amount > 0 %}
+                        <div class="flex justify-between text-green-600 font-medium">
+                            <span>
+                                {% if order.discount_type == "FIRST_ORDER" %}
+                                    🎉 First Order Offer
+                                {% elif order.discount_type == "AUTO" %}
+                                    Auto Discount (Above ₹1000)
+                                {% elif order.discount_type == "COUPON" %}
+                                    🎟 Coupon Applied ({{ order.coupon.code }})
+                                {% else %}
+                                    Discount
+                                {% endif %}
+                            </span>
+                            <span>- ₹{{ order.discount_amount|floatformat:2 }}</span>
+                        </div>
+                        {% endif %}
 
                         <hr>
 

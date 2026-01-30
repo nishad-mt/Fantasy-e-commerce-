@@ -41,9 +41,18 @@
                 </p>
             </div>
 
-            <span class="px-4 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-700">
-                Delivered
-            </span>
+<span class="px-4 py-1 rounded-full text-sm font-semibold
+    {% if order.status == 'DELIVERED' %}
+        bg-green-100 text-green-700
+    {% elif order.status == 'CANCELLED' %}
+        bg-red-100 text-red-700
+    {% else %}
+        bg-yellow-100 text-yellow-700
+    {% endif %}
+">
+    {{ order.get_status_display }}
+</span>
+
         </div>
 
 <!-- ORDER TRACKING -->
@@ -51,7 +60,7 @@
     <h2 class="font-bold text-lg text-fantasy-brown mb-6">
         Order Tracking
     </h2>
-
+ 
     <!-- Labels with Order Date -->
 <div class="flex justify-between text-sm font-semibold text-gray-700 mb-3">
     <div class="text-left">
@@ -254,10 +263,20 @@
                             {% endif %}                    
                     </div>
 
-                    <div class="flex justify-between text-green-600">
-                        <span>Discount</span>
-                        <span>- ₹0</span>
-                    </div>
+{% if order.discount_amount > 0 %}
+<div class="flex justify-between text-green-600">
+    <span>
+        {% if order.discount_type == "FIRST_ORDER" %}
+            🎉 First-order discount
+        {% elif order.discount_type == "AUTO" %}
+            Special offer discount
+        {% elif order.discount_type == "COUPON" %}
+            Coupon ({{ order.coupon.code }})
+        {% endif %}
+    </span>
+    <span>- ₹{{ order.discount_amount|floatformat:2 }}</span>
+</div>
+{% endif %}
 
                     <div class="flex justify-between border-t pt-3 font-bold text-lg">
                         <span>Total</span>

@@ -35,12 +35,12 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('used_at', models.DateTimeField(auto_now_add=True)),
-                ('coupon', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='usages', to='promortions.coupon')),
+                ('coupon', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='usages', to='promotions.coupon')),
                 ('order', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='order.order')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
             options={
-                'indexes': [models.Index(fields=['coupon', 'user'], name='promortions_coupon__5d6b2e_idx')],
+                'indexes': [models.Index(fields=['coupon', 'user'], name='promotions_coupon__5d6b2e_idx')],
                 'unique_together': {('coupon', 'user')},
             },
         ),

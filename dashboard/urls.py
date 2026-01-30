@@ -8,7 +8,6 @@ urlpatterns = [
     path('block-user/<uuid:user_id>/', views.block, name='block_user'),
     path('unblock-user/<uuid:user_id>/', views.unblock, name='unblock_user'),
     path("manage_products/",views.adm_products,name="admin_products"),
-    path("manage_offers/",views.offers_management,name="offers"),
     path("manage_categories/",views.categories,name="categories"),
     path("orders/",views.admin_order_list,name="orders"),
     path("review_payments/",views.admin_payments_dashboard,name="payments"),

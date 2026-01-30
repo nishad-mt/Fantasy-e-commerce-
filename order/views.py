@@ -17,7 +17,7 @@ from django.http import JsonResponse
 import razorpay
 from django.conf import settings
 from wallet.models import WalletTransaction,Wallet
-from .utils import calculate_best_discount
+from promotions.utils import calculate_best_discount
 
 
 @login_required
@@ -170,28 +170,8 @@ def place_order(request):
     # ---------- Recalculate totals (SECURITY) ----------
     subtotal = sum(item.variant.price * item.quantity for item in items)
     delivery = Decimal("0.00") if subtotal > 500 else Decimal("40.00")
-    discount = Decimal("0.00")
-    discount_type = None
+    
 
-    if order.discount_type == "COUPON":
-        discount = order.discount_amount
-        discount_type = "COUPON"
-
-    else:
-        is_first_order = not Order.objects.filter(
-            user=request.user,
-            status__in=["CONFIRMED", "DELIVERED"]
-        ).exists()
-
-        if is_first_order:
-            discount = (Decimal("5") / Decimal("100")) * subtotal
-            discount_type = "FIRST_ORDER"
-
-        elif subtotal >= Decimal("1000"):
-            discount = (Decimal("10") / Decimal("100")) * subtotal
-            discount_type = "AUTO"
-
-    total = subtotal + delivery - discount
     total = max(total, Decimal("0.00"))
 
     order.order_items_total = subtotal
@@ -209,6 +189,7 @@ def place_order(request):
     if payment_method == "COD":
         order.payment_method = "COD"
         order.payment_status = "PENDING"
+        order.status = "CONFIRMED"
         order.save()
 
         return JsonResponse({
@@ -241,9 +222,10 @@ def place_order(request):
         order.payment_method = "WALLET"
         order.payment_status = "SUCCESS"
         order.paid_at = timezone.now()
+        order.status = "CONFIRMED"
         order.save()
 
-        # ✅ Mark coupon as used (AFTER success)
+        #  Mark coupon as used (AFTER success)
         if order.discount_type == "COUPON" and order.coupon:
             CouponUsage.objects.get_or_create(
                 user=request.user,

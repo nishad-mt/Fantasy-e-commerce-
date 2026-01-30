@@ -297,10 +297,6 @@ def adm_products(request):
     
     return render(request,"adm_pdct.html",context)
 
-@never_cache
-@login_required
-def offers_management(request):
-    return render(request,"offers_adm.html")
 
 @never_cache
 @login_required
