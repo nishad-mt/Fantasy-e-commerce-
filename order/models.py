@@ -2,9 +2,11 @@ from django.db import models
 from django.conf import settings
 from products.models import SizeVariant
 import uuid
+from django.core.exceptions import ValidationError
+
 
 class Order(models.Model):
-    address = models.ForeignKey("addresses.Address",on_delete=models.PROTECT,)
+    address = models.ForeignKey("addresses.Address",on_delete=models.PROTECT,null=True,blank=True)
     SOURCE_CHOICES = [
         ("CART", "Cart"),
         ("BUY_NOW", "Buy Now"),
@@ -21,13 +23,17 @@ class Order(models.Model):
         ("REFUNDED", "Refunded"),
     ]
     STATUS_CHOICES = [
-        ("PENDING", "Pending"),
+        ("DRAFT", "Draft / Checkout"),
+        ("PENDING", "Pending (Legacy)"),         
+        ("PENDING_PAYMENT", "Pending Payment"),
         ("CONFIRMED", "Confirmed"),
         ("PREPARING", "Preparing"),
         ("PACKED", "Packed"),
         ("DELIVERED", "Delivered"),
         ("CANCELLED", "Cancelled"),
+        ("EXPIRED", "Expired"),
     ]
+
     CANCEL_REASONS = [
         ("CHANGED_MIND", "Changed my mind"),
         ("WRONG_ADDRESS", "Wrong delivery address"),
@@ -43,8 +49,8 @@ class Order(models.Model):
     order_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     order_items_total = models.DecimalField(max_digits=10, decimal_places=2, null=True,blank=True)
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="PENDING")
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2,null=True,blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="DRAFT")
     created_at = models.DateTimeField(auto_now_add=True)
     delivery_charge = models.DecimalField(max_digits=8, decimal_places=2, default=0)
     delivery_date = models.DateField()
@@ -52,7 +58,7 @@ class Order(models.Model):
     paid_at = models.DateTimeField(null=True, blank=True)
     payment_method = models.CharField(
         max_length=10,
-        choices=PAYMENT_METHOD_CHOICES
+        choices=PAYMENT_METHOD_CHOICES,null=True,blank=True
     )
 
     payment_status = models.CharField(
@@ -69,6 +75,11 @@ class Order(models.Model):
  
     def __str__(self):
         return str(self.order_id)
+        
+    def clean(self):
+        if self.discount_type != "COUPON" and self.coupon:
+            raise ValidationError("Coupon can only be set for COUPON discount type.")
+
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")

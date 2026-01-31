@@ -154,7 +154,10 @@
                     </div>
 
                         <!-- Add to Cart -->
-                        <form method="POST" action="{% url 'cart:toggle_cart' 0 %}" id="addToCartForm">
+<form method="POST"
+      data-base-url="/cart/toggle/"
+      id="addToCartForm">
+
                             {% csrf_token %}
 
                             <input type="hidden" name="variant_id" id="selectedVariantInput">
@@ -170,7 +173,10 @@
                         </form>
 
                     <!-- Buy Now -->
-                    <form method="POST"action="{% url 'buy_now' 0 %}" id="buyNowForm" class="flex-1">
+<form method="POST"
+      data-base-url="/order/buy-now/"
+      id="buyNowForm"
+      class="flex-1">
                         {% csrf_token %}
                         <input type="hidden" name="variant_id" id="buyNowVariantInput">
                         <input type="hidden" name="quantity" id="buyNowQuantity" value="1">
@@ -181,40 +187,7 @@
                             Buy Now
                         </button>
                     </form>
-
                 </div>
-
-                <!-- Coupon & Delivery -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-gray-50 rounded-2xl border border-gray-100">
-                    <!-- Delivery Check -->
-                    <div>
-                        <h4 class="font-bold text-fantasy-brown mb-2 text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-truck-fast text-fantasy-gold"></i> Delivery Availability
-                        </h4>
-                        <div class="relative">
-                            <input type="text" placeholder="Enter Pincode"
-                                class="w-full pl-4 pr-20 py-2.5 rounded-lg border border-gray-200 focus:outline-none focus:border-fantasy-brown focus:ring-1 focus:ring-fantasy-brown text-sm">
-                            <button
-                                class="absolute right-1 top-1 bottom-1 px-4 bg-fantasy-brown text-white rounded-md text-xs font-bold hover:bg-opacity-90">Check</button>
-                        </div>
-                        <p class="text-xs text-gray-500 mt-2"><i class="fa-regular fa-clock mr-1"></i> Order now for
-                            delivery by <span class="font-bold text-gray-700">Tomorrow, 4 PM</span></p>
-                    </div>
-
-                    <!-- Coupon -->
-                    <div>
-                        <h4 class="font-bold text-fantasy-brown mb-2 text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-tag text-fantasy-gold"></i> Apply Coupon
-                        </h4>
-                        <div class="relative">
-                            <input type="text" placeholder="Promo Code"
-                                class="w-full pl-4 pr-20 py-2.5 rounded-lg border border-gray-200 focus:border-dashed focus:border-fantasy-brown focus:outline-none text-sm uppercase">
-                            <button
-                                class="absolute right-1 top-1 bottom-1 px-4 text-fantasy-brown font-bold text-xs hover:bg-fantasy-cream rounded-md transition-colors">APPLY</button>
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </div>
     </div>
@@ -460,8 +433,11 @@ function selectVariant(btn) {
     const variantId = btn.dataset.variantId;
 
     // set hidden input
-    document.getElementById('selectedVariantInput').value = variantId;
-    document.getElementById('addToCartForm').action = `/cart/toggle/${variantId}/`;
+    const addToCartForm = document.getElementById('addToCartForm');
+    const buyNowForm = document.getElementById('buyNowForm');
+
+    addToCartForm.action = `${addToCartForm.dataset.baseUrl}${variantId}/`;
+    buyNowForm.action = `${buyNowForm.dataset.baseUrl}${variantId}/`;
 
     document.getElementById('buyNowVariantInput').value = variantId;
     document.getElementById('buyNowForm').action = `/order/buy-now/${variantId}/`;

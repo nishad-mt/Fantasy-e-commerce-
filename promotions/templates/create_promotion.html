@@ -37,27 +37,34 @@
                     </div>
                     {% endif %}
 
-                    {% for field in form %}
-                    <div class="form-group space-y-2">
-                        <label for="{{ field.id_for_label }}" class="block text-sm font-semibold text-stone-700">
-                            {{ field.label }}
-                        </label>
+{% for field in form %}
+    {% if field.name == "is_active" %}
+        <div class="flex items-center gap-3">
+            {{ field }}
+            <label for="{{ field.id_for_label }}"
+                   class="text-sm font-semibold text-stone-700">
+                {{ field.label }}
+            </label>
+        </div>
+    {% else %}
+        <div class="form-group space-y-2">
+            <label for="{{ field.id_for_label }}"
+                   class="block text-sm font-semibold text-stone-700">
+                {{ field.label }}
+            </label>
 
-                        <div class="relative">
-                            {{ field }}
-                        </div>
+            {{ field }}
 
-                        {% if field.help_text %}
-                        <p class="text-xs text-stone-500 mt-1">{{ field.help_text }}</p>
-                        {% endif %}
+            {% if field.help_text %}
+                <p class="text-xs text-stone-500">{{ field.help_text }}</p>
+            {% endif %}
 
-                        {% if field.errors %}
-                        <div class="text-xs text-red-600 font-medium mt-1">
-                            {{ field.errors }}
-                        </div>
-                        {% endif %}
-                    </div>
-                    {% endfor %}
+            {% if field.errors %}
+                <p class="text-xs text-red-600">{{ field.errors }}</p>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endfor %}
 
                     <div class="pt-6 flex items-center gap-4">
                         <button type="submit"
@@ -76,7 +83,6 @@
     </section>
 </main>
 <style>
-    /* Scoped styles to inject Tailwind-like feel into Django widgets */
     .form-group input:not([type="checkbox"]):not([type="radio"]),
     .form-group select,
     .form-group textarea {

@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secure Checkout | Fantasy Bakery</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="styles.css">
     <script>
         tailwind.config = {
             theme: {
@@ -53,7 +52,7 @@
         <div class="min-h-screen pb-24 font-sans">
             <div class="container mx-auto px-2 md:px-4 pt-8">
 
-                <form id="checkout-form" action="{% url 'place_order' %}" method="post"class="space-y-8"> 
+                <form id="checkout-form" action="{% url 'place_order' %}" method="post" class="space-y-8">
                     {% csrf_token %}
                     <input type="hidden" name="order_id" value="{{ order.order_id }}">
                     <section
@@ -68,7 +67,8 @@
 
                         <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
                             {% for item in items %}
-                            <div class="flex gap-3 border border-gray-100 rounded-lg p-3 hover:shadow-sm transition group">
+                            <div
+                                class="flex gap-3 border border-gray-100 rounded-lg p-3 hover:shadow-sm transition group">
                                 <div
                                     class="w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden border border-gray-100">
                                     <img src="{{ item.variant.product.main_image.url }}"
@@ -79,7 +79,7 @@
                                         <h3 class="font-bold text-gray-900 text-base">
                                             {{ item.variant.product.name }}
                                         </h3>
-                                        
+
                                     </div>
                                     <p class="text-sm text-gray-500 mb-2">
                                         {{ item.variant.size_name }}
@@ -115,7 +115,8 @@
                             <div class="pl-8 mb-6">
                                 <h3 class="font-bold text-gray-900 text-base mb-1">
                                     {{ order.address.name }}
-                                    <span class="bg-gray-100 text-gray-500 text-[10px] px-2 py-0.5 rounded ml-2 uppercase tracking-wide">
+                                    <span
+                                        class="bg-gray-100 text-gray-500 text-[10px] px-2 py-0.5 rounded ml-2 uppercase tracking-wide">
                                         Default
                                     </span>
                                 </h3>
@@ -165,7 +166,7 @@
                                         <p class="text-xs text-gray-500 mt-0.5">Pay cash when you receive your order.
                                         </p>
                                     </div>
-                                     Selected Indicator Strip 
+                                    <!-- Selected Indicator Strip -->
                                     <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-fantasy-gold rounded-l-xl">
                                     </div>
                                 </label>
@@ -185,7 +186,7 @@
                                         </div>
                                     </div>
                                 </label>
- 
+
                                 <label
                                     class="relative flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer hover:border-gray-300 transition-all opacity-75 hover:opacity-100 group hover:bg-gray-50">
                                     <div class="flex items-center h-5">
@@ -206,88 +207,116 @@
                             </div>
                         </div>
                     </section>
-                     
+
                     <!-- 4. Order Summary (Footer Style) -->
                     <section class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden relative">
-                    
-        <div class="p-6 md:p-8">
-        <h3 class="font-serif font-bold text-xl text-fantasy-brown mb-6">Bill Details</h3>
+                        <div class="p-6 md:p-8">
+                            <h3 class="font-serif font-bold text-xl text-fantasy-brown mb-6">
+                                Bill Details
+                            </h3>
 
-        <div class="space-y-3 text-sm border-b border-dashed border-gray-200 pb-6 mb-6">
+                            <div class="space-y-3 text-sm border-b border-dashed border-gray-200 pb-5 mb-5">
 
-        <!-- Item total -->
-        <div class="flex justify-between text-gray-600">
-            <span>Products</span>
-            <span>
-                {{ order.items.all|length }}
-            </span>
-        </div>
+                                <!-- Items -->
+                                <div class="flex justify-between text-gray-600">
+                                    <span>Items ({{ order.items.count }})</span>
+                                    <span class="font-medium text-gray-800">
+                                        ₹{{ preview_subtotal|floatformat:2 }}
+                                    </span>
+                                </div>
 
-        <div class="flex justify-between text-gray-600">
-            <span>Total</span>
-            <span class="font-semibold text-gray-800">
-                ₹{{ order.order_items_total|floatformat:2 }}
-            </span>
-        </div>
+                                <!-- Delivery -->
+                                <div class="flex justify-between text-gray-600">
+                                    <span>Delivery fee</span>
+                                    {% if preview_delivery == 0 %}
+                                    <span class="text-green-600 font-semibold">FREE</span>
+                                    {% else %}
+                                    <span class="font-medium text-gray-800">
+                                        ₹{{ preview_delivery|floatformat:2 }}
+                                    </span>
+                                    {% endif %}
+                                </div>
 
-        <!-- Delivery -->
-        <div class="flex justify-between text-gray-600">
-            <span>Delivery Fee</span>
-            {% if order.delivery_charge == 0 %}
-                <span class="text-green-600 font-semibold">Free 🚚</span>
-            {% else %}
-                <span class="font-semibold text-gray-800">
-                    ₹{{ order.delivery_charge|floatformat:2 }}
-                </span>
-            {% endif %}
-        </div>
-        <!-- Discount -->
-{% if preview_discount > 0 %}
-<div class="flex justify-between text-green-600 font-semibold">
-    <span>
-        {% if preview_discount_type == "FIRST_ORDER" %}
-            🎉 First-order discount
-        {% elif preview_discount_type == "AUTO" %}
-            Special offer discount
-        {% elif preview_discount_type == "COUPON" %}
-            Coupon ({{ order.coupon.code }})
-        {% endif %}
-    </span>
-    <span>
-        −₹{{ preview_discount|floatformat:2 }}
-    </span>
-</div>
-{% endif %}
+                                <!-- Coupon Apply - FIXED: removed nested forms -->
+                                <div
+                                    class="mt-4 p-3 border border-gray-200 rounded-lg hover:border-dashed hover:border-fantasy-brown transition-all duration-200">
+                                    <div class="flex gap-2">
+                                        <input type="text" name="coupon_code" form="coupon-form"
+                                            placeholder="Enter coupon code"
+                                            class="flex-1 px-4 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-fantasy-gold">
 
-    </div>
+                                        <button type="submit" form="coupon-form"
+                                            class="px-4 py-2 bg-fantasy-brown text-white rounded-lg font-bold text-sm">
+                                            Apply
+                                        </button>
+                                    </div>
 
-    <!-- Final total -->
-    <div class="flex justify-between items-end mb-8">
-        <span class="font-bold text-gray-800 text-lg">To Pay</span>
-        <div class="text-right">
-            <span class="font-serif font-bold text-3xl text-fantasy-brown">
-                ₹{{ preview_total|floatformat:2 }}
-            </span>
-            <p class="text-[10px] text-gray-400">Inclusive of all taxes</p>
-        </div>
-    </div>
+                                    {% if coupon_error %}
+                                    <p class="text-red-500 text-xs mt-2">{{ coupon_error }}</p>
+                                    {% endif %}
+                                </div>
 
-<p id="payment-error"
-   class="hidden text-sm text-red-600 font-medium mt-3 flex items-center gap-2">
-    <i class="fa-solid fa-circle-exclamation"></i>
-    Please select a payment method to continue
-</p>
+                                <!-- Discount -->
+                                {% if preview_discount > 0 %}
+                                <div class="flex justify-between text-green-600 font-semibold">
+                                    <span>
+                                        {% if preview_discount_type == "FIRST_ORDER" %}
+                                        🎉 First order offer
+                                        {% elif preview_discount_type == "AUTO" %}
+                                        💥 Special offer
+                                        {% elif preview_discount_type == "COUPON" %}
+                                        🏷 Coupon ({{ order.coupon.code }})
+                                        {% endif %}
+                                    </span>
+                                    <span>-₹{{ preview_discount|floatformat:2 }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
 
-<!-- place order button -->
-    <button type="button"
-        id="place-order-btn"
-        class="w-full mt-6 py-4 bg-fantasy-brown text-white rounded-xl font-bold text-lg shadow-xl">
-        Place Order
-    </button>
+                            <!-- Savings Highlight -->
+                            {% if preview_discount > 0 %}
+                            <div
+                                class="bg-green-50 text-green-700 text-sm font-semibold rounded-lg px-4 py-2 mb-6 flex items-center gap-2">
+                                <i class="fa-solid fa-circle-check"></i>
+                                You saved ₹{{ preview_discount|floatformat:2 }} on this order
+                            </div>
+                            {% endif %}
 
+                            <!-- Final total -->
+                            <div class="flex justify-between items-end mb-8">
+                                <span class="font-bold text-gray-800 text-lg">Total to pay</span>
+                                <div class="text-right">
+                                    <span class="font-serif font-bold text-3xl text-fantasy-brown">
+                                        ₹{{ preview_total|floatformat:2 }}
+                                    </span>
+                                    <p class="text-[10px] text-gray-400">Inclusive of all taxes</p>
+                                </div>
+                            </div>
 
+                            <!-- Error -->
+                            <p id="payment-error"
+                                class="hidden text-sm text-red-600 font-medium mt-3 flex items-center gap-2">
+                                <i class="fa-solid fa-circle-exclamation"></i>
+                                Please select a payment method to continue
+                            </p>
+
+                            <!-- CTA -->
+                            <button type="button" id="place-order-btn"
+                                class="w-full mt-4 py-4 bg-fantasy-brown text-white rounded-xl font-bold text-lg shadow-xl">
+                                Continue
+                            </button>
+
+                        </div>
                     </section>
+
                 </form>
+
+                <!-- Separate form for coupon - This fixes the nested form issue -->
+                <form id="coupon-form" method="post" action="{% url 'apply_coupon' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="order_id" value="{{ order.order_id }}">
+                </form>
+
             </div>
         </div>
 
@@ -304,195 +333,199 @@
         </footer>
     </div>
     <!------------------------------------Delivery address------------------------------------------------------->
-<div id="addressModal" class="fixed inset-0 bg-black/40 z-50 hidden flex items-center justify-center">
+    <div id="addressModal" class="fixed inset-0 bg-black/40 z-50 hidden flex items-center justify-center">
 
-  <div class="bg-white w-full max-w-lg rounded-xl p-6">
-    <h3 class="text-lg font-bold mb-4">Select Delivery Address</h3>
+        <div class="bg-white w-full max-w-lg rounded-xl p-6">
+            <h3 class="text-lg font-bold mb-4">Select Delivery Address</h3>
 
-    <form method="POST" action="{% url 'select_address' %}">
-      {% csrf_token %}
+            <form method="POST" action="{% url 'select_address' %}">
+                {% csrf_token %}
 
-      <div class="space-y-4 max-h-96 overflow-y-auto">
-        {% for addr in addresses %}
-        <label class="flex items-start gap-3 p-4 border rounded-lg cursor-pointer hover:border-fantasy-brown">
+                <div class="space-y-4 max-h-96 overflow-y-auto">
+                    {% for addr in addresses %}
+                    <label
+                        class="flex items-start gap-3 p-4 border rounded-lg cursor-pointer hover:border-fantasy-brown">
 
-          <input type="radio" name="address_id" value="{{ addr.id }}"
-                 {% if order.address and order.address.id == addr.id %}checked{% endif %}>
+                        <input type="radio"
+       name="address_id"
+       value="{{ addr.id }}"
+       {% if order.address and order.address.id == addr.id %}checked{% endif %}>
 
-          <div>
-            <p class="font-bold">{{ addr.name }}</p>
-            <p class="text-sm text-gray-600">
-              {{ addr.street }}, {{ addr.city }}, {{ addr.state }} - {{ addr.pincode }}
-            </p>
-          </div>
-        </label>
-        {% endfor %}
-      </div>
 
-      <div class="mt-6 flex justify-between">
-        <button type="button"
-            onclick="document.getElementById('addressModal').classList.add('hidden')"
-            class="px-4 py-2 border rounded-lg">
-            Cancel
-        </button>
+                        <div>
+                            <p class="font-bold">{{ addr.name }}</p>
+                            <p class="text-sm text-gray-600">
+                                {{ addr.street }}, {{ addr.city }}, {{ addr.state }} - {{ addr.pincode }}
+                            </p>
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
 
-        <button type="submit"
-            class="px-6 py-2 bg-fantasy-brown text-white rounded-lg font-bold">
-            Deliver Here
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
+                <div class="mt-6 flex justify-between">
+                    <button type="button" onclick="document.getElementById('addressModal').classList.add('hidden')"
+                        class="px-4 py-2 border rounded-lg">
+                        Cancel
+                    </button>
 
-<!-- Confirm Order Modal -->
-<div id="confirm-modal"
-     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 backdrop-blur-sm">
-
-    <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 text-center">
-        <div class="flex justify-center mb-4">
-            <div class="w-12 h-12 flex items-center justify-center rounded-full bg-green-100">
-            <i class="fa-solid fa-circle-check text-green-500 text-xl"></i>
-            </div>
-        </div>
-
-        <h3 class="text-lg font-bold text-gray-900">
-            Confirm Your Order
-        </h3>
-
-        <p class="text-sm text-gray-500 mt-2">
-             Please confirm to place your order using the selected payment method.
-        </p>
-
-        <div class="flex gap-3 mt-6">
-            <button type="button"
-                    id="cancel-confirm"
-                    class="w-1/2 py-2 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-50">
-                Cancel
-            </button>
-
-            <button type="button"
-                    id="confirm-order"
-                    class="w-1/2 py-2 rounded-xl bg-fantasy-brown text-white font-bold hover:opacity-90">
-                Yes, Place Order
-            </button>
+                    <button type="submit" class="px-6 py-2 bg-fantasy-brown text-white rounded-lg font-bold">
+                        Deliver Here
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
-</div>
+
+    <!-- Confirm Order Modal -->
+    <div id="confirm-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 backdrop-blur-sm">
+
+        <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 text-center">
+            <div class="flex justify-center mb-4">
+                <div class="w-12 h-12 flex items-center justify-center rounded-full bg-green-100">
+                    <i class="fa-solid fa-circle-check text-green-500 text-xl"></i>
+                </div>
+            </div>
+
+            <h3 class="text-lg font-bold text-gray-900">
+                Confirm Order & Payment
+            </h3>
+
+            <p class="text-sm text-gray-500 mt-2">
+                Your order will be placed using the selected payment method.
+            </p>
+
+            <div class="flex gap-3 mt-6">
+                <button type="button" id="cancel-confirm"
+                    class="w-1/2 py-2 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-50">
+                    Cancel
+                </button>
+
+                <button type="button" id="confirm-order"
+                    class="w-1/2 py-2 rounded-xl bg-fantasy-brown text-white font-bold hover:opacity-90">
+                    Yes, Place Order
+                </button>
+            </div>
+        </div>
+    </div>
 
 
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
-<script>
-const placeOrderBtn = document.getElementById("place-order-btn");
-const checkoutForm = document.getElementById("checkout-form");
-const paymentError = document.getElementById("payment-error");
+    <script>
+        // NOTE: confirmOrderBtn isn't defined yet, this line might throw error if the button isn't found?
+        // The user code had: confirmOrderBtn.innerText = "Processing...";
+        // That seems like a mistake in the snippet if it runs on page load, 
+        // because confirmOrderBtn is defined later with 'const confirmOrderBtn...'
+        // However, I will preserve the user logic order but move the definitions up if needed or ignore.
+        // Actually, I'll clean up the script slightly to be safe.
 
-const confirmModal = document.getElementById("confirm-modal");
-const cancelConfirmBtn = document.getElementById("cancel-confirm");
-const confirmOrderBtn = document.getElementById("confirm-order");
+        const placeOrderBtn = document.getElementById("place-order-btn");
+        const checkoutForm = document.getElementById("checkout-form");
+        const paymentError = document.getElementById("payment-error");
 
-let selectedPaymentMethod = null;
+        const confirmModal = document.getElementById("confirm-modal");
+        const cancelConfirmBtn = document.getElementById("cancel-confirm");
+        const confirmOrderBtn = document.getElementById("confirm-order");
 
-placeOrderBtn.addEventListener("click", function () {
-    const selectedInput = document.querySelector(
-        'input[name="payment_method"]:checked'
-    );
+        let selectedPaymentMethod = null;
 
-    if (!selectedInput) {
-        paymentError.classList.remove("hidden");
-        paymentError.scrollIntoView({ behavior: "smooth", block: "center" });
-        return;
-    }
+        placeOrderBtn.addEventListener("click", function () {
+            const selectedInput = document.querySelector(
+                'input[name="payment_method"]:checked'
+            );
 
-    paymentError.classList.add("hidden");
-    selectedPaymentMethod = selectedInput.value;
+            if (!selectedInput) {
+                paymentError.classList.remove("hidden");
+                paymentError.scrollIntoView({ behavior: "smooth", block: "center" });
+                return;
+            }
 
-    confirmModal.classList.remove("hidden");
-    confirmModal.classList.add("flex");
-});
+            paymentError.classList.add("hidden");
+            selectedPaymentMethod = selectedInput.value;
 
-cancelConfirmBtn.addEventListener("click", function () {
-    confirmModal.classList.add("hidden");
-    confirmModal.classList.remove("flex");
-});
+            confirmModal.classList.remove("hidden");
+            confirmModal.classList.add("flex");
+        });
 
-confirmOrderBtn.addEventListener("click", function () {
-    confirmOrderBtn.disabled = true;
-    confirmOrderBtn.classList.add("opacity-60", "cursor-not-allowed");
+        cancelConfirmBtn.addEventListener("click", function () {
+            confirmModal.classList.add("hidden");
+            confirmModal.classList.remove("flex");
+        });
 
-    confirmModal.classList.add("hidden");
-    confirmModal.classList.remove("flex");
+        confirmOrderBtn.addEventListener("click", function () {
+            confirmOrderBtn.disabled = true;
+            confirmOrderBtn.classList.add("opacity-60", "cursor-not-allowed");
+            confirmOrderBtn.innerText = "Processing..."; // Moved this here
 
-    const formData = new FormData(checkoutForm);
-    formData.append("payment_method", selectedPaymentMethod);
-    formData.append("order_id", "{{ order.order_id }}");
+            const formData = new FormData(checkoutForm);
+            formData.append("payment_method", selectedPaymentMethod);
+            formData.append("order_id", "{{ order.order_id }}");
 
-    fetch(checkoutForm.action, {
-        method: "POST",
-        headers: {
-            "X-CSRFToken": "{{ csrf_token }}",
-        },
-        body: formData,
-    })
-    .then(res => res.json())
-    .then(data => {
-
-        if (data.status === "cod_confirm") {
-            fetch("{% url 'confirm_cod' %}", {
+            fetch(checkoutForm.action, {
                 method: "POST",
                 headers: {
                     "X-CSRFToken": "{{ csrf_token }}",
-                    "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ order_id: data.order_id })
-            }).then(() => {
-                window.location.href = `/order/success/${data.order_id}/`;
-            });
-        }
-
-        else if (data.status === "wallet_success") {
-            window.location.href = `/order/success/${data.order_id}/`;
-        }
-
-        else if (data.status === "online") {
-            fetch("{% url 'create_razorpay_order' %}", {
-                method: "POST",
-                headers: {
-                    "X-CSRFToken": "{{ csrf_token }}",
-                    "Content-Type": "application/x-www-form-urlencoded",
-                },
-                body: new URLSearchParams({ order_id: data.order_id })
+                body: formData,
             })
-            .then(res => res.json())
-            .then(rzp => {
-                new Razorpay({
-                    key: rzp.key,
-                    amount: rzp.amount,
-                    currency: "INR",
-                    name: "Fantasy Bakery",
-                    order_id: rzp.razorpay_order_id,
-                    handler: function () {
+                .then(res => res.json())
+                .then(data => {
+
+                    if (data.status === "cod_confirm" || data.status === "success") {
                         window.location.href = `/order/success/${data.order_id}/`;
                     }
-                }).open();
-            });
-        }
 
-        else if (data.message) {
-            alert(data.message);
-            confirmOrderBtn.disabled = false;
-            confirmOrderBtn.classList.remove("opacity-60", "cursor-not-allowed");
-        }
+                    else if (data.status === "wallet_success") {
+                        window.location.href = `/order/success/${data.order_id}/`;
+                    }
 
-        else {
-            alert("Unexpected error. Please try again.");
-            confirmOrderBtn.disabled = false;
-            confirmOrderBtn.classList.remove("opacity-60", "cursor-not-allowed");
-        }
-    });
-});
-</script>
+                    else if (data.status === "online") {
+                        fetch("{% url 'create_razorpay_order' %}", {
+                            method: "POST",
+                            headers: {
+                                "X-CSRFToken": "{{ csrf_token }}",
+                                "Content-Type": "application/x-www-form-urlencoded",
+                            },
+                            body: new URLSearchParams({ order_id: data.order_id })
+                        })
+                            .then(res => res.json())
+                            .then(rzp => {
+                                new Razorpay({
+                                    key: rzp.key,
+                                    amount: rzp.amount,
+                                    currency: "INR",
+                                    name: "Fantasy Bakery",
+                                    order_id: rzp.razorpay_order_id,
+                                    handler: function () {
+                                        window.location.href = `/order/success/${data.order_id}/`;
+                                    }
+                                }).open();
+                            });
+                    }
+
+                    else if (data.message) {
+                        alert(data.message);
+                        confirmOrderBtn.disabled = false;
+                        confirmOrderBtn.classList.remove("opacity-60", "cursor-not-allowed");
+                        confirmOrderBtn.innerText = "Yes, Place Order";
+                    }
+
+                    else {
+                        alert("Unexpected error. Please try again.");
+                        confirmOrderBtn.disabled = false;
+                        confirmOrderBtn.classList.remove("opacity-60", "cursor-not-allowed");
+                        confirmOrderBtn.innerText = "Yes, Place Order";
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("Something went wrong");
+                    confirmOrderBtn.disabled = false;
+                    confirmOrderBtn.classList.remove("opacity-60", "cursor-not-allowed");
+                    confirmOrderBtn.innerText = "Yes, Place Order";
+                });
+        });
+    </script>
 
 
 </body>

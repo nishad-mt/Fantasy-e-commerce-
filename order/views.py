@@ -46,66 +46,92 @@ def order(request):
     
 
 @login_required
+@transaction.atomic
 def create_from_cart(request):
     cart = get_object_or_404(Cart, user=request.user)
     items = cart.items.select_related("variant")
 
     if not items.exists():
+        messages.warning(request, "Your cart is empty.")
         return redirect("cart:cart")
 
-    order_items_total = Decimal("0.00")
-    for item in items:
-        order_items_total += item.variant.price * item.quantity
-
-    delivery = Decimal("0.00") if order_items_total > 500 else Decimal("40.00")
-    product_total = order_items_total
-    total = order_items_total + delivery
-
+    # 1️⃣ Get default address (optional for DRAFT, but good UX)
     default_address = Address.objects.filter(
         user=request.user,
         is_default=True
     ).first()
 
     if not default_address:
-        return redirect("checkout")
+        messages.warning(
+            request,
+            "Please add a delivery address to continue."
+        )
+        return redirect("create_address")
 
-    delivery_date = date.today() + timedelta(days=3)
-
-    order = Order.objects.create(
+    # 2️⃣ Reuse existing DRAFT order OR create new one
+    order, created = Order.objects.get_or_create(
         user=request.user,
-        address=default_address,
-        order_items_total=product_total,
-        total_amount=total,
-        delivery_charge=delivery,
-        delivery_date=delivery_date,
-        status="PENDING",
-        source="CART"
-
+        status="DRAFT",
+        source="CART",
+        defaults={
+            "address": default_address,
+            "delivery_date": date.today() + timedelta(days=3),
+        }
     )
 
-    for item in items:
-        OrderItem.objects.create(
+    # 3️⃣ Clear existing items if draft already existed
+    order.items.all().delete()
+
+    # 4️⃣ Copy cart items → order items
+    OrderItem.objects.bulk_create([
+        OrderItem(
             order=order,
             variant=item.variant,
             quantity=item.quantity,
             price=item.variant.price
         )
+        for item in items
+    ])
+
+    # 5️⃣ DO NOT calculate totals here (do it in checkout preview)
+    # order.order_items_total = ...
+    # order.total_amount = ...
+    # ❌ NOT HERE
 
     return redirect("pay_order", order_id=order.order_id)
+
 
 @login_required
 def pay_order(request, order_id):
 
-    order = get_object_or_404(Order, order_id=order_id, user=request.user)
+    # 🔑 MUST be DRAFT
+    order = get_object_or_404(
+        Order,
+        order_id=order_id,
+        user=request.user,
+        status="DRAFT"
+    )
+
     items = order.items.select_related("variant", "variant__product")
 
+    if not items.exists():
+        messages.error(request, "This order has no items.")
+        return redirect("cart:cart")
+
+    # ---------- Recalculate totals (preview only) ----------
     subtotal = sum(item.variant.price * item.quantity for item in items)
     delivery = Decimal("0.00") if subtotal > 500 else Decimal("40.00")
 
-    discount, discount_type = calculate_best_discount(request.user, subtotal, order)
+    # 🔐 PREVIEW discount (NOT saved yet)
+    discount, discount_type, applied_promo = calculate_best_discount(
+        user=request.user,
+        subtotal=subtotal,
+        order=order
+    )
 
     preview_total = max(subtotal + delivery - discount, Decimal("0.00"))
 
+    # ---------- Address handling ----------
     addresses = Address.objects.filter(user=request.user)
     if not addresses.exists():
         messages.warning(
@@ -115,19 +141,30 @@ def pay_order(request, order_id):
         return redirect("create_address")
 
     default_address = addresses.filter(is_default=True).first()
+
+    # If order address was deleted, reassign
+    if not order.address or order.address not in addresses:
+        order.address = default_address
+        order.save(update_fields=["address"])
+
     delivery_date = date.today() + timedelta(days=3)
 
     return render(request, "checkout.html", {
-        "order": order,
-        "items": items,
-        "addresses": addresses,
-        "default_address": default_address,
-        "delivery_date": delivery_date,
+    "order": order,
+    "items": items,
+    "addresses": addresses,
+    "default_address": default_address,
+    "delivery_date": delivery_date,
 
-        "preview_discount": discount,
-        "preview_discount_type": discount_type,
-        "preview_total": preview_total,
-    })
+    # 🔑 REQUIRED for Bill Details
+    "preview_subtotal": subtotal,
+    "preview_delivery": delivery,
+    "preview_discount": discount,
+    "preview_discount_type": discount_type,
+    "preview_total": preview_total,
+})
+
+
 
 def order_detail(request,order_id):
     order = get_object_or_404(Order,order_id=order_id,user=request.user)
@@ -138,53 +175,55 @@ def order_detail(request,order_id):
         }
                   )
 
+
 @transaction.atomic
 @login_required
 def place_order(request):
     if request.method != "POST":
         return JsonResponse({"error": "Invalid request"}, status=400)
 
-    order_id = request.POST.get("order_id")
-
+    # 🔑 MUST fetch DRAFT order
     order = get_object_or_404(
         Order,
-        order_id=order_id,
+        order_id=request.POST.get("order_id"),
         user=request.user,
-        status="PENDING"
+        status="DRAFT"
     )
 
     items = order.items.select_related("variant")
-
     if not items.exists():
-        return JsonResponse({
-            "status": "error",
-            "message": "Order has no items."
-        }, status=400)
+        return JsonResponse({"status": "error", "message": "Order has no items."}, status=400)
 
     if not order.address:
-        return JsonResponse({
-            "status": "no_address",
-            "message": "Please select a delivery address."
-        })
+        return JsonResponse({"status": "no_address"})
 
-    # ---------- Recalculate totals (SECURITY) ----------
+    # ---------- Recalculate totals ----------
     subtotal = sum(item.variant.price * item.quantity for item in items)
     delivery = Decimal("0.00") if subtotal > 500 else Decimal("40.00")
-    
 
-    total = max(total, Decimal("0.00"))
+    discount, discount_type, applied_promo = calculate_best_discount(
+        user=request.user,
+        subtotal=subtotal,
+        order=order
+    )
 
+    total = max(subtotal + delivery - discount, Decimal("0.00"))
+
+    # ---------- Persist snapshot ----------
     order.order_items_total = subtotal
     order.delivery_charge = delivery
     order.discount_amount = discount
     order.discount_type = discount_type
+    order.coupon = applied_promo if discount_type == "COUPON" else None
     order.total_amount = total
     order.delivery_date = date.today() + timedelta(days=3)
 
     payment_method = request.POST.get("payment_method")
 
+    promo_confirmed = False  # 🔑 initialize
+
     # =================================================
-    # CASH ON DELIVERY
+    # COD
     # =================================================
     if payment_method == "COD":
         order.payment_method = "COD"
@@ -192,22 +231,18 @@ def place_order(request):
         order.status = "CONFIRMED"
         order.save()
 
-        return JsonResponse({
-            "status": "cod_confirm",
-            "order_id": order.order_id
-        })
+        promo_confirmed = True
 
     # =================================================
-    # WALLET PAYMENT
+    # WALLET
     # =================================================
     elif payment_method == "WALLET":
-        wallet = Wallet.objects.select_for_update().get(user=request.user)
+        wallet, _ = Wallet.objects.select_for_update().get_or_create(
+            user=request.user, defaults={"balance": Decimal("0.00")}
+        )
 
         if wallet.balance < total:
-            return JsonResponse({
-                "status": "wallet_insufficient",
-                "message": "Insufficient wallet balance."
-            })
+            return JsonResponse({"status": "wallet_insufficient"})
 
         wallet.balance -= total
         wallet.save()
@@ -225,14 +260,6 @@ def place_order(request):
         order.status = "CONFIRMED"
         order.save()
 
-        #  Mark coupon as used (AFTER success)
-        if order.discount_type == "COUPON" and order.coupon:
-            CouponUsage.objects.get_or_create(
-                user=request.user,
-                coupon=order.coupon,
-                order=order
-            )
-
         Payment.objects.create(
             user=request.user,
             order=order,
@@ -243,21 +270,15 @@ def place_order(request):
             status="SUCCESS"
         )
 
-        # 🧹 clear cart ONLY if order came from cart
-        if order.source == "CART":
-            CartItem.objects.filter(cart__user=request.user).delete()
-
-        return JsonResponse({
-            "status": "wallet_success",
-            "order_id": order.order_id
-        })
+        promo_confirmed = True
 
     # =================================================
-    # ONLINE PAYMENT (RAZORPAY)
+    # ONLINE
     # =================================================
     elif payment_method == "ONLINE":
         order.payment_method = "ONLINE"
         order.payment_status = "PENDING"
+        order.status = "PENDING_PAYMENT"   # 🔑 KEY CHANGE
         order.save()
 
         return JsonResponse({
@@ -265,41 +286,29 @@ def place_order(request):
             "order_id": order.order_id
         })
 
-    return JsonResponse({
-        "status": "invalid_payment",
-        "message": "Invalid payment method."
-    }, status=400)
+    else:
+        return JsonResponse({"status": "invalid_payment"}, status=400)
 
-@login_required
-@transaction.atomic
-def confirm_cod(request):
-    if request.method != "POST":
-        return JsonResponse({"error": "Invalid request"}, status=400)
+    # =================================================
+    # 🔐 Lock promotion ONLY after CONFIRMATION
+    # =================================================
+    if promo_confirmed and applied_promo and applied_promo.one_time_per_user:
+        from promotions.models import PromotionUsage
+        PromotionUsage.objects.get_or_create(
+            user=request.user,
+            promotion=applied_promo,
+            order=order
+        )
 
-    data = json.loads(request.body)
-    order_id = data.get("order_id")
-
-    order = get_object_or_404(
-        Order,
-        order_id=order_id,
-        user=request.user,
-        status="PENDING"
-    )
-
-    # Finalize COD order
-    order.payment_method = "COD"
-    order.payment_status = "PENDING"
-    order.save()
-
-    # Clear cart
-    cart = Cart.objects.filter(user=request.user).first()
-    if cart:
-        cart.items.all().delete()
+    # 🧹 Clear cart ONLY after CONFIRMED
+    if order.source == "CART":
+        CartItem.objects.filter(cart__user=request.user).delete()
 
     return JsonResponse({
         "status": "success",
         "order_id": order.order_id
     })
+
 
 @login_required
 def select_address(request):
@@ -400,37 +409,50 @@ def cancel_order_request(request, order_id):
 
     
 @login_required
+@transaction.atomic
 def buy_now(request, variant_id):
 
     if request.method != "POST":
         return redirect("home")
 
-    if not Address.objects.filter(user=request.user).exists():
+    # ---------- Address check ----------
+    addresses = Address.objects.filter(user=request.user)
+    if not addresses.exists():
         messages.warning(request, "Please add a delivery address.")
         return redirect("create_address")
 
-    Order.objects.filter(
-        user=request.user,
-        status="PENDING",
-        source="BUY_NOW"
-    ).delete()
+    default_address = addresses.filter(is_default=True).first()
+    if not default_address:
+        messages.warning(
+            request,
+            "Please set a default delivery address."
+        )
+        return redirect("address_list")
 
+    # ---------- Variant ----------
     variant = get_object_or_404(SizeVariant, id=variant_id)
-    quantity = max(1, int(request.POST.get("quantity", 1)))
 
-    subtotal = variant.price * quantity
-    delivery = Decimal("0.00") if subtotal > 500 else Decimal("40.00")
+    try:
+        quantity = int(request.POST.get("quantity", 1))
+        if quantity < 1:
+            raise ValueError
+    except ValueError:
+        messages.error(request, "Invalid quantity.")
+        return redirect("product_detail", slug=variant.product.slug)
 
-    order = Order.objects.create(
+    # ---------- Create or reuse DRAFT order ----------
+    order, created = Order.objects.get_or_create(
         user=request.user,
-        address=Address.objects.filter(user=request.user, is_default=True).first(),
-        order_items_total=subtotal,
-        delivery_charge=delivery,
-        total_amount=subtotal + delivery,
-        delivery_date=date.today() + timedelta(days=3),
-        status="PENDING",
-        source="BUY_NOW"
+        status="DRAFT",
+        source="BUY_NOW",
+        defaults={
+            "address": default_address,
+            "delivery_date": date.today() + timedelta(days=3),
+        }
     )
+
+    # ---------- Replace item in draft ----------
+    order.items.all().delete()
 
     OrderItem.objects.create(
         order=order,
@@ -438,5 +460,8 @@ def buy_now(request, variant_id):
         quantity=quantity,
         price=variant.price
     )
+
+    # ❌ DO NOT calculate totals here
+    # ❌ DO NOT mark as PENDING / CONFIRMED
 
     return redirect("pay_order", order_id=order.order_id)

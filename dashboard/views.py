@@ -23,6 +23,8 @@ import json
 from django.utils import timezone
 from addresses.models import Address
 from django.http import JsonResponse
+from django.db import transaction
+
 
 User = get_user_model()
 
@@ -163,20 +165,24 @@ def user(request):
     return render(request, "user.html", context)
 
 @login_required
-def user_orders_api(request, user_id):
-    orders = Order.objects.filter(user_id=user_id).order_by('-created_at')
+def user_orders_api(request):
+    orders = (
+        Order.objects
+        .filter(user=request.user)
+        .exclude(status="DRAFT")
+        .order_by("-created_at")
+    )
 
     data = []
     for o in orders:
         data.append({
             "id": str(o.order_id)[:8],
             "date": o.created_at.strftime("%d %b %Y"),
-            "status": o.status,
-            "total": float(o.total_amount),
+            "status": o.get_status_display(),
+            "total": float(o.total_amount or 0),
         })
 
     return JsonResponse({"orders": data})
-
 
 @never_cache
 @login_required
@@ -383,7 +389,11 @@ def admin_reviews(request):
 
 @staff_member_required
 def admin_order_list(request):
-    orders = Order.objects.all().order_by("-created_at")
+    orders = (
+        Order.objects
+        .exclude(status="DRAFT")
+        .order_by("-created_at")
+    )
 
     search = request.GET.get("search")
     if search:
@@ -398,34 +408,21 @@ def admin_order_list(request):
         orders = orders.filter(status=status.upper())
 
     payment = request.GET.get("payment")
-    if payment == "COD":
-        orders = orders.filter(payment_method="COD")
-    elif payment == "Online":
-        orders = orders.filter(payment_method="ONLINE")
-    elif payment == "Wallet":
-        orders = orders.filter(payment_method="WALLET")
+    if payment in ["COD", "ONLINE", "WALLET"]:
+        orders = orders.filter(payment_method=payment.upper())
 
     date_filter = request.GET.get("date")
     today = date.today()
 
     if date_filter == "today":
-        orders = orders.filter(
-            Q(paid_at__date=today) |
-            Q(paid_at__isnull=True, created_at__date=today)
-        )
+        orders = orders.filter(created_at__date=today)
     elif date_filter == "week":
-        orders = orders.filter(
-            Q(paid_at__date__gte=today - timedelta(days=7)) |
-            Q(paid_at__isnull=True, created_at__date__gte=today - timedelta(days=7))
-        )
+        orders = orders.filter(created_at__date__gte=today - timedelta(days=7))
     elif date_filter == "month":
-        orders = orders.filter(
-            Q(paid_at__month=today.month) |
-            Q(paid_at__isnull=True, created_at__month=today.month)
-        )
+        orders = orders.filter(created_at__month=today.month)
 
     STATUS_FLOW = {
-        "PENDING": ["CONFIRMED", "CANCELLED"],
+        "PENDING_PAYMENT": [],
         "CONFIRMED": ["PACKED"],
         "PACKED": ["DELIVERED"],
     }
@@ -434,43 +431,43 @@ def admin_order_list(request):
         order.next_actions = STATUS_FLOW.get(order.status, [])
 
     if request.method == "POST":
-        order_id = request.POST.get("order_id")
-        new_status = request.POST.get("status")
+        with transaction.atomic():
+            order_id = request.POST.get("order_id")
+            new_status = request.POST.get("status")
 
-        order = get_object_or_404(Order, order_id=order_id)
+            order = get_object_or_404(Order, order_id=order_id)
 
-        if new_status not in STATUS_FLOW.get(order.status, []):
-            messages.error(request, "Invalid status update.")
-            return redirect("orders")
-
-        # 🔒 Only restrict DELIVERY
-        if new_status == "DELIVERED":
-            if order.payment_method != "COD" and order.payment_status != "SUCCESS":
-                messages.error(request, "Payment not verified.")
+            if new_status not in STATUS_FLOW.get(order.status, []):
+                messages.error(request, "Invalid status update.")
                 return redirect("orders")
 
-            order.delivered_at = timezone.now()
+            if new_status == "DELIVERED":
+                if order.payment_method in ["ONLINE", "WALLET"] and order.payment_status != "SUCCESS":
+                    messages.error(request, "Payment not verified.")
+                    return redirect("orders")
 
-            # COD → collect money now
-            if order.payment_method == "COD":
-                order.payment_status = "SUCCESS"
-                order.paid_at = timezone.now()
+                order.delivered_at = timezone.now()
 
-                Payment.objects.get_or_create(
-                    order=order,
-                    defaults={
-                        "user": order.user,
-                        "razorpay_order_id": f"COD-{uuid.uuid4()}",
-                        "amount": order.total_amount,
-                        "status": "SUCCESS",
-                        "gateway_method": "COD",
-                    }
-                )
+                if order.payment_method == "COD":
+                    order.payment_status = "SUCCESS"
+                    order.paid_at = timezone.now()
 
-        order.status = new_status
-        order.save()
+                    Payment.objects.get_or_create(
+                        order=order,
+                        defaults={
+                            "user": order.user,
+                            "razorpay_order_id": f"COD-{uuid.uuid4()}",
+                            "amount": order.total_amount,
+                            "status": "SUCCESS",
+                            "gateway_method": "COD",
+                        }
+                    )
 
-        messages.success(request, "Order status updated.")
+            order.status = new_status
+            order.save()
+
+            messages.success(request, "Order status updated.")
+
         return redirect("orders")
 
     return render(request, "admin_orders.html", {
@@ -482,7 +479,6 @@ def admin_order_list(request):
             "date": date_filter or "all",
         }
     })
-
 
 @admin_required
 @login_required

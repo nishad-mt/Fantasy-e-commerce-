@@ -14,7 +14,7 @@ urlpatterns = [
     path("admin_contact/",views.admin_contact,name="admin_contact"),
     path("reviews/",views.admin_reviews,name="admin_reviews"),
     path("admin_logout/",views.admin_logout,name="admin_logout"),
-    path("user-orders/<uuid:user_id>/", views.user_orders_api),
+    path("user-orders/", views.user_orders_api),
     path("admin/wallets/", views.admin_wallet_dashboard, name="admin_wallet_dashboard"),
 
 ]

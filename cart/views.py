@@ -7,6 +7,8 @@ from products.models import SizeVariant
 from django.contrib import messages
 from products.models import Product
 from django.db.models import Min
+from order.models import Order
+from order.utils import clear_coupon
 
 @login_required
 def toggle_cart(request, variant_id):
@@ -27,7 +29,16 @@ def toggle_cart(request, variant_id):
             item.quantity += quantity
             item.save()
 
-        # ✅ success message
+        # 🔥 CLEAR COUPON if cart-linked DRAFT order exists
+        order = Order.objects.filter(
+            user=request.user,
+            status="DRAFT",
+            source="CART"
+        ).first()
+
+        if order:
+            clear_coupon(order)
+
         messages.success(request, "Added to cart")
 
     return redirect(request.META.get("HTTP_REFERER", "products"))
@@ -65,16 +76,28 @@ def cart(request):
     return render(request, 'cartlist.html', context)
 
 @login_required
-def remove_cart(request,variant_id):
+def remove_cart(request, variant_id):
     if request.method == "POST":
-        CartItem.objects.filter(cart__user=request.user,variant_id=variant_id).delete()
-        return redirect('cart:cart')
-    
+        CartItem.objects.filter(
+            cart__user=request.user,
+            variant_id=variant_id
+        ).delete()
+
+        order = Order.objects.filter(
+            user=request.user,
+            status="DRAFT",
+            source="CART"
+        ).first()
+
+        if order:
+            clear_coupon(order)
+
+    return redirect('cart:cart')
+
 
 @login_required
 def move_to_wishlist(request, variant_id):
     cart = get_object_or_404(Cart, user=request.user)
-
     cart_item = get_object_or_404(CartItem, cart=cart, variant_id=variant_id)
 
     product = cart_item.variant.product
@@ -85,6 +108,16 @@ def move_to_wishlist(request, variant_id):
         wishlist=wishlist,
         product=product
     )
+
     cart_item.delete()
 
-    return redirect("cart:cart")   
+    order = Order.objects.filter(
+        user=request.user,
+        status="DRAFT",
+        source="CART"
+    ).first()
+
+    if order:
+        clear_coupon(order)
+
+    return redirect("cart:cart")

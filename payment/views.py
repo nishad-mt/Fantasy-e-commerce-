@@ -26,46 +26,51 @@ def create_razorpay_order(request):
     if not order_id:
         return HttpResponseBadRequest("Order ID missing")
 
-    order = get_object_or_404(Order, order_id=order_id, user=request.user)
-
-    order.payment_method = "ONLINE"
-    order.payment_status = "PENDING"
-    order.save()
-
-    amount_paise = int(order.total_amount * 100)
-
-    client = razorpay.Client(
-        auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
-    )
-
-    razorpay_order = client.order.create({
-        "amount": amount_paise,
-        "currency": "INR",
-        "payment_capture": 1
-    })
-
-    Payment.objects.create(
+    order = get_object_or_404(
+        Order,
+        order_id=order_id,
         user=request.user,
-        order=order,
-        razorpay_order_id=razorpay_order["id"],
-        amount=order.total_amount,
-        status="CREATED"
+        status="PENDING",
+        payment_status="PENDING"
     )
+
+    payment, created = Payment.objects.get_or_create(
+        order=order,
+        defaults={
+            "user": request.user,
+            "amount": order.total_amount,
+            "status": "CREATED"
+        }
+    )
+
+    if created:
+        client = razorpay.Client(
+            auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
+        )
+
+        razorpay_order = client.order.create({
+            "amount": int(order.total_amount * 100),
+            "currency": "INR",
+            "payment_capture": 1
+        })
+
+        payment.razorpay_order_id = razorpay_order["id"]
+        payment.save()
 
     return JsonResponse({
-        "razorpay_order_id": razorpay_order["id"],
+        "razorpay_order_id": payment.razorpay_order_id,
         "key": settings.RAZORPAY_KEY_ID,
-        "amount": amount_paise,
+        "amount": int(payment.amount * 100),
         "currency": "INR",
     })
 
 
 @csrf_exempt
 def razorpay_webhook(request):
-    payload = request.body.decode("utf-8")  
-    received_signature = request.META.get("HTTP_X_RAZORPAY_SIGNATURE")
-    
-    if not received_signature:
+    payload = request.body.decode()
+    signature = request.META.get("HTTP_X_RAZORPAY_SIGNATURE")
+
+    if not signature:
         return HttpResponse(status=400)
 
     client = razorpay.Client(
@@ -75,7 +80,7 @@ def razorpay_webhook(request):
     try:
         client.utility.verify_webhook_signature(
             payload,
-            received_signature,
+            signature,
             settings.RAZORPAY_WEBHOOK_SECRET
         )
     except razorpay.errors.SignatureVerificationError:
@@ -83,38 +88,45 @@ def razorpay_webhook(request):
 
     data = json.loads(payload)
 
-    if data.get("event") == "payment.captured":
-        entity = data["payload"]["payment"]["entity"]
+    if data.get("event") != "payment.captured":
+        return HttpResponse(status=200)
 
-        razorpay_order_id = entity["order_id"]
-        razorpay_payment_id = entity["id"]
-        method = entity["method"]
+    entity = data["payload"]["payment"]["entity"]
+    razorpay_order_id = entity["order_id"]
+    paid_amount = entity["amount"] / 100
 
-        payment = Payment.objects.select_related("order").filter(
-            razorpay_order_id=razorpay_order_id
-        ).first()
+    payment = Payment.objects.select_related("order").filter(
+        razorpay_order_id=razorpay_order_id
+    ).first()
 
-        if payment and payment.status != "SUCCESS":
-            payment.razorpay_payment_id = razorpay_payment_id
-            payment.gateway_method = method
-            payment.status = "SUCCESS"
-            payment.save()
+    if not payment or payment.status == "SUCCESS":
+        return HttpResponse(status=200)
 
-            order = payment.order
-            order.payment_status = "SUCCESS"
-            order.status = "CONFIRMED"
-            order.paid_at = timezone.now()
-            order.save()
-            
-            if order.discount_type == "COUPON" and order.coupon:
-                CouponUsage.objects.get_or_create(
-                    user=order.user,
-                    coupon=order.coupon,
-                    order=order
-                )
-            cart = Cart.objects.filter(user=order.user).first()
-            if cart:
-                cart.items.all().delete()
+    if paid_amount != payment.amount:
+        return HttpResponse(status=400)
+
+    order = payment.order
+
+    payment.razorpay_payment_id = entity["id"]
+    payment.gateway_method = entity["method"]
+    payment.status = "SUCCESS"
+    payment.save()
+
+    order.payment_status = "SUCCESS"
+    order.status = "CONFIRMED"
+    order.paid_at = timezone.now()
+    order.save()
+
+    # 🔒 Lock coupon ONLY here
+    if order.discount_type == "COUPON" and order.coupon:
+        PromotionUsage.objects.get_or_create(
+            user=order.user,
+            promotion=order.coupon,
+            order=order
+        )
+
+    # 🧹 Clear cart
+    Cart.objects.filter(user=order.user).update(items=None)
 
     return HttpResponse(status=200)
 

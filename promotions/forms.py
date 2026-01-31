@@ -37,7 +37,6 @@ class PromotionForm(forms.ModelForm):
         discount_percent = cleaned_data.get("discount_percent")
         discount_amount = cleaned_data.get("discount_amount")
 
-        # Extra safety (UI level)
         if discount_percent and discount_amount:
             raise forms.ValidationError(
                 "Choose either percentage or fixed discount, not both."
@@ -47,5 +46,12 @@ class PromotionForm(forms.ModelForm):
             raise forms.ValidationError(
                 "Coupon code is required for coupon promotions."
             )
-
         return cleaned_data
+    
+    def clean_code(self):
+        code = self.cleaned_data.get("code")
+        if code and not code.isalnum():
+            raise forms.ValidationError(
+                "Coupon code must contain only letters and numbers."
+            )
+        return code.upper()

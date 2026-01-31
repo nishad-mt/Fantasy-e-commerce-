@@ -19,7 +19,7 @@
     </header>
 
     <!-- Stats -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-6 mb-8">
         <div class="bg-white p-6 rounded-xl border">
             <p class="text-sm text-gray-500 uppercase">Total Offers</p>
             <p class="text-3xl font-bold">{{ total_count }}</p>
@@ -33,6 +33,11 @@
         <div class="bg-white p-6 rounded-xl border">
             <p class="text-sm text-gray-500 uppercase">Expired</p>
             <p class="text-3xl font-bold text-gray-400">{{ expired_count }}</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl border">
+            <p class="text-sm text-red-500 uppercase">Upcomming</p>
+            <p class="text-3xl font-bold text-red-600">{{ upcoming_count }}</p>
         </div>
     </div>
 
@@ -48,28 +53,21 @@
 
         <select name="status" class="px-4 py-2 rounded-lg border">
             <option value="">All Status</option>
-            <option value="active" {% if request.GET.status == "active" %}selected{% endif %}>Active</option>
-            <option value="expired" {% if request.GET.status == "expired" %}selected{% endif %}>Expired</option>
-            <option value="inactive" {% if request.GET.status == "inactive" %}selected{% endif %}>Inactive</option>
+            <option value="active">Active</option>
+            <option value="expired">Expired</option>
+            <option value="upcoming">Upcoming</option>
+            <option value="inactive">Inactive</option>
         </select>
 
         <select name="type" class="px-4 py-2 rounded-lg border">
             <option value="">All Types</option>
-            {% for key,label in promo_types %}
-                <option value="{{ key }}" {% if request.GET.type == key %}selected{% endif %}>
-                    {{ label }}
-                </option>
-            {% endfor %}
+            <option value="FIRST_ORDER">First Order</option>
+            <option value="AUTO">Auto</option>
+            <option value="COUPON">Coupon</option>
         </select>
 
-        <input type="date"
-               name="start_date"
-               value="{{ request.GET.start_date }}"
-               class="px-4 py-2 rounded-lg border">
-
-        <button class="bg-bakery-600 text-white rounded-lg px-4 py-2">
-            Filter
-        </button>
+         <button type="submit" class="px-4 py-2 rounded-lg border">
+            Apply</button>
     </form>
 
     <!-- Table -->
@@ -110,18 +108,14 @@
                     </td>
 
                     <td class="px-6 py-4">
-                        {% if promo.is_active and promo.valid_to and promo.valid_to >= now %}
-                            <span class="px-2 py-1 text-xs rounded bg-green-100 text-green-700">
-                                Active
-                            </span>
-                        {% elif promo.valid_to and promo.valid_to < now %}
-                            <span class="px-2 py-1 text-xs rounded bg-gray-100 text-gray-600">
-                                Expired
-                            </span>
+                        {% if promo.status == "active" %}
+                            <span class="px-2 py-1 text-xs rounded bg-green-100 text-green-700">Active</span>
+                        {% elif promo.status == "upcoming" %}
+                            <span class="px-2 py-1 text-xs rounded bg-red-100 text-red-800">Upcoming</span>
+                        {% elif promo.status == "expired" %}
+                            <span class="px-2 py-1 text-xs rounded bg-gray-100 text-gray-600">Expired</span>
                         {% else %}
-                            <span class="px-2 py-1 text-xs rounded bg-yellow-100 text-yellow-700">
-                                Inactive
-                            </span>
+                            <span class="px-2 py-1 text-xs rounded bg-yellow-100 text-yellow-700">Inactive</span>
                         {% endif %}
                     </td>
 

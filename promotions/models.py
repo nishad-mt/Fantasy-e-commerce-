@@ -97,19 +97,28 @@ class Promotion(models.Model):
                     "valid_from must be earlier than valid_to."
                 )
 
-    def is_valid_now(self):
+    @property
+    def status(self):
         now = timezone.now()
 
         if not self.is_active:
-            return False
+            return "inactive"
 
         if self.valid_from and now < self.valid_from:
-            return False
+            return "upcoming"
 
-        if self.valid_to and now > self.valid_to:
-            return False
+        if self.valid_to and now >= self.valid_to:
+            return "expired"
 
-        return True
+        return "active"
+
+    def is_upcoming(self):
+        now = timezone.now()
+        return (
+            self.is_active
+            and self.valid_from
+            and now < self.valid_from
+        )
 
     def __str__(self):
         return self.name
