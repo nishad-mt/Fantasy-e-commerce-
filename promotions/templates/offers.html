@@ -1,0 +1,96 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block content %}
+
+<section class="max-w-7xl mx-auto px-4 py-10">
+
+    <!-- Page Heading -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">Offers & Deals</h1>
+        <p class="text-gray-500 mt-1">Save more on your orders with our latest offers</p>
+    </div>
+
+    {% if offers %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        {% for offer in offers %}
+        <div class="border rounded-xl p-6 shadow-sm hover:shadow-md transition bg-white">
+
+            <!-- Offer badge -->
+            <div class="flex justify-between items-center mb-4">
+                <span class="px-3 py-1 text-xs font-semibold rounded-full
+                    {% if offer.promo_type == 'COUPON' %}
+                        bg-green-100 text-green-700
+                    {% elif offer.promo_type == 'FIRST_ORDER' %}
+                        bg-blue-100 text-blue-700
+                    {% else %}
+                        bg-orange-100 text-orange-700
+                    {% endif %}
+                ">
+                    {{ offer.get_promo_type_display }}
+                </span>
+
+                {% if offer.one_time_per_user %}
+                    <span class="text-xs text-red-500 font-medium">One-time</span>
+                {% endif %}
+            </div>
+
+            <!-- Offer content -->
+            <h3 class="text-lg font-semibold text-gray-800 mb-1">
+                {{ offer.name }}
+            </h3>
+
+            <p class="text-sm text-gray-600 mb-3">
+                {{ offer.description|default:"Limited time offer" }}
+            </p>
+
+            <!-- Discount -->
+            <div class="text-xl font-bold text-gray-900 mb-2">
+                {% if offer.discount_percent %}
+                    {{ offer.discount_percent }}% OFF
+                {% else %}
+                    ₹{{ offer.discount_amount }} OFF
+                {% endif %}
+            </div>
+
+            {% if offer.max_discount_amount %}
+            <p class="text-xs text-gray-500 mb-2">
+                Max discount ₹{{ offer.max_discount_amount }}
+            </p>
+            {% endif %}
+
+            {% if offer.min_order_amount %}
+            <p class="text-xs text-gray-500 mb-4">
+                Min order ₹{{ offer.min_order_amount }}
+            </p>
+            {% endif %}
+
+            <!-- Coupon code -->
+            {% if offer.code %}
+            <div class="flex items-center justify-between border border-dashed rounded-lg px-3 py-2 bg-gray-50">
+                <span class="font-mono text-sm font-semibold text-gray-700">
+                    {{ offer.code }}
+                </span>
+                <button
+                    onclick="navigator.clipboard.writeText('{{ offer.code }}')"
+                    class="text-sm text-blue-600 hover:underline"
+                >
+                    Copy
+                </button>
+            </div>
+            {% endif %}
+
+        </div>
+        {% endfor %}
+
+    </div>
+    {% else %}
+        <div class="text-center py-20">
+            <p class="text-gray-500 text-lg">No active offers right now 😔</p>
+        </div>
+    {% endif %}
+
+</section>
+
+{% endblock %}

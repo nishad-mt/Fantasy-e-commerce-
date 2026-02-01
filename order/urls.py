@@ -12,6 +12,5 @@ urlpatterns = [
     path("success/<str:order_id>/", views.order_success, name="order_success"),
     path("order/<uuid:order_id>/cancel/",views.cancel_order_request,name="cancel_order_request"),
     path("buy-now/<int:variant_id>/", views.buy_now, name="buy_now"),
-    
-  
+     
 ]

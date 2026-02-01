@@ -12,9 +12,11 @@ import json
 import hashlib
 import razorpay
 
-from payment.models import Payment
+from payments.models import Payment
 from order.models import Order
-from cart.models import Cart
+from cart.models import CartItem
+from django.db import transaction
+from decimal import Decimal
 
 @csrf_protect
 @login_required
@@ -30,7 +32,7 @@ def create_razorpay_order(request):
         Order,
         order_id=order_id,
         user=request.user,
-        status="PENDING",
+        status="PENDING_PAYMENT",
         payment_status="PENDING"
     )
 
@@ -66,6 +68,7 @@ def create_razorpay_order(request):
 
 
 @csrf_exempt
+@transaction.atomic
 def razorpay_webhook(request):
     payload = request.body.decode()
     signature = request.META.get("HTTP_X_RAZORPAY_SIGNATURE")
@@ -93,7 +96,7 @@ def razorpay_webhook(request):
 
     entity = data["payload"]["payment"]["entity"]
     razorpay_order_id = entity["order_id"]
-    paid_amount = entity["amount"] / 100
+    paid_amount = entity["amount"] / Decimal("100")
 
     payment = Payment.objects.select_related("order").filter(
         razorpay_order_id=razorpay_order_id
@@ -126,9 +129,52 @@ def razorpay_webhook(request):
         )
 
     # 🧹 Clear cart
-    Cart.objects.filter(user=order.user).update(items=None)
+    CartItem.objects.filter(cart__user=order.user).delete()
 
     return HttpResponse(status=200)
 
 def success(request):
     return render(request, "success.html")
+
+
+@csrf_exempt
+@login_required
+def verify_payment(request):
+    if request.method != "POST":
+        return JsonResponse({"status": "invalid"}, status=400)
+
+    data = json.loads(request.body)
+
+    razorpay_payment_id = data.get("razorpay_payment_id")
+    razorpay_order_id = data.get("razorpay_order_id")
+    razorpay_signature = data.get("razorpay_signature")
+    order_id = data.get("order_id")
+
+    # 🔑 Verify signature
+    generated_signature = hmac.new(
+        settings.RAZORPAY_KEY_SECRET.encode(),
+        f"{razorpay_order_id}|{razorpay_payment_id}".encode(),
+        hashlib.sha256
+    ).hexdigest()
+
+    if generated_signature != razorpay_signature:
+        return JsonResponse({"status": "failed"})
+
+    payment = Payment.objects.select_related("order").get(
+        razorpay_order_id=razorpay_order_id
+    )
+
+    order = payment.order
+
+    payment.razorpay_payment_id = razorpay_payment_id
+    payment.status = "SUCCESS"
+    payment.save()
+
+    order.payment_status = "SUCCESS"
+    order.status = "CONFIRMED"
+    order.paid_at = timezone.now()
+    order.save()
+
+    CartItem.objects.filter(cart__user=order.user).delete()
+
+    return JsonResponse({"status": "success"})

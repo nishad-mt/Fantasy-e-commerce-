@@ -62,7 +62,7 @@ INSTALLED_APPS = [
     "dashboard",
     'accounts.apps.AccountsConfig',
     'order',
-    'payment',
+    'payments',
     'cart',
     'promotions',
     'wishlist',

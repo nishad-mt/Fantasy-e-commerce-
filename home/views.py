@@ -14,18 +14,31 @@ from django.utils import timezone
 import json
 from django.core.mail import send_mail
 from django.conf import settings
-
+from django.db.models import Q
+from promotions.models import Promotion
 
 def home(request):
+    now = timezone.now()
+
     category = Categories.objects.all()[:5]
-    products = Product.objects.filter(is_active = True).order_by('-created_at')[:5]
-    
+    products = Product.objects.filter(is_active=True).order_by('-created_at')[:5]
+
+    top_coupon = Promotion.objects.filter(
+        promo_type="COUPON",
+        is_active=True
+    ).filter(
+        Q(valid_from__isnull=True) | Q(valid_from__lte=now),
+        Q(valid_to__isnull=True) | Q(valid_to__gt=now),
+    ).order_by("-priority", "-created_at").first()
+
     context = {
-        'category':category,
-        'products':products,
-        
+        'category': category,
+        'products': products,
+        'top_coupon': top_coupon,   
     }
-    return render(request,'index.html',context)
+
+    return render(request, 'index.html', context)
+
 
 def about(request):
     contact_details = SiteContact.objects.get(id=1)

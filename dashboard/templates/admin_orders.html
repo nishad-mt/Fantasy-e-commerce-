@@ -134,7 +134,7 @@
                     <!-- Status Filter -->
                     <select name="status" class="w-full px-3 py-2 border rounded-lg text-sm">
                         <option value="all">All Statuses</option>
-                        <option value="PENDING" {% if filters.status == "PENDING" %}selected{% endif %}>Pending</option>
+                        <option value="PENDING_PAYMENT" {% if filters.status == "PENDING_PAYMENT" %}selected{% endif %}>Pending Payment</option>
                         <option value="CONFIRMED" {% if filters.status == "CONFIRMED" %}selected{% endif %}>Confirmed</option>
                         <option value="PACKED" {% if filters.status == "PACKED" %}selected{% endif %}>Packed</option>
                         <option value="DELIVERED" {% if filters.status == "DELIVERED" %}selected{% endif %}>Delivered</option>
@@ -243,7 +243,7 @@
 
 <select name="status"
         class="border rounded px-2 py-1 text-xs font-semibold
-            {% if order.status == 'PENDING' %}
+            {% if order.status == 'PENDING_PAYMENT' %}
                 bg-orange-100 text-orange-700
             {% elif order.status == 'CONFIRMED' %}
                 bg-blue-100 text-blue-700
@@ -285,12 +285,12 @@
                                 <!-- Payment Status -->
                                 <td class="p-4">
                                     <span class="px-2 py-1 rounded-md text-xs font-semibold
-                                        {% if order.payment_method == 'COD' %}
-                                            bg-yellow-100 text-yellow-700
-                                        {% elif order.payment_method == 'ONLINE' %}
-                                            bg-blue-100 text-blue-700
-                                        {% else %}
+                                        {% if order.payment_status == 'SUCCESS' %}
+                                            bg-green-100 text-green-700
+                                        {% elif order.payment_status == 'PENDING' %}
                                             bg-purple-100 text-purple-700
+                                        {% else %}
+                                            bg-red-100 text-red-700
                                         {% endif %}
                                     ">
                                         {{ order.payment_status }}

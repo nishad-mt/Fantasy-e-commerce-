@@ -163,6 +163,7 @@ def apply_coupon(request):
     code = request.POST.get("coupon_code", "").strip().upper()
     order_id = request.POST.get("order_id")
 
+    # 🔑 Must be DRAFT order
     order = get_object_or_404(
         Order,
         order_id=order_id,
@@ -170,12 +171,27 @@ def apply_coupon(request):
         status="DRAFT"
     )
 
-    coupon = get_object_or_404(
-        Promotion,
+    # ❌ NEVER use get_object_or_404 for coupons
+    coupon = Promotion.objects.filter(
         promo_type="COUPON",
         code=code,
         is_active=True
-    )
+    ).first()
+
+    if not coupon:
+        messages.error(request, "Invalid or inactive coupon.")
+        return redirect("pay_order", order_id=order.order_id)
+
+    now = timezone.now()
+
+    # ⏳ Validity window check
+    if coupon.valid_from and now < coupon.valid_from:
+        messages.error(request, "This coupon is not active yet.")
+        return redirect("pay_order", order_id=order.order_id)
+
+    if coupon.valid_to and now >= coupon.valid_to:
+        messages.error(request, "This coupon has expired.")
+        return redirect("pay_order", order_id=order.order_id)
 
     # 🔥 Calculate subtotal
     subtotal = sum(
@@ -183,7 +199,7 @@ def apply_coupon(request):
         for item in order.items.all()
     )
 
-    # 🔒 MIN ORDER VALIDATION (THIS WAS MISSING)
+    # 💰 Minimum order value
     if coupon.min_order_amount and subtotal < coupon.min_order_amount:
         messages.error(
             request,
@@ -199,10 +215,24 @@ def apply_coupon(request):
         messages.error(request, "You already used this coupon.")
         return redirect("pay_order", order_id=order.order_id)
 
-    # ✅ Apply coupon (preview only)
+    # ✅ Attach coupon to DRAFT order (preview only)
     order.coupon = coupon
     order.discount_type = "COUPON"
     order.save(update_fields=["coupon", "discount_type"])
 
     messages.success(request, "Coupon applied successfully.")
     return redirect("pay_order", order_id=order.order_id)
+
+def offers(request):
+    now = timezone.now()
+
+    offers = Promotion.objects.filter(
+        is_active=True
+    ).filter(
+        Q(valid_from__isnull=True) | Q(valid_from__lte=now),
+        Q(valid_to__isnull=True) | Q(valid_to__gt=now),
+    ).order_by("-created_at")
+
+    return render(request, "offers.html", {
+        "offers": offers
+    })

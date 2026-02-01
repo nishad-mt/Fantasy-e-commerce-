@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from decimal import Decimal
 from cart.models import Cart,CartItem
 from .models import Order,OrderItem
-from payment.models import Payment
+from payments.models import Payment
 from products.models import SizeVariant
 from addresses.models import Address
 from django.contrib import messages
@@ -278,7 +278,17 @@ def place_order(request):
     elif payment_method == "ONLINE":
         order.payment_method = "ONLINE"
         order.payment_status = "PENDING"
-        order.status = "PENDING_PAYMENT"   # 🔑 KEY CHANGE
+        order.status = "PENDING_PAYMENT"
+
+        # 🔑 SAVE TOTALS BEFORE RAZORPAY
+        order.order_items_total = subtotal
+        order.delivery_charge = delivery
+        order.discount_amount = discount
+        order.discount_type = discount_type
+        order.coupon = applied_promo if discount_type == "COUPON" else None
+        order.total_amount = total
+        order.delivery_date = date.today() + timedelta(days=3)
+
         order.save()
 
         return JsonResponse({
@@ -312,18 +322,35 @@ def place_order(request):
 
 @login_required
 def select_address(request):
-    if request.method == "POST":
-        address_id = request.POST.get("address_id")
+    if request.method != "POST":
+        return redirect("cart:cart")
 
-        order = Order.objects.filter(user=request.user, status="PENDING").first()
-        if not order:
-            return redirect("cart:cart")
-        address = get_object_or_404(Address, id=address_id, user=request.user)
+    address_id = request.POST.get("address_id")
 
-        order.address = address
-        order.save()
+    # 🔑 Get active checkout (DRAFT)
+    order = Order.objects.filter(
+        user=request.user,
+        status="DRAFT"
+    ).first()
 
-    return redirect("checkout")
+    if not order:
+        messages.warning(
+            request,
+            "Your checkout session expired."
+        )
+        return redirect("cart:cart")
+
+    address = get_object_or_404(
+        Address,
+        id=address_id,
+        user=request.user
+    )
+
+    order.address = address
+    order.save(update_fields=["address"])
+
+    # 🔁 Return to same checkout page
+    return redirect("pay_order", order_id=order.order_id)
 
 @login_required
 def order_success(request, order_id):

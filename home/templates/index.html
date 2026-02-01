@@ -203,20 +203,6 @@
                         <img src="{{ pdc.main_image.url }}"
                             alt="Product"
                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                        <!-- <span
-                            class="absolute top-3 left-3 bg-fantasy-gold text-white text-xs font-bold px-3 py-1 rounded-full">🔥
-                            Trending</span> -->
-                        <!-- <button
-                            class="absolute top-3 right-3 bg-white/80 hover:bg-white p-2 rounded-full text-fantasy-brown hover:text-red-500 transition-colors shadow-sm opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 duration-300">
-                            <i class="fa-regular fa-heart"></i>
-                        </button> -->
-                        <!-- <div
-                            class="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                            <button
-                                class="w-full bg-fantasy-brown text-white py-3 rounded-xl font-bold hover:bg-opacity-90 shadow-lg flex justify-center items-center gap-2">
-                                <i class="fa-solid fa-cart-plus"></i> Add to Cart
-                            </button>
-                        </div> -->
                     </div>
                     <div class="p-4">
                         <div class="flex justify-between items-start mb-2">
@@ -225,7 +211,6 @@
                         <p class="text-sm text-gray-500 mb-3 line-clamp-2">{{pdc.description}}</p>
                         <div class="flex items-baseline gap-2">
                             <span class="text-xl font-bold text-fantasy-brown">{{ pdc.base_price }}</span>
-                            <!-- <span class="text-sm text-gray-400 line-through">$55.00</span> -->
                         </div>
                     </div>
                 </a>
@@ -238,43 +223,77 @@
     </section>
 
     <!-- Offer Highlight -->
-    <section id="offers" class="py-16 bg-fantasy-pink/30">
-        <div class="container mx-auto px-6">
-            <div
-                class="bg-white rounded-3xl p-8 md:p-12 shadow-xl relative overflow-hidden flex flex-col md:flex-row items-center gap-8 md:gap-16">
-                <!-- Decorative Background -->
-                <div class="absolute -top-20 -right-20 w-64 h-64 bg-fantasy-pink rounded-full opacity-50 blur-3xl">
-                </div>
+{% if top_coupon %}
+<section id="offers" class="py-20 bg-fantasy-pink/30">
+    <div class="container mx-auto px-6">
+        <div
+            class="bg-white rounded-3xl p-8 md:p-14 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center gap-10 md:gap-16">
+
+            <!-- Decorative Background -->
+            <div class="absolute -top-20 -right-20 w-72 h-72 bg-fantasy-pink rounded-full opacity-50 blur-3xl"></div>
+            <div class="absolute -bottom-20 -left-20 w-72 h-72 bg-fantasy-gold-light rounded-full opacity-50 blur-3xl"></div>
+
+            <!-- Text Content -->
+            <div class="w-full md:w-1/2 relative z-10">
+                <span
+                    class="inline-block mb-3 text-fantasy-brown font-bold tracking-widest uppercase text-xs bg-fantasy-cream px-4 py-1 rounded-full">
+                    🎁 Special Celebration Offer
+                </span>
+
+                <h2 class="text-4xl md:text-5xl font-serif font-bold text-fantasy-brown mb-5 leading-tight">
+                    {{ top_coupon.name }}
+                </h2>
+
+                <p class="text-gray-700 mb-4 text-lg">
+                    Because every moment deserves a little extra sweetness.
+                    Enjoy exclusive savings on our handcrafted treats, carefully baked to spread joy,
+                    love, and unforgettable memories.
+                </p>
+
+                <p class="text-gray-600 mb-6">
+                    Whether it’s a surprise gift, a celebration, or just a well-earned indulgence —
+                    this offer is our way of making your moments even more magical ✨
+                </p>
+
+                <!-- Coupon Box -->
                 <div
-                    class="absolute -bottom-20 -left-20 w-64 h-64 bg-fantasy-gold-light rounded-full opacity-50 blur-3xl">
+                    class="bg-fantasy-cream border-2 border-dashed border-fantasy-brown p-4 rounded-xl inline-flex items-center gap-4 mb-3">
+                    <span class="font-mono text-2xl font-bold text-fantasy-brown tracking-wider">
+                        {{ top_coupon.code }}
+                    </span>
+<button
+    type="button"
+    class="text-sm text-fantasy-gold font-bold hover:underline transition"
+    onclick="copyCoupon(this, '{{ top_coupon.code }}')">
+    COPY CODE
+</button>
+
                 </div>
 
-                <div class="w-full md:w-1/2 relative z-10">
-                    <span class="text-fantasy-brown font-bold tracking-widest uppercase text-sm mb-2 block">Limited Time
-                        Offer</span>
-                    <h2 class="text-3xl md:text-5xl font-serif font-bold text-fantasy-brown mb-4">Sweet Dreams Discount
-                    </h2>
-                    <p class="text-gray-600 mb-6 text-lg">Get 20% off on all custom hampers and gift boxes. Perfect for
-                        sharing the magic with loved ones.</p>
+                <p class="text-sm text-gray-500">
+                    Apply at checkout to unlock instant savings 💖
+                </p>
 
-                    <div
-                        class="bg-fantasy-cream border-2 border-dashed border-fantasy-brown p-4 rounded-xl inline-flex items-center gap-4 mb-2">
-                        <span class="font-mono text-xl font-bold text-fantasy-brown tracking-wider">SWEET20</span>
-                        <button class="text-sm text-fantasy-gold font-bold hover:underline"
-                            onclick="navigator.clipboard.writeText('SWEET20')">COPY</button>
-                    </div>
-                    <p class="text-xs text-red-400 font-medium"><i class="fa-regular fa-clock mr-1"></i> Expires in 24
-                        hours</p>
-                </div>
-
-                <div class="w-full md:w-1/2 relative z-10">
-                    <img src="{% static 'images/creamy.jpg' %}"
-                        alt="Gift Hamper"
-                        class="rounded-2xl shadow-lg transform rotate-2 hover:rotate-0 transition-transform duration-500">
-                </div>
+                {% if top_coupon.valid_to %}
+                <p class="mt-2 text-xs text-red-400 font-semibold flex items-center gap-1">
+                    <i class="fa-regular fa-clock"></i>
+                    Hurry! Offer valid till {{ top_coupon.valid_to|date:"d M Y, h:i A" }}
+                </p>
+                {% endif %}
             </div>
+
+            <!-- Image -->
+            <div class="w-full md:w-1/2 relative z-10">
+                <img src="{% static 'images/creamy.jpg' %}"
+                     alt="Gift Hamper"
+                     class="rounded-2xl shadow-xl transform rotate-2 hover:rotate-0 transition-transform duration-500">
+            </div>
+
         </div>
-    </section>
+    </div>
+</section>
+{% endif %}
+
 
     <!-- Why Choose Us -->
     <section class="py-16 bg-white">
@@ -337,33 +356,19 @@
                 <div>
                     <h4 class="font-bold text-lg mb-4">Quick Links</h4>
                     <ul class="space-y-2 text-gray-400 text-sm">
-                        <li><a href="#" class="hover:text-fantasy-gold transition-colors">Home</a></li>
-                        <li><a href="#categories" class="hover:text-fantasy-gold transition-colors">Categories</a></li>
-                        <li><a href="#offers" class="hover:text-fantasy-gold transition-colors">Offers</a></li>
-                        <li><a href="#about" class="hover:text-fantasy-gold transition-colors">About Us</a></li>
+                        <li><a href="{% url 'home' %}" class="hover:text-fantasy-gold transition-colors">Home</a></li>
+                        <li><a href="{% url 'products' %}" class="hover:text-fantasy-gold transition-colors">Categories</a></li>
+                        <li><a href="{% url 'offers' %}" class="hover:text-fantasy-gold transition-colors">Offers</a></li>
+                        <li><a href="{% url 'aboutus' %}" class="hover:text-fantasy-gold transition-colors">About Us</a></li>
                     </ul>
                 </div>
 
                 <div>
-                    <h4 class="font-bold text-lg mb-4">Customer Care</h4>
                     <ul class="space-y-2 text-gray-400 text-sm">
-                        <li><a href="#" class="hover:text-fantasy-gold transition-colors">Track Order</a></li>
-                        <li><a href="#" class="hover:text-fantasy-gold transition-colors">Shipping Policy</a></li>
-                        <li><a href="#" class="hover:text-fantasy-gold transition-colors">Refunds & Returns</a></li>
-                        <li><a href="#" class="hover:text-fantasy-gold transition-colors">FAQ</a></li>
+                        <li><a href="{%url 'order' %}" class="hover:text-fantasy-gold transition-colors">Track Order</a></li>
+                        <li><a href="{%url 'profile' %}" class="hover:text-fantasy-gold transition-colors">Wallet</a></li>
+                        <li><a href="{% url 'contact' %}" class="hover:text-fantasy-gold transition-colors">Contact Us</a></li>
                     </ul>
-                </div>
-
-                <div>
-                    <h4 class="font-bold text-lg mb-4">Stay Magical</h4>
-                    <p class="text-gray-400 text-sm mb-4">Subscribe for exclusive offers and fairy tales.</p>
-                    <div class="flex gap-2">
-                        <input type="email" placeholder="Email Address"
-                            class="bg-gray-800 text-white px-4 py-2 rounded-lg flex-1 focus:outline-none focus:ring-1 focus:ring-fantasy-gold">
-                        <button
-                            class="bg-fantasy-gold text-fantasy-brown px-4 py-2 rounded-lg font-bold hover:bg-yellow-400 transition-colors"><i
-                                class="fa-solid fa-paper-plane"></i></button>
-                    </div>
                 </div>
             </div>
 
@@ -381,74 +386,26 @@
         </div>
     </footer>
 
-    <!-- Cart Drawer (Hidden) -->
-    <div id="cart-drawer"
-        class="fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50 flex flex-col">
-        <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-fantasy-cream">
-            <h2 class="font-serif font-bold text-xl text-fantasy-brown">Your Basket (3)</h2>
-            <button id="close-cart" class="text-gray-500 hover:text-fantasy-brown"><i
-                    class="fa-solid fa-xmark text-xl"></i></button>
-        </div>
-
-        <div class="flex-1 overflow-y-auto p-6 space-y-6">
-            <!-- Cart Item -->
-            <div class="flex gap-4">
-                <img src="https://images.unsplash.com/photo-1535141192574-5d4897c12636?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
-                    class="w-20 h-20 rounded-lg object-cover">
-                <div class="flex-1">
-                    <h4 class="font-bold text-fantasy-brown text-sm">Enchanted Forest Cake</h4>
-                    <p class="text-gray-500 text-xs mb-2">1kg • Eggless</p>
-                    <div class="flex justify-between items-center">
-                        <div class="flex items-center border rounded-lg">
-                            <button class="px-2 py-1 text-gray-500 hover:text-fantasy-brown">-</button>
-                            <span class="px-2 text-sm font-bold">1</span>
-                            <button class="px-2 py-1 text-gray-500 hover:text-fantasy-brown">+</button>
-                        </div>
-                        <span class="font-bold text-fantasy-brown">$45.00</span>
-                    </div>
-                </div>
-            </div>
-            <!-- Cart Item -->
-            <div class="flex gap-4">
-                <img src="https://images.unsplash.com/photo-1603532648955-039310d9ed75?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
-                    class="w-20 h-20 rounded-lg object-cover">
-                <div class="flex-1">
-                    <h4 class="font-bold text-fantasy-brown text-sm">Unicorn Cupcakes</h4>
-                    <p class="text-gray-500 text-xs mb-2">Box of 6</p>
-                    <div class="flex justify-between items-center">
-                        <div class="flex items-center border rounded-lg">
-                            <button class="px-2 py-1 text-gray-500 hover:text-fantasy-brown">-</button>
-                            <span class="px-2 text-sm font-bold">1</span>
-                            <button class="px-2 py-1 text-gray-500 hover:text-fantasy-brown">+</button>
-                        </div>
-                        <span class="font-bold text-fantasy-brown">$12.00</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="p-6 border-t border-gray-100 bg-fantasy-cream">
-            <div class="flex justify-between mb-2 text-sm">
-                <span class="text-gray-600">Subtotal</span>
-                <span class="font-bold text-fantasy-brown">$57.00</span>
-            </div>
-            <div class="flex justify-between mb-4 text-sm text-green-600">
-                <span>Discount (SWEET20)</span>
-                <span>-$11.40</span>
-            </div>
-            <div class="flex justify-between mb-6 text-lg font-bold text-fantasy-brown">
-                <span>Total</span>
-                <span>$45.60</span>
-            </div>
-            <button
-                class="w-full bg-fantasy-brown text-white py-3 rounded-xl font-bold hover:bg-opacity-90 shadow-lg">Checkout</button>
-        </div>
-    </div>
-
+   
     <!-- Overlay for Cart/Mobile Menu -->
     <div id="overlay" class="fixed inset-0 bg-black/50 hidden z-40 backdrop-blur-sm"></div>
 </div>
     <script src="{% static 'script/script.js' %}"></script>
+<script>
+function copyCoupon(button, code) {
+    navigator.clipboard.writeText(code).then(() => {
+        const originalText = button.innerText;
+        button.innerText = "COPIED ✓";
+        button.classList.add("text-green-600");
+
+        setTimeout(() => {
+            button.innerText = originalText;
+            button.classList.remove("text-green-600");
+        }, 2000);
+    });
+}
+</script>
+
 </body>
 
 </html>

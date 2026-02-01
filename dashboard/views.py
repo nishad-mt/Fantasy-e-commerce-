@@ -6,7 +6,7 @@ from .forms import LoginForm
 from django.contrib.auth.decorators import login_required
 from products.models import Categories,Product,ProductReview
 from order.models import Order
-from payment.models import Payment
+from payments.models import Payment
 from wallet.models import Wallet
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
@@ -72,12 +72,12 @@ def dashboard(request):
     )
     ).order_by("-ordered_count", "-cart_count", "-wishlist_count")
     
-    todays_revenue = Order.objects.filter(
-    paid_at__date=today,
-    payment_status="SUCCESS"
-).aggregate(
-    total=Sum("total_amount")
-)["total"] or 0
+    delivered_orders = Order.objects.filter(status="DELIVERED")
+    todays_revenue = (
+        delivered_orders.filter(
+            created_at__date=today
+        ).aggregate(total=Sum("total_amount"))["total"] or 0
+    )
 
 
     sitedetails = SiteContact.objects.first()
