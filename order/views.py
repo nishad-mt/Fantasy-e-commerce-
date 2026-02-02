@@ -10,7 +10,6 @@ from django.contrib import messages
 from datetime import date,timedelta
 from django.db import transaction
 import uuid
-import json
 from django.db.models import Case, When, IntegerField,Value
 from django.utils import timezone
 from django.http import JsonResponse
@@ -104,7 +103,7 @@ def create_from_cart(request):
 @login_required
 def pay_order(request, order_id):
 
-    # 🔑 MUST be DRAFT
+    #  MUST be DRAFT
     order = get_object_or_404(
         Order,
         order_id=order_id,
@@ -156,7 +155,7 @@ def pay_order(request, order_id):
     "default_address": default_address,
     "delivery_date": delivery_date,
 
-    # 🔑 REQUIRED for Bill Details
+    #  REQUIRED for Bill Details
     "preview_subtotal": subtotal,
     "preview_delivery": delivery,
     "preview_discount": discount,
@@ -182,7 +181,7 @@ def place_order(request):
     if request.method != "POST":
         return JsonResponse({"error": "Invalid request"}, status=400)
 
-    # 🔑 MUST fetch DRAFT order
+    #  MUST fetch DRAFT order
     order = get_object_or_404(
         Order,
         order_id=request.POST.get("order_id"),
@@ -220,11 +219,10 @@ def place_order(request):
 
     payment_method = request.POST.get("payment_method")
 
-    promo_confirmed = False  # 🔑 initialize
+    promo_confirmed = False  # initialize
 
-    # =================================================
     # COD
-    # =================================================
+
     if payment_method == "COD":
         order.payment_method = "COD"
         order.payment_status = "PENDING"
@@ -233,9 +231,8 @@ def place_order(request):
 
         promo_confirmed = True
 
-    # =================================================
     # WALLET
-    # =================================================
+
     elif payment_method == "WALLET":
         wallet, _ = Wallet.objects.select_for_update().get_or_create(
             user=request.user, defaults={"balance": Decimal("0.00")}
@@ -272,15 +269,14 @@ def place_order(request):
 
         promo_confirmed = True
 
-    # =================================================
+
     # ONLINE
-    # =================================================
     elif payment_method == "ONLINE":
         order.payment_method = "ONLINE"
         order.payment_status = "PENDING"
         order.status = "PENDING_PAYMENT"
 
-        # 🔑 SAVE TOTALS BEFORE RAZORPAY
+        # SAVE TOTALS BEFORE RAZORPAY
         order.order_items_total = subtotal
         order.delivery_charge = delivery
         order.discount_amount = discount
@@ -352,6 +348,7 @@ def select_address(request):
     # 🔁 Return to same checkout page
     return redirect("pay_order", order_id=order.order_id)
 
+
 @login_required
 def order_success(request, order_id):
     order = get_object_or_404(
@@ -360,6 +357,7 @@ def order_success(request, order_id):
         user=request.user
     )
     return render(request, "order_success.html", {"order": order})
+
 
 def admin_order_detail(request, order_id):
     order = get_object_or_404(Order, order_id=order_id)
@@ -373,7 +371,8 @@ def admin_order_detail(request, order_id):
             "items": items,
         },
     )
-    
+
+
 @login_required
 @transaction.atomic
 def cancel_order_request(request, order_id):

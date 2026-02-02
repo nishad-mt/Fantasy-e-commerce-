@@ -340,52 +340,155 @@
 
     
 {% endblock %}
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white pt-16 pb-8">
-        <div class="container mx-auto px-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-                <div>
-                    <a href="#" class="text-2xl font-serif font-bold text-fantasy-gold flex items-center gap-2 mb-4">
-                        <i class="fa-solid fa-cookie-bite"></i>
-                        Fantasy Bakery
-                    </a>
-                    <p class="text-gray-400 text-sm leading-relaxed">Crafted with love, baked with imagination. Bringing
-                        a touch of magic to your daily treats.</p>
+    <footer
+            class="bg-[#1a120b] text-[#e5d0ac] pt-20 pb-10 border-t-[6px] border-[#DAA520] relative overflow-hidden font-sans">
+            <!-- Pattern Overlay -->
+            <div class="absolute inset-0 opacity-[0.03]"
+                style="background-image: url('https://www.transparenttextures.com/patterns/cubes.png');"></div>
+
+            <div class="container mx-auto px-6 relative z-10">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+                    <!-- Brand Section -->
+                    <div class="lg:col-span-1">
+                        <a href="{% url 'home' %}"
+                            class="inline-flex items-center gap-3 text-3xl font-serif font-bold text-[#DAA520] mb-6 tracking-wide">
+                            <div
+                                class="w-10 h-10 rounded-full border border-[#DAA520] flex items-center justify-center bg-[#2c1e1a]">
+                                <i class="fa-solid fa-cookie-bite text-sm"></i>
+                            </div>
+                            Fantasy Bakery
+                        </a>
+                        <p class="text-[#e5d0ac]/70 text-sm leading-relaxed mb-6 font-light">
+                            Crafted with love, baked with imagination. Bringing the authentic heritage of Kerala's
+                            homemade delicacies to your daily treats.
+                        </p>
+                        <div class="flex gap-4">
+                            <a href="#"
+                                class="w-9 h-9 rounded-full bg-[#DAA520]/10 flex items-center justify-center text-[#DAA520] hover:bg-[#DAA520] hover:text-[#1a120b] transition-all duration-300">
+                                <i class="fa-brands fa-instagram text-sm"></i>
+                            </a>
+                            <a href="#"
+                                class="w-9 h-9 rounded-full bg-[#DAA520]/10 flex items-center justify-center text-[#DAA520] hover:bg-[#DAA520] hover:text-[#1a120b] transition-all duration-300">
+                                <i class="fa-brands fa-facebook-f text-sm"></i>
+                            </a>
+                            <a href="#"
+                                class="w-9 h-9 rounded-full bg-[#DAA520]/10 flex items-center justify-center text-[#DAA520] hover:bg-[#DAA520] hover:text-[#1a120b] transition-all duration-300">
+                                <i class="fa-brands fa-twitter text-sm"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Company Links -->
+                    <div>
+                        <h4 class="font-serif font-bold text-lg text-white mb-6 relative inline-block">
+                            Quick Links
+                            <span class="absolute -bottom-2 left-0 w-10 h-1 bg-[#DAA520] rounded-full"></span>
+                        </h4>
+                        <ul class="space-y-3 text-sm">
+                            <li>
+                                <a href="{% url 'home' %}"
+                                    class="flex items-center gap-2 text-[#e5d0ac]/80 hover:text-[#DAA520] hover:translate-x-1 transition-all duration-300 group">
+                                    <i
+                                        class="fa-solid fa-angle-right text-[#DAA520] opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                    Home
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'products' %}"
+                                    class="flex items-center gap-2 text-[#e5d0ac]/80 hover:text-[#DAA520] hover:translate-x-1 transition-all duration-300 group">
+                                    <i
+                                        class="fa-solid fa-angle-right text-[#DAA520] opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                    Categories
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'offers' %}"
+                                    class="flex items-center gap-2 text-[#e5d0ac]/80 hover:text-[#DAA520] hover:translate-x-1 transition-all duration-300 group">
+                                    <i
+                                        class="fa-solid fa-angle-right text-[#DAA520] opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                    Special Offers
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'aboutus' %}"
+                                    class="flex items-center gap-2 text-[#e5d0ac]/80 hover:text-[#DAA520] hover:translate-x-1 transition-all duration-300 group">
+                                    <i
+                                        class="fa-solid fa-angle-right text-[#DAA520] opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                    Our Story
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Customer Service -->
+                    <div>
+                        <h4 class="font-serif font-bold text-lg text-white mb-6 relative inline-block">
+                            Support
+                            <span class="absolute -bottom-2 left-0 w-10 h-1 bg-[#DAA520] rounded-full"></span>
+                        </h4>
+                        <ul class="space-y-3 text-sm">
+                            <li>
+                                <a href="{% url 'order' %}"
+                                    class="flex items-center gap-2 text-[#e5d0ac]/80 hover:text-[#DAA520] hover:translate-x-1 transition-all duration-300 group">
+                                    <i
+                                        class="fa-solid fa-truck-fast text-[#DAA520] opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                    Track Order
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'profile' %}"
+                                    class="flex items-center gap-2 text-[#e5d0ac]/80 hover:text-[#DAA520] hover:translate-x-1 transition-all duration-300 group">
+                                    <i
+                                        class="fa-solid fa-wallet text-[#DAA520] opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                    My Wallet
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'contact' %}"
+                                    class="flex items-center gap-2 text-[#e5d0ac]/80 hover:text-[#DAA520] hover:translate-x-1 transition-all duration-300 group">
+                                    <i
+                                        class="fa-solid fa-headset text-[#DAA520] opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                    Contact Us
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Contact Info -->
+                    <div>
+                        <h4 class="font-serif font-bold text-lg text-white mb-6 relative inline-block">
+                            Visit Us
+                            <span class="absolute -bottom-2 left-0 w-10 h-1 bg-[#DAA520] rounded-full"></span>
+                        </h4>
+                        <ul class="space-y-4 text-sm text-[#e5d0ac]/80">
+                            <li class="flex items-start gap-4">
+                                <i class="fa-solid fa-location-dot mt-1 text-[#DAA520]"></i>
+                                <span>{{ contact_details.address }}</span>
+                            </li>
+                            <li class="flex items-center gap-4">
+                                <i class="fa-solid fa-phone text-[#DAA520]"></i>
+                                <span>{{ contact_details.contact_number }}</span>
+                            </li>
+                            <li class="flex items-center gap-4">
+                                <i class="fa-solid fa-envelope text-[#DAA520]"></i>
+                                <span>{{ contact_details.email }}</span>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
 
-                <div>
-                    <h4 class="font-bold text-lg mb-4">Quick Links</h4>
-                    <ul class="space-y-2 text-gray-400 text-sm">
-                        <li><a href="{% url 'home' %}" class="hover:text-fantasy-gold transition-colors">Home</a></li>
-                        <li><a href="{% url 'products' %}" class="hover:text-fantasy-gold transition-colors">Categories</a></li>
-                        <li><a href="{% url 'offers' %}" class="hover:text-fantasy-gold transition-colors">Offers</a></li>
-                        <li><a href="{% url 'aboutus' %}" class="hover:text-fantasy-gold transition-colors">About Us</a></li>
-                    </ul>
-                </div>
-
-                <div>
-                    <ul class="space-y-2 text-gray-400 text-sm">
-                        <li><a href="{%url 'order' %}" class="hover:text-fantasy-gold transition-colors">Track Order</a></li>
-                        <li><a href="{%url 'profile' %}" class="hover:text-fantasy-gold transition-colors">Wallet</a></li>
-                        <li><a href="{% url 'contact' %}" class="hover:text-fantasy-gold transition-colors">Contact Us</a></li>
-                    </ul>
+                <!-- Copyright -->
+                <div
+                    class="border-t border-[#DAA520]/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-light tracking-wide text-[#e5d0ac]/50">
+                    <p>&copy; 2025 Fantasy Bakery. Proudly Made in <i class="fa-solid fa-heart text-red-500 mx-1"></i>
+                        Kerala.</p>
+                    <div class="flex gap-6">
+                        <a href="#" class="hover:text-[#DAA520] transition-colors">Privacy Policy</a>
+                        <a href="#" class="hover:text-[#DAA520] transition-colors">Terms of Service</a>
+                    </div>
                 </div>
             </div>
-
-            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                <p class="text-gray-500 text-sm">© 2025 Fantasy Bakery. All rights reserved.</p>
-                <div class="flex gap-4 text-gray-400">
-                    <a href="#" class="hover:text-fantasy-gold transition-colors"><i
-                            class="fa-brands fa-instagram text-xl"></i></a>
-                    <a href="#" class="hover:text-fantasy-gold transition-colors"><i
-                            class="fa-brands fa-facebook text-xl"></i></a>
-                    <a href="#" class="hover:text-fantasy-gold transition-colors"><i
-                            class="fa-brands fa-twitter text-xl"></i></a>
-                </div>
-            </div>
-        </div>
-    </footer>
-
+        </footer>
    
     <!-- Overlay for Cart/Mobile Menu -->
     <div id="overlay" class="fixed inset-0 bg-black/50 hidden z-40 backdrop-blur-sm"></div>

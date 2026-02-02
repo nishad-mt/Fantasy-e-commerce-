@@ -22,6 +22,8 @@ def home(request):
 
     category = Categories.objects.all()[:5]
     products = Product.objects.filter(is_active=True).order_by('-created_at')[:5]
+    contact_details = SiteContact.objects.get(id=1)
+
 
     top_coupon = Promotion.objects.filter(
         promo_type="COUPON",
@@ -34,11 +36,12 @@ def home(request):
     context = {
         'category': category,
         'products': products,
-        'top_coupon': top_coupon,   
+        'top_coupon': top_coupon,
+        "contact_details":contact_details   
     }
 
     return render(request, 'index.html', context)
-
+ 
 
 def about(request):
     contact_details = SiteContact.objects.get(id=1)

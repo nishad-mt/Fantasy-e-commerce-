@@ -3,94 +3,186 @@
 
 {% block content %}
 
-<section class="max-w-7xl mx-auto px-4 py-10">
-
-    <!-- Page Heading -->
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-800">Offers & Deals</h1>
-        <p class="text-gray-500 mt-1">Save more on your orders with our latest offers</p>
+<!-- Header Section with Pattern -->
+<section class="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden bg-kerala-cream">
+    <!-- Kasavu Pattern Overlay -->
+    <div class="absolute inset-0 opacity-10"
+        style="background-image: repeating-linear-gradient(45deg, #DAA520 0, #DAA520 2px, transparent 2px, transparent 10px);">
     </div>
 
-    {% if offers %}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-
-        {% for offer in offers %}
-        <div class="border rounded-xl p-6 shadow-sm hover:shadow-md transition bg-white">
-
-            <!-- Offer badge -->
-            <div class="flex justify-between items-center mb-4">
-                <span class="px-3 py-1 text-xs font-semibold rounded-full
-                    {% if offer.promo_type == 'COUPON' %}
-                        bg-green-100 text-green-700
-                    {% elif offer.promo_type == 'FIRST_ORDER' %}
-                        bg-blue-100 text-blue-700
-                    {% else %}
-                        bg-orange-100 text-orange-700
-                    {% endif %}
-                ">
-                    {{ offer.get_promo_type_display }}
-                </span>
-
-                {% if offer.one_time_per_user %}
-                    <span class="text-xs text-red-500 font-medium">One-time</span>
-                {% endif %}
-            </div>
-
-            <!-- Offer content -->
-            <h3 class="text-lg font-semibold text-gray-800 mb-1">
-                {{ offer.name }}
-            </h3>
-
-            <p class="text-sm text-gray-600 mb-3">
-                {{ offer.description|default:"Limited time offer" }}
-            </p>
-
-            <!-- Discount -->
-            <div class="text-xl font-bold text-gray-900 mb-2">
-                {% if offer.discount_percent %}
-                    {{ offer.discount_percent }}% OFF
-                {% else %}
-                    ₹{{ offer.discount_amount }} OFF
-                {% endif %}
-            </div>
-
-            {% if offer.max_discount_amount %}
-            <p class="text-xs text-gray-500 mb-2">
-                Max discount ₹{{ offer.max_discount_amount }}
-            </p>
-            {% endif %}
-
-            {% if offer.min_order_amount %}
-            <p class="text-xs text-gray-500 mb-4">
-                Min order ₹{{ offer.min_order_amount }}
-            </p>
-            {% endif %}
-
-            <!-- Coupon code -->
-            {% if offer.code %}
-            <div class="flex items-center justify-between border border-dashed rounded-lg px-3 py-2 bg-gray-50">
-                <span class="font-mono text-sm font-semibold text-gray-700">
-                    {{ offer.code }}
-                </span>
-                <button
-                    onclick="navigator.clipboard.writeText('{{ offer.code }}')"
-                    class="text-sm text-blue-600 hover:underline"
-                >
-                    Copy
-                </button>
-            </div>
-            {% endif %}
-
+    <!-- Content -->
+    <div class="container mx-auto px-6 relative z-10 text-center">
+        <div
+            class="inline-flex items-center gap-2 mb-4 px-4 py-2 bg-white/60 border border-kerala-gold/30 rounded-full shadow-sm">
+            <i class="fa-solid fa-gift text-kerala-gold"></i>
+            <span class="text-kerala-brown text-sm font-bold tracking-widest uppercase">Special Promotions</span>
         </div>
-        {% endfor %}
 
+        <h1 class="text-4xl md:text-6xl font-serif font-bold text-kerala-brown mb-6">
+            Offers & <span class="text-kerala-gold italic">Deals</span>
+        </h1>
+
+        <div class="w-24 h-1 bg-gradient-to-r from-transparent via-kerala-gold to-transparent mx-auto mb-6"></div>
+
+        <p class="text-lg text-kerala-brown/80 max-w-2xl mx-auto font-light leading-relaxed">
+            Exclusive discounts on our authentic homemade delicacies. Save more while savoring the taste of tradition.
+        </p>
     </div>
-    {% else %}
-        <div class="text-center py-20">
-            <p class="text-gray-500 text-lg">No active offers right now 😔</p>
-        </div>
-    {% endif %}
-
 </section>
+
+<!-- Offers Grid Section -->
+<section class="py-20 bg-white relative">
+    <!-- Traditional Decorative Line -->
+    <div
+        class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-kerala-cream via-kerala-gold to-kerala-cream opacity-50">
+    </div>
+
+    <div class="container mx-auto px-6">
+
+        {% if offers %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+            {% for offer in offers %}
+            <!-- Offer Card -->
+            <div
+                class="group relative bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl border border-kerala-cream hover:border-kerala-gold/30 transition-all duration-500">
+
+                <!-- Card Background Pattern -->
+                <div
+                    class="absolute top-0 right-0 w-32 h-32 bg-kerala-gold/5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-150 duration-700">
+                </div>
+
+                <div class="p-8 relative z-10">
+                    <!-- Header: Type Badge & One-time flag -->
+                    <div class="flex justify-between items-start mb-6">
+                        <span class="px-4 py-1.5 text-xs font-bold tracking-wider uppercase rounded-full border 
+                            {% if offer.promo_type == 'COUPON' %}
+                                bg-green-50 text-green-700 border-green-200
+                            {% elif offer.promo_type == 'FIRST_ORDER' %}
+                                bg-blue-50 text-blue-700 border-blue-200
+                            {% else %}
+                                bg-orange-50 text-orange-700 border-orange-200
+                            {% endif %}
+                        ">
+                            {{ offer.get_promo_type_display }}
+                        </span>
+
+                        {% if offer.one_time_per_user %}
+                        <div class="flex items-center gap-1 text-kerala-brown/60 text-xs font-bold"
+                            title="One-time use only">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                            <span>1-Time</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Offer Title -->
+                    <h3
+                        class="text-2xl font-serif font-bold text-kerala-brown mb-3 group-hover:text-kerala-gold transition-colors">
+                        {{ offer.name }}
+                    </h3>
+
+                    <!-- Description -->
+                    <p
+                        class="text-sm text-gray-500 mb-6 leading-relaxed border-b border-dashed border-kerala-brown/10 pb-4">
+                        {{ offer.description|default:"Limited time exclusive offer for our valued customers." }}
+                    </p>
+
+                    <!-- Discount Info -->
+                    <div class="flex items-baseline gap-2 mb-2">
+                        <span class="text-3xl font-bold text-kerala-brown">
+                            {% if offer.discount_percent %}
+                            {{ offer.discount_percent }}%
+                            {% else %}
+                            ₹{{ offer.discount_amount }}
+                            {% endif %}
+                        </span>
+                        <span class="text-lg font-medium text-kerala-gold uppercase">OFF</span>
+                    </div>
+
+                    <!-- Limits -->
+                    <div class="space-y-1 mb-6">
+                        {% if offer.max_discount_amount %}
+                        <p class="text-xs text-gray-400 flex items-center gap-2">
+                            <i class="fa-solid fa-circle-info text-[10px]"></i>
+                            Max discount up to ₹{{ offer.max_discount_amount }}
+                        </p>
+                        {% endif %}
+
+                        {% if offer.min_order_amount %}
+                        <p class="text-xs text-gray-400 flex items-center gap-2">
+                            <i class="fa-solid fa-bag-shopping text-[10px]"></i>
+                            Min order value ₹{{ offer.min_order_amount }}
+                        </p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Coupon Code Action -->
+                    {% if offer.code %}
+                    <div class="relative mt-4">
+                        <div
+                            class="flex items-center justify-between border-2 border-dashed border-kerala-brown/20 bg-kerala-cream/30 rounded-lg p-1 pl-4 group-hover:border-kerala-gold/50 transition-colors">
+                            <span class="font-mono text-lg font-bold text-kerala-brown tracking-wider">
+                                {{ offer.code }}
+                            </span>
+                            <button
+                                onclick="navigator.clipboard.writeText('{{ offer.code }}'); showToast('Copied {{ offer.code }}');"
+                                class="bg-white hover:bg-kerala-gold hover:text-white text-kerala-brown border border-kerala-brown/10 px-4 py-2 rounded-md text-xs font-bold uppercase tracking-wide transition-all shadow-sm active:scale-95">
+                                Copy
+                            </button>
+                        </div>
+                        <p
+                            class="text-[10px] text-center text-kerala-gold mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            Click copy to redeem at checkout
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Decorative Bottom Border -->
+                <div
+                    class="absolute bottom-0 left-0 w-0 h-1 bg-kerala-gold transition-all duration-700 group-hover:w-full">
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+
+        {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-20 bg-kerala-cream/20 rounded-2xl border border-kerala-brown/5">
+            <div class="w-20 h-20 bg-kerala-cream rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fa-solid fa-cookie-bite text-3xl text-kerala-brown/30"></i>
+            </div>
+            <h3 class="text-2xl font-serif font-bold text-kerala-brown mb-2">No Active Offers</h3>
+            <p class="text-gray-500">We're baking up some fresh deals for you. Check back soon!</p>
+            <a href="{% url 'products' %}"
+                class="inline-block mt-8 text-kerala-gold font-bold hover:text-kerala-brown transition-colors">
+                Explore Our Menu <i class="fa-solid fa-arrow-right ml-2"></i>
+            </a>
+        </div>
+        {% endif %}
+
+    </div>
+</section>
+
+<!-- Simple Toast Notification Script -->
+<div id="toast"
+    class="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-kerala-brown text-white px-6 py-3 rounded-lg shadow-2xl opacity-0 transition-opacity duration-300 pointer-events-none z-50 flex items-center gap-3">
+    <i class="fa-solid fa-check-circle text-kerala-gold"></i>
+    <span id="toast-message" class="font-medium"></span>
+</div>
+
+<script>
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        const msg = document.getElementById('toast-message');
+        msg.textContent = message;
+        toast.classList.remove('opacity-0');
+        setTimeout(() => {
+            toast.classList.add('opacity-0');
+        }, 3000);
+    }
+</script>
 
 {% endblock %}

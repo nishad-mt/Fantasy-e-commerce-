@@ -131,19 +131,6 @@
     <span class="text-fantasy-brown">₹{{ total|floatformat:2 }}</span>
   </div>
 
-  <!-- Coupon -->
-  <div class="mt-4">
-    <label class="text-sm font-medium text-gray-600">Have a coupon?</label>
-    <div class="flex gap-2 mt-2">
-      <input
-        class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-fantasy-brown focus:outline-none"
-        placeholder="Enter coupon code">
-      <button class="px-4 py-2 rounded-lg bg-gray-800 text-white hover:bg-green-600 transition-all">
-        Apply
-      </button>
-    </div>
-  </div>
- 
   <!-- Checkout Button -->
   <form method="POST" action="{% url 'create_from_cart' %}">
     {% csrf_token %}

@@ -10,6 +10,9 @@ from django.db.models import Min
 from order.models import Order
 from order.utils import clear_coupon
 
+#This view safely adds a product variant to a user’s cart,
+#updates quantity if it already exists, and resets coupons when cart contents change.
+
 @login_required
 def toggle_cart(request, variant_id):
     if request.method == "POST":
@@ -29,7 +32,7 @@ def toggle_cart(request, variant_id):
             item.quantity += quantity
             item.save()
 
-        # 🔥 CLEAR COUPON if cart-linked DRAFT order exists
+        # CLEAR COUPON if cart-linked DRAFT order exists
         order = Order.objects.filter(
             user=request.user,
             status="DRAFT",
@@ -40,7 +43,7 @@ def toggle_cart(request, variant_id):
             clear_coupon(order)
 
         messages.success(request, "Added to cart")
-
+    # HTTP request header that tells the server where the request came from
     return redirect(request.META.get("HTTP_REFERER", "products"))
 
 @login_required
