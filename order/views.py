@@ -54,7 +54,7 @@ def create_from_cart(request):
         messages.warning(request, "Your cart is empty.")
         return redirect("cart:cart")
 
-    # 1️⃣ Get default address (optional for DRAFT, but good UX)
+    # Get default address (optional for DRAFT, but good UX)
     default_address = Address.objects.filter(
         user=request.user,
         is_default=True
@@ -323,7 +323,7 @@ def select_address(request):
 
     address_id = request.POST.get("address_id")
 
-    # 🔑 Get active checkout (DRAFT)
+    # Get active checkout (DRAFT)
     order = Order.objects.filter(
         user=request.user,
         status="DRAFT"
@@ -486,8 +486,5 @@ def buy_now(request, variant_id):
         quantity=quantity,
         price=variant.price
     )
-
-    # ❌ DO NOT calculate totals here
-    # ❌ DO NOT mark as PENDING / CONFIRMED
 
     return redirect("pay_order", order_id=order.order_id)

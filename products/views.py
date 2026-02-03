@@ -221,6 +221,7 @@ def product_detail(request, slug):
         "images": images
     })   
 
+@never_cache
 def user_product_details(request, slug):
     product = get_object_or_404(Product, slug=slug)
     latest_products = Product.objects.filter(is_active=True).annotate(starting_price=Min('variants__price')).order_by('-created_at')[:5]

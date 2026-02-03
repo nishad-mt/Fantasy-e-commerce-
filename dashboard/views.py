@@ -3,7 +3,7 @@ from django.views.decorators.cache import never_cache
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import LoginForm
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from products.models import Categories,Product,ProductReview
 from order.models import Order
 from payments.models import Payment
@@ -12,6 +12,7 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from django.views.decorators.cache import never_cache
 from django.contrib.admin.views.decorators import staff_member_required
+from accounts.decarators import admin_required
 from django.db.models import Prefetch
 from accounts.decarators import admin_required
 from django.db.models import Avg, Count, Sum, Max
@@ -50,6 +51,7 @@ def admin_login(request):
 
 @never_cache
 @login_required
+@admin_required
 def dashboard(request):
     
     total_users = User.objects.count()
@@ -100,6 +102,7 @@ def dashboard(request):
 
 @never_cache
 @login_required
+@admin_required
 def user(request):
     users = (
     User.objects
@@ -165,27 +168,31 @@ def user(request):
     return render(request, "user.html", context)
 
 @login_required
-def user_orders_api(request):
+@admin_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+def admin_user_orders_api(request, user_id):
     orders = (
         Order.objects
-        .filter(user=request.user)
+        .filter(user_id=user_id)
         .exclude(status="DRAFT")
         .order_by("-created_at")
     )
 
-    data = []
-    for o in orders:
-        data.append({
+    data = [
+        {
             "id": str(o.order_id)[:8],
             "date": o.created_at.strftime("%d %b %Y"),
             "status": o.get_status_display(),
             "total": float(o.total_amount or 0),
-        })
+        }
+        for o in orders
+    ]
 
     return JsonResponse({"orders": data})
 
 @never_cache
 @login_required
+@admin_required
 def block(request, user_id):
     if not request.user.is_staff:
         messages.error(request, "Unauthorized access")
@@ -208,6 +215,7 @@ def block(request, user_id):
     return redirect('user')
 
 @never_cache
+@admin_required
 @login_required
 def unblock(request,user_id):
     if not request.user.is_staff:
@@ -228,6 +236,7 @@ def unblock(request,user_id):
  
 @never_cache
 @login_required
+@admin_required
 def adm_products(request):
     if request.method == 'POST':
         product_id = request.POST.get('product_id')
@@ -306,6 +315,7 @@ def adm_products(request):
 
 @never_cache
 @login_required
+@admin_required
 def categories(request):
     ctgry = Categories.objects.prefetch_related(
     Prefetch(
@@ -387,7 +397,8 @@ def admin_reviews(request):
     return render(request, "admin_reviews.html", context)
 
 
-@staff_member_required
+@admin_required
+@never_cache
 def admin_order_list(request):
     orders = (
         Order.objects
@@ -482,6 +493,7 @@ def admin_order_list(request):
 
 @admin_required
 @login_required
+@admin_required
 def admin_payments_dashboard(request):
     today = now().date()
     start_month = today.replace(day=1)
@@ -568,6 +580,7 @@ def admin_payments_dashboard(request):
     return render(request, "payments.html", context)
 
 @admin_required
+@never_cache
 def admin_contact(request):
     contact_info, _ = SiteContact.objects.get_or_create(
         id=1,

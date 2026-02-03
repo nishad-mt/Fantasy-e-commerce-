@@ -130,8 +130,11 @@
             {% endif %}
         "></div>
     </div>
-
-    {% if order.status == "DELIVERED" and order.delivered_at %}
+    {% if order.status != "DELIVERED" and order.status != "CANCELLED" %}
+    <p class="text-xs text-red-600 mt-4 font-semibold">
+        Expected Delivery : {{ order.delivery_date|date:"d M" }}
+    </p>
+    {% elif order.status == "DELIVERED" and order.delivered_at %}
     <p class="text-xs text-green-600 mt-4 font-semibold">
         ✅ Delivered on {{ order.delivered_at|date:"d M Y, h:i A" }}
     </p>

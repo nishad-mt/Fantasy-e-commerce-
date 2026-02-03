@@ -16,6 +16,7 @@ from payments.models import Payment
 from order.models import Order
 from cart.models import CartItem
 from django.db import transaction
+from django.views.decorators.cache import never_cache
 from decimal import Decimal
 
 @csrf_protect
@@ -133,10 +134,12 @@ def razorpay_webhook(request):
 
     return HttpResponse(status=200)
 
+@never_cache
 def success(request):
     return render(request, "success.html")
 
-
+#Razorpay (or JS webhook-style requests) does NOT automatically send Django’s CSRF token.
+#So Django would block the request unless you exempt it.
 @csrf_exempt
 @login_required
 def verify_payment(request):

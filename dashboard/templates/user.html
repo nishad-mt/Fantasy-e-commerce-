@@ -58,20 +58,20 @@
             
             <!-- Search Bar -->
             <form method="GET" action="">
-    <div class="relative w-full md:w-96">
-        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg class="h-5 w-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-        </div>
+                <div class="relative w-full md:w-96">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
 
-        <input type="text"name="q" 
-            value="{{ request.GET.q }}"
-            class="block w-full pl-10 pr-3 py-2.5 border border-amber-200 rounded-lg"
-            placeholder="Search by name or email...">
-    </div>
-</form>
+                    <input type="text"name="q" 
+                        value="{{ request.GET.q }}"
+                        class="block w-full pl-10 pr-3 py-2.5 border border-amber-200 rounded-lg"
+                        placeholder="Search by name or email...">
+                </div>
+            </form>
 
         </div>
 
@@ -193,13 +193,23 @@
                                     <div class="flex-shrink-0 h-10 w-10">
                                         {% if user.profile.profile_img %}
                                             <img class="h-10 w-10 rounded-full object-cover border"src="{{ user.profile.profile_img.url }}">
+                                        
+                                            {% elif user.is_staff %}
+                                        <!-- Star badge -->
+                                        <img class="h-10 w-10 rounded-full object-cover border border-amber-200"
+                                        src="https://ui-avatars.com/api/?name=Admin&background=047857&color=fff" alt="Admin">
+                                       
                                         {% else %}
                                         <img class="h-10 w-10 rounded-full object-cover border border-amber-200"
                                         src="https://ui-avatars.com/api/?name={{ user.username }}&background=f59e0b&color=fff" alt="{{ user.username }}">
                                         {% endif %}
                                     </div>
                                     <div class="ml-4">
+                                        {% if user.is_staff  %}
+                                        <div class="text-sm font-medium text-gray-900">Admin</div>
+                                        {% else %}
                                         <div class="text-sm font-medium text-gray-900">{{ user.username }}</div>
+                                        {% endif %}
                                         <div class="text-xs text-gray-500">Joined: {{ user.joined_at }}</div>
                                     </div>
                                 </div>
@@ -439,41 +449,47 @@ function openModal(btn) {
         </tr>
     `;
 
-    fetch(`/admin_user/user-orders/${btn.dataset.userid}/`)
-        .then(res => res.json())
-        .then(data => {
-            if (!data.orders || data.orders.length === 0) {
-                ordersBody.innerHTML = `
-                    <tr>
-                        <td colspan="4" class="text-center py-3 text-gray-500">
-                            No orders found
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            ordersBody.innerHTML = "";
-            data.orders.forEach(o => {
-                ordersBody.innerHTML += `
-                    <tr class="border-t">
-                        <td class="px-3 py-2 text-amber-600">#${o.id}</td>
-                        <td class="px-3 py-2">${o.date}</td>
-                        <td class="px-3 py-2">${o.status}</td>
-                        <td class="px-3 py-2 text-right">₹${o.total}</td>
-                    </tr>
-                `;
-            });
-        })
-        .catch(() => {
+fetch(`/admin_user/user-orders/${btn.dataset.userid}/`)
+    .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+    })
+    .then(data => {
+        if (!data.orders || data.orders.length === 0) {
             ordersBody.innerHTML = `
                 <tr>
-                    <td colspan="4" class="text-center py-3 text-red-500">
-                        Failed to load orders
+                    <td colspan="4" class="text-center py-3 text-gray-500">
+                        No orders found
                     </td>
                 </tr>
             `;
+            return;
+        }
+
+        let rows = "";
+        data.orders.forEach(o => {
+            rows += `
+                <tr class="border-t">
+                    <td class="px-3 py-2 text-amber-600">#${o.id}</td>
+                    <td class="px-3 py-2">${o.date}</td>
+                    <td class="px-3 py-2">${o.status}</td>
+                    <td class="px-3 py-2 text-right">₹${o.total}</td>
+                </tr>
+            `;
         });
+        ordersBody.innerHTML = rows;
+    })
+    .catch(err => {
+        console.error(err);
+        ordersBody.innerHTML = `
+            <tr>
+                <td colspan="4" class="text-center py-3 text-red-500">
+                    Failed to load orders
+                </td>
+            </tr>
+        `;
+    });
+
 document.getElementById('modalTotalSpent').innerText =
     `₹${btn.dataset.totalSpent}`;
 

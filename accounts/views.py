@@ -136,6 +136,9 @@ def resend_otp(request):
     return redirect("verify_otp")
 @never_cache
 def login(request):
+    
+    next_url = request.GET.get("next") or request.POST.get("next")
+
     if request.user.is_authenticated:
         return redirect('home')
 
