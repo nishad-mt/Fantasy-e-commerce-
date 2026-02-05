@@ -79,7 +79,7 @@
         </header>
 
         <!-- 2. Stats Cards -->
-        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <!-- Total Products -->
             <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
                 <div>
@@ -110,28 +110,6 @@
                 </div>
                 <div class="w-10 h-10 bg-red-50 text-red-500 rounded-full flex items-center justify-center">
                     <i class="fa-solid fa-triangle-exclamation"></i>
-                </div>
-            </div>
-            
-            <!-- Featured -->
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Featured</p>
-                    <p class="text-2xl font-bold text-brand-600 mt-1">24</p>
-                </div>
-                <div class="w-10 h-10 bg-brand-50 text-brand-500 rounded-full flex items-center justify-center">
-                    <i class="fa-solid fa-star"></i>
-                </div>
-            </div>
-
-            <!-- Discounts -->
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Discounts</p>
-                    <p class="text-2xl font-bold text-purple-600 mt-1">150</p>
-                </div>
-                <div class="w-10 h-10 bg-purple-50 text-purple-500 rounded-full flex items-center justify-center">
-                    <i class="fa-solid fa-tags"></i>
                 </div>
             </div>
         </section>
@@ -187,16 +165,8 @@
         <!-- Price Filter -->
         <select name="price" class="px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 focus:outline-none focus:border-brand-500 bg-white">
             <option value="">Any Price</option>
-            <option value="low" {% if request.GET.price == 'low' %}selected{% endif %}>Below ₹50</option>
-            <option value="med" {% if request.GET.price == 'med' %}selected{% endif %}>Price: Low to High</option>
+            <option value="low" {% if request.GET.price == 'low' %}selected{% endif %}>Price: Low to High</option>
             <option value="high" {% if request.GET.price == 'high' %}selected{% endif %}>Price: High to Low</option>
-        </select>
-
-        <!-- Discount Filter -->
-        <select name="discount" class="px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 focus:outline-none focus:border-brand-500 bg-white">
-            <option value="">All Discounts</option>
-            <option value="yes" {% if request.GET.discount == 'yes' %}selected{% endif %}>Has Discount</option>
-            <option value="no" {% if request.GET.discount == 'no' %}selected{% endif %}>No Discount</option>
         </select>
 
         <!-- Preserve search query -->
@@ -239,8 +209,9 @@
                             <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b">Product</th>
                             <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b">SKU</th>
                             <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b">Category</th>
-                            <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b">Price / Size_name</th>
-                            <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b">Stock/Visibility</th>
+                            <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b">Price</th>
+                            <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b">Visibility</th>
+                            <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b">Stock</th>
                             <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b">Date</th>
                             <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b text-right">Actions</th>
                         </tr>
@@ -261,18 +232,34 @@
                             </td>
                             <td class="p-4 text-sm text-gray-600">{{ product.sku }}</td>
                             <td class="p-4 text-sm text-gray-600">{{ product.category.name}}</td>
-                            <td class="p-4 text-sm font-medium text-gray-900">{{ product.min_price }}
-                                <span class="text-xs text-gray-600 truncate"> / {{ product.min_size }}</span></td>
+                            <td class="p-4 text-sm font-medium text-gray-900">{{ product.min_price|floatformat:2 }}</td>
 
                             <td class="p-4">
                                 {% if product.is_active == True%}
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-100">
-                                    <span class="w-1.5 h-1.5 mr-1.5 bg-green-500 rounded-full"></span> In Stock
+                                    <i class="fa-solid fa-eye"></i>
                                 </span>
                                 {% else %}
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700 border border-red-100">
-                                    <span class="w-1.5 h-1.5 mr-1.5 bg-red-500 rounded-full"></span> Out of Stock
+                                    <i class="fa-solid fa-eye-slash text-red-600"></i>
                                 </span>
+                                {% endif %}
+                            </td>
+                            <td class="p-4">
+                                {% if product.is_out_of_stock %}
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 
+                                                rounded-full text-xs font-medium 
+                                                bg-red-50 text-red-700 border border-red-100">
+                                        <i class="fa-solid fa-xmark"></i>
+                                        Out of stock
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 
+                                                rounded-full text-xs font-medium 
+                                                bg-green-50 text-green-700 border border-green-100">
+                                        <i class="fa-solid fa-check"></i>
+                                        In stock
+                                    </span>
                                 {% endif %}
                             </td>
                             <td class="p-4 text-sm text-gray-500">{{ product.created_at}}</td>
@@ -302,49 +289,6 @@
                     <button class="px-3 py-1 text-sm border border-gray-200 rounded-md text-gray-500 hover:bg-gray-50">Next</button>
                 </div>
             </div> -->
-        </section>
-
-        <!-- 6. Latest & Trending (Read-Only) -->
-        <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- Latest Products -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <h3 class="font-bold text-gray-900 text-lg mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-clock-rotate-left text-brand-500"></i> Recently Added
-                </h3>
-                <div class="space-y-4">
-                    {% for rec in recently_added %}
-                    <div class="flex items-center gap-3">
-                        <img src="{{ rec.main_image.url }}" class="h-10 w-10 rounded object-cover">
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900">{{rec.name}}</p>
-                            <p class="text-xs text-gray-500">{{ rec.created_at }}</p>
-                        </div>
-                        <span class="text-sm font-semibold text-gray-900">{{rec.base_price}}</span>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <!-- Trending Products -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <h3 class="font-bold text-gray-900 text-lg mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-fire text-orange-500"></i> Trending Now
-                </h3>
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between border-b border-dashed border-gray-100 pb-2">
-                        <span class="text-sm font-medium text-gray-900">1. Chocolate Truffle Cake</span>
-                        <span class="text-xs font-semibold bg-orange-100 text-orange-700 px-2 py-1 rounded-full">120 Orders</span>
-                    </div>
-                    <div class="flex items-center justify-between border-b border-dashed border-gray-100 pb-2">
-                        <span class="text-sm font-medium text-gray-900">2. Red Velvet Cupcake</span>
-                        <span class="text-xs font-semibold bg-orange-100 text-orange-700 px-2 py-1 rounded-full">98 Orders</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm font-medium text-gray-900">3. Almond Croissant</span>
-                        <span class="text-xs font-semibold bg-orange-100 text-orange-700 px-2 py-1 rounded-full">85 Orders</span>
-                    </div>
-                </div>
-            </div>
         </section>
 
     </div>

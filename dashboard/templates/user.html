@@ -242,7 +242,7 @@
                             </td>
 
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ user.orders_count }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"> ₹{{ user.total_spent|default:0 }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"> ₹{{ user.total_spent|default:0|floatformat:2 }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ user.last_login|default:'Never' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex justify-end space-x-2">
@@ -258,7 +258,7 @@
     data-role="{% if user.is_staff %}Admin{% else %}Customer{% endif %}"
     data-status="{% if user.is_active %}Active{% else %}Blocked{% endif %}"
     data-image="{% if user.profile.profile_img %}{{ user.profile.profile_img.url }}{% else %}https://ui-avatars.com/api/?name={{ user.email }}&background=f59e0b&color=fff{% endif %}"
-    data-total-spent="{{ user.total_spent|default:0 }}"
+    data-total-spent="{{ user.total_spent|default:0|floatformat:2 }}"
 
 
     {% if addr %}

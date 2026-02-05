@@ -1,6 +1,6 @@
 from django.contrib.auth import logout, login ,get_user_model
 from django.views.decorators.cache import never_cache
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .forms import LoginForm
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -8,8 +8,7 @@ from products.models import Categories,Product,ProductReview
 from order.models import Order
 from payments.models import Payment
 from wallet.models import Wallet
-from django.shortcuts import get_object_or_404
-from django.db.models import Q
+from django.db.models import Q ,Min
 from django.views.decorators.cache import never_cache
 from django.contrib.admin.views.decorators import staff_member_required
 from accounts.decarators import admin_required
@@ -25,6 +24,7 @@ from django.utils import timezone
 from addresses.models import Address
 from django.http import JsonResponse
 from django.db import transaction
+
 
 
 User = get_user_model()
@@ -238,80 +238,87 @@ def unblock(request,user_id):
 @login_required
 @admin_required
 def adm_products(request):
+
     if request.method == 'POST':
         product_id = request.POST.get('product_id')
         action = request.POST.get('action')
-        
+
         product = get_object_or_404(Product, product_id=product_id)
-        
+
         if action == 'delete' and request.user.has_perm('products.delete_product'):
             product.delete()
             messages.success(request, f'{product.name} deleted successfully!')
+            return redirect('manage_products')
+
         elif action == 'hide':
             product.is_active = False
             product.save()
             messages.success(request, f'{product.name} hidden!')
+            return redirect('manage_products')
+
         elif action == 'show':
             product.is_active = True
             product.save()
             messages.success(request, f'{product.name} shown!')
-            
-    ctgry = Categories.objects.all()
-    items = Product.objects.all().prefetch_related('variants')
-    for p in items:
-        cheapest = p.variants.filter(is_available=True).order_by("price").first()
-        if cheapest:
-            p.min_price = cheapest.price
-            p.min_size = cheapest.size_name
-        else:
-            p.min_price = None
-            p.min_size = None
-    recently_added = Product.objects.all().order_by('-created_at')[:3]
+            return redirect('manage_products')
+
+    # BASE QUERYSET
+    items = (
+        Product.objects
+        .select_related('category')
+        .prefetch_related('variants')
+        .annotate(
+            min_price=Min('variants__price')
+        )
+    )
+
+    categories = Categories.objects.all()
+
+    # -------------------------------
     query = request.GET.get('q', '').strip()
     if query:
         items = items.filter(
-            Q(name__icontains=query) | 
+            Q(name__icontains=query) |
             Q(sku__icontains=query) |
             Q(category__name__icontains=query)
         )
-    
-    total_product = Product.objects.count()
-    active_product_count = Product.objects.filter(is_active = True).count()
-    out_of_stock_count = Product.objects.filter(is_active = False).count()
-    
-    price = request.GET.get('price')
-    if price == 'low':
-        items = items.filter(base_price__lt=50)
-    elif price == 'high':
-        items = items.order_by('-base_price')
-    elif price == 'med':
-        items = items.order_by('base_price')
-        
+
     cat_slug = request.GET.get('categories')
     if cat_slug:
         items = items.filter(category__slug=cat_slug)
-    
-    # Stock filter
+
+
+    price = request.GET.get('price')
+    if price == 'low':
+        items = items.order_by('min_price')
+    elif price == 'high':
+        items = items.order_by('-min_price')
+
     stock = request.GET.get('stock')
     if stock == 'in':
-        items = items.filter(sizes__is_available=True).distinct()
+        items = items.filter(variants__is_available=True).distinct()
     elif stock == 'out':
-        # Fallback to is_active if no SizeVariant
-        items = items.filter(is_active=False)
-    
-        
-    context ={
-        'items':items,
-        'category':ctgry,
-        'total_product':total_product,
-        'active_product_count':active_product_count,
-        'outof_stock_count':out_of_stock_count,
-        'query':query,
-        'recently_added':recently_added,
-    }
-    
-    return render(request,"adm_pdct.html",context)
+        items = items.filter(
+            ~Q(variants__is_available=True)
+        )
 
+
+    total_product = Product.objects.count()
+    active_product_count = Product.objects.filter(is_active=True).count()
+    out_of_stock_count = Product.objects.filter(
+        ~Q(variants__is_available=True)
+    ).distinct().count()
+
+    context = {
+        'items': items,
+        'category': categories,
+        'total_product': total_product,
+        'active_product_count': active_product_count,
+        'outof_stock_count': out_of_stock_count,
+        'query': query,
+    }
+
+    return render(request, "adm_pdct.html", context)
 
 @never_cache
 @login_required

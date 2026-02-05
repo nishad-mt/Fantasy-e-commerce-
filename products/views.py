@@ -283,8 +283,6 @@ def add_category(request):
         if form.is_valid():
             form.save()
             return redirect('categories')
-        else:
-            print("FORM ERRORS:", form.errors)   
     else:    
         form = CategoriesForm()
     return render(request,"add_category.html",{'form':form})
