@@ -37,16 +37,14 @@ def create_razorpay_order(request):
         payment_status="PENDING"
     )
 
-    payment, created = Payment.objects.get_or_create(
-        order=order,
-        defaults={
-            "user": request.user,
-            "amount": order.total_amount,
-            "status": "CREATED"
-        }
-    )
+    # 🔑 STEP 1: check if payment already exists
+    payment = Payment.objects.filter(order=order).first()
 
-    if created:
+    if payment and payment.razorpay_order_id:
+        # Razorpay order already created → REUSE it
+        razorpay_order_id = payment.razorpay_order_id
+    else:
+        # 🔑 STEP 2: create Razorpay order ONLY ONCE
         client = razorpay.Client(
             auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
         )
@@ -57,16 +55,27 @@ def create_razorpay_order(request):
             "payment_capture": 1
         })
 
-        payment.razorpay_order_id = razorpay_order["id"]
-        payment.save()
+        # 🔑 STEP 3: create or update Payment safely
+        if not payment:
+            payment = Payment.objects.create(
+                order=order,
+                user=request.user,
+                amount=order.total_amount,
+                status="CREATED",
+                razorpay_order_id=razorpay_order["id"],
+            )
+        else:
+            payment.razorpay_order_id = razorpay_order["id"]
+            payment.save(update_fields=["razorpay_order_id"])
+
+        razorpay_order_id = razorpay_order["id"]
 
     return JsonResponse({
-        "razorpay_order_id": payment.razorpay_order_id,
+        "razorpay_order_id": razorpay_order_id,
         "key": settings.RAZORPAY_KEY_ID,
         "amount": int(payment.amount * 100),
         "currency": "INR",
     })
-
 
 @csrf_exempt
 @transaction.atomic
@@ -137,47 +146,3 @@ def razorpay_webhook(request):
 @never_cache
 def success(request):
     return render(request, "success.html")
-
-#Razorpay (or JS webhook-style requests) does NOT automatically send Django’s CSRF token.
-#So Django would block the request unless you exempt it.
-@csrf_exempt
-@login_required
-def verify_payment(request):
-    if request.method != "POST":
-        return JsonResponse({"status": "invalid"}, status=400)
-
-    data = json.loads(request.body)
-
-    razorpay_payment_id = data.get("razorpay_payment_id")
-    razorpay_order_id = data.get("razorpay_order_id")
-    razorpay_signature = data.get("razorpay_signature")
-    order_id = data.get("order_id")
-
-    # 🔑 Verify signature
-    generated_signature = hmac.new(
-        settings.RAZORPAY_KEY_SECRET.encode(),
-        f"{razorpay_order_id}|{razorpay_payment_id}".encode(),
-        hashlib.sha256
-    ).hexdigest()
-
-    if generated_signature != razorpay_signature:
-        return JsonResponse({"status": "failed"})
-
-    payment = Payment.objects.select_related("order").get(
-        razorpay_order_id=razorpay_order_id
-    )
-
-    order = payment.order
-
-    payment.razorpay_payment_id = razorpay_payment_id
-    payment.status = "SUCCESS"
-    payment.save()
-
-    order.payment_status = "SUCCESS"
-    order.status = "CONFIRMED"
-    order.paid_at = timezone.now()
-    order.save()
-
-    CartItem.objects.filter(cart__user=order.user).delete()
-
-    return JsonResponse({"status": "success"})
