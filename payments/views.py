@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
@@ -144,5 +144,25 @@ def razorpay_webhook(request):
     return HttpResponse(status=200)
 
 @never_cache
-def success(request):
-    return render(request, "success.html")
+@login_required
+@transaction.atomic
+def success(request, order_id):
+
+    # ✅ Try to mark success_viewed atomically
+    updated = Order.objects.filter(
+        order_id=order_id,
+        user=request.user,
+        payment_status="SUCCESS",
+        success_viewed=False
+    ).update(success_viewed=True)
+
+    # ❌ If no row was updated → already viewed or invalid
+    if updated == 0:
+        return redirect("order_detail", order_id=order_id)
+
+    # ✅ First and ONLY allowed render
+    order = Order.objects.get(order_id=order_id)
+
+    return render(request, "success.html", {
+        "order": order
+    })

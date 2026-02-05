@@ -103,25 +103,33 @@ def create_from_cart(request):
 @login_required
 def pay_order(request, order_id):
 
-    #  MUST be DRAFT
     order = get_object_or_404(
         Order,
         order_id=order_id,
-        user=request.user,
-        status="DRAFT"
+        user=request.user
     )
 
+    # Block access based on order state
+    if order.status == "CONFIRMED" and order.payment_status == "SUCCESS":
+        return redirect("order_detail", order_id=order.order_id)
+
+    if order.status == "PENDING_PAYMENT":
+        return redirect("order_processing", order_id=order.order_id)
+
+    if order.status != "DRAFT":
+        return redirect("home")
+
+    # ---------- Items ----------
     items = order.items.select_related("variant", "variant__product")
 
     if not items.exists():
         messages.error(request, "This order has no items.")
         return redirect("cart:cart")
 
-    # ---------- Recalculate totals (preview only) ----------
+    # ---------- Totals (preview only) ----------
     subtotal = sum(item.variant.price * item.quantity for item in items)
     delivery = Decimal("0.00") if subtotal > 500 else Decimal("40.00")
 
-    # 🔐 PREVIEW discount (NOT saved yet)
     discount, discount_type, applied_promo = calculate_best_discount(
         user=request.user,
         subtotal=subtotal,
@@ -130,18 +138,14 @@ def pay_order(request, order_id):
 
     preview_total = max(subtotal + delivery - discount, Decimal("0.00"))
 
-    # ---------- Address handling ----------
+    # ---------- Address ----------
     addresses = Address.objects.filter(user=request.user)
     if not addresses.exists():
-        messages.warning(
-            request,
-            "Please add a delivery address to continue."
-        )
+        messages.warning(request, "Please add a delivery address to continue.")
         return redirect("create_address")
 
     default_address = addresses.filter(is_default=True).first()
 
-    # If order address was deleted, reassign
     if not order.address or order.address not in addresses:
         order.address = default_address
         order.save(update_fields=["address"])
@@ -149,19 +153,17 @@ def pay_order(request, order_id):
     delivery_date = date.today() + timedelta(days=3)
 
     return render(request, "checkout.html", {
-    "order": order,
-    "items": items,
-    "addresses": addresses,
-    "default_address": default_address,
-    "delivery_date": delivery_date,
-
-    #  REQUIRED for Bill Details
-    "preview_subtotal": subtotal,
-    "preview_delivery": delivery,
-    "preview_discount": discount,
-    "preview_discount_type": discount_type,
-    "preview_total": preview_total,
-})
+        "order": order,
+        "items": items,
+        "addresses": addresses,
+        "default_address": default_address,
+        "delivery_date": delivery_date,
+        "preview_subtotal": subtotal,
+        "preview_delivery": delivery,
+        "preview_discount": discount,
+        "preview_discount_type": discount_type,
+        "preview_total": preview_total,
+    })
 
 
 
