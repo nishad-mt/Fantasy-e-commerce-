@@ -12,6 +12,8 @@ from order.models import Order
 from decimal import Decimal
 from .utils import calculate_best_discount
 from django.db import transaction
+from django.views.decorators.cache import never_cache
+
 
 
 def is_admin(user):
@@ -20,6 +22,7 @@ def is_admin(user):
 
 @login_required
 @user_passes_test(is_admin)
+@never_cache
 def create_promotion(request):
     if request.method == "POST":
         form = PromotionForm(request.POST)
@@ -41,6 +44,7 @@ def create_promotion(request):
 
 @login_required
 @user_passes_test(is_admin)
+@never_cache
 def edit_promotion(request, promotion_id):
     promotion = get_object_or_404(Promotion, id=promotion_id)
 
@@ -65,6 +69,7 @@ def edit_promotion(request, promotion_id):
 
 @login_required
 @user_passes_test(is_admin)
+@never_cache
 def promotion_list(request):
     now = timezone.now()
 
@@ -144,6 +149,7 @@ def promotion_list(request):
 
 @login_required
 @user_passes_test(is_admin)
+@never_cache
 def delete_promotion(request, promotion_id):
     promotion = get_object_or_404(Promotion, id=promotion_id)
 
@@ -156,6 +162,7 @@ def delete_promotion(request, promotion_id):
     return redirect("promotion_list")
 
 @login_required
+@never_cache
 def apply_coupon(request):
     if request.method != "POST":
         return redirect("cart:cart")
