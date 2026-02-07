@@ -1,8 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import CustomUser, UserProfile
-
-
+from django.core.exceptions import ValidationError
 
 class CustomUserForm(UserCreationForm):
     
@@ -34,6 +33,38 @@ class CustomUserForm(UserCreationForm):
     class Meta:
         model = CustomUser
         fields = ['email', 'password1', 'password2']
+    
+    def clean_email(self):
+            email = self.cleaned_data.get("email")
+
+            # Block temporary/fake email providers
+            blocked_domains = [
+                "tempmail.com",
+                "mailinator.com",
+                "10minutemail.com",
+            ]
+
+            domain = email.split("@")[-1].lower()
+
+            if domain in blocked_domains:
+                raise ValidationError("Temporary email addresses are not allowed.")
+
+            # Optional: allow only popular providers
+            allowed_domains = [
+                "gmail.com",
+                "yahoo.com",
+                "outlook.com",
+                "icloud.com"
+            ]
+
+            if domain not in allowed_domains:
+                raise ValidationError("Please use a valid email provider.")
+
+            # Prevent duplicate signup
+            if CustomUser.objects.filter(email=email).exists():
+                raise ValidationError("An account with this email already exists.")
+
+            return email
 
 class UserProfileForm(forms.ModelForm):
     class Meta:

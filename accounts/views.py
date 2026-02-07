@@ -89,6 +89,7 @@ def verify_otp(request):
                 password=data['password1'],
             )
             user.is_active = True
+            user.is_email_vfd = True
             user.save()
 
             # Auto-create profile
@@ -136,7 +137,7 @@ def resend_otp(request):
     return redirect("verify_otp")
 @never_cache
 def login(request):
-    
+    # next is used to remember where the user wanted to go before being forced to log in.
     next_url = request.GET.get("next") or request.POST.get("next")
 
     if request.user.is_authenticated:
@@ -149,6 +150,9 @@ def login(request):
         user = authenticate(request, email=email, password=password)
 
         if user is not None:
+            if not user.is_active:
+                messages.error(request, "Please verify your email first.")
+                return redirect("login")
             auth_login(request, user)
 
             if user.is_staff or user.is_superuser:
