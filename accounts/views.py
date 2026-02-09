@@ -73,14 +73,14 @@ def verify_otp(request):
         
         if not saved_otp or not email:
             messages.error(request, "Session expired. Please sign up again.")
-            return redirect('signup')
+            return redirect('account_signup')
 
         if str(entered_otp) == str(saved_otp):
             request.session["is_email_vfd"] = True
             data = request.session.get('signup_data')
             if not data:
                 messages.error(request, "Session expired. Please sign up again.")
-                return redirect('signup')
+                return redirect('account_signup')
 
             # Create user ,store to db if otp is correct
             user = CustomUser.objects.create_user(
@@ -119,7 +119,7 @@ def resend_otp(request):
     email = request.session.get('email')
     if not email:
         messages.error(request, "Session expired. Please sign up again.")
-        return redirect('signup')
+        return redirect('account_signup')
 
     last_sent = request.session.get("otp_last_sent")
     if last_sent:
@@ -152,7 +152,7 @@ def login(request):
         if user is not None:
             if not user.is_active:
                 messages.error(request, "Please verify your email first.")
-                return redirect("login")
+                return redirect("account_login")
             auth_login(request, user)
 
             if user.is_staff or user.is_superuser:
@@ -251,7 +251,7 @@ def new_password(request, uidb64, token):
 
     if user is None or not default_token_generator.check_token(user, token):
         messages.error(request, "Password reset link is invalid or expired")
-        return redirect('login')
+        return redirect('account_login')
 
     if request.method == 'POST':
         new_password = request.POST.get('new_password')
@@ -274,6 +274,6 @@ def new_password(request, uidb64, token):
 
         if user.is_staff or user.is_superuser:
             return redirect('admin_log') 
-        return redirect('login')
+        return redirect('account_login')
 
     return render(request, 'new_pass.html')

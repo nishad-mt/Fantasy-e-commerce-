@@ -27,7 +27,7 @@ def toggle_wishlist(request, product_id):
 @login_required
 def wishlist(request):
     if not request.user.is_authenticated:
-        return redirect('login')
+        return redirect('account_login')
 
     items = (
         WishlistItem.objects.filter(wishlist__user=request.user)
