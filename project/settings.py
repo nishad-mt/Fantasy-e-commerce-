@@ -29,6 +29,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     "43.205.138.187",
 ]
+
 CSRF_TRUSTED_ORIGINS = [
     "http://43.205.138.187",
 ]

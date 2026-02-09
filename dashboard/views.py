@@ -10,10 +10,8 @@ from payments.models import Payment
 from wallet.models import Wallet
 from django.db.models import Q ,Min
 from django.views.decorators.cache import never_cache
-from django.contrib.admin.views.decorators import staff_member_required
 from accounts.decarators import admin_required
 from django.db.models import Prefetch
-from accounts.decarators import admin_required
 from django.db.models import Avg, Count, Sum, Max
 from datetime import date, timedelta
 from home.models import SiteContact,ContactMessage
@@ -24,6 +22,7 @@ from django.utils import timezone
 from addresses.models import Address
 from django.http import JsonResponse
 from django.db import transaction
+from django.core.paginator import Paginator
 
 
 
@@ -77,7 +76,7 @@ def dashboard(request):
     delivered_orders = Order.objects.filter(status="DELIVERED")
     todays_revenue = (
         delivered_orders.filter(
-            created_at__date=today
+            delivered_at__date=today
         ).aggregate(total=Sum("total_amount"))["total"] or 0
     )
 
@@ -126,6 +125,16 @@ def user(request):
     )
 )
     ordered_user_count = User.objects.filter(order__isnull=False).distinct().count()
+    # ---------- Pagination ----------
+    paginator = Paginator(users, 10)  # 10 users per page
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    querydict = request.GET.copy()
+    querydict.pop("page", None)
+    query_string = querydict.urlencode()
+
+    users = page_obj
 
     total_users = User.objects.count()
     active_users_count = User.objects.filter(is_active = True).count()
@@ -158,6 +167,8 @@ def user(request):
 
     context = {
         'users': users,
+        'page_obj': page_obj,
+        'query_string': query_string,
         'total_users': total_users,
         'active_users_count': active_users_count,
         'blocked_users_count': blocked_users_count,
@@ -359,6 +370,7 @@ def categories(request):
 
 @login_required
 @admin_required
+@never_cache
 def admin_reviews(request):
     reviews = ProductReview.objects.select_related("product", "user")
 
@@ -445,6 +457,17 @@ def admin_order_list(request):
         "PACKED": ["DELIVERED"],
     }
 
+    # ---- Pagination ----
+    paginator = Paginator(orders, 10)  # 10 orders per page
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    querydict = request.GET.copy()
+    querydict.pop("page", None)
+    query_string = querydict.urlencode()
+
+
+    orders = page_obj  
+
     for order in orders:
         order.next_actions = STATUS_FLOW.get(order.status, [])
 
@@ -490,6 +513,8 @@ def admin_order_list(request):
 
     return render(request, "admin_orders.html", {
         "orders": orders,
+        "page_obj": page_obj,
+        "query_string": query_string,
         "filters": {
             "search": search or "",
             "status": status or "all",
@@ -500,7 +525,7 @@ def admin_order_list(request):
 
 @admin_required
 @login_required
-@admin_required
+@never_cache
 def admin_payments_dashboard(request):
     today = now().date()
     start_month = today.replace(day=1)
@@ -513,19 +538,19 @@ def admin_payments_dashboard(request):
 
     today_collection = (
         delivered_orders.filter(
-            created_at__date=today
+            delivered_at__date=today
         ).aggregate(total=Sum("total_amount"))["total"] or 0
     )
 
     successful_txns = delivered_orders.filter(
-        created_at__date__gte=start_month
+        delivered_at__date__gte=start_month
     ).count()
 
     # Transactions list (admin table)
     transactions_qs = (
         delivered_orders
         .select_related("user")
-        .order_by("-created_at")
+        .order_by("-delivered_at")
     )
 
     txn_list = []
@@ -544,7 +569,7 @@ def admin_payments_dashboard(request):
             "method": order.payment_method.upper(),   # COD / ONLINE / WALLET
             "amount": float(order.total_amount),
             "status": order.status,
-            "date": order.created_at.strftime("%Y-%m-%d %I:%M %p"),
+            "date": order.delivered_at.strftime("%Y-%m-%d %I:%M %p"),
         })
 
     # Payment method distribution (DELIVERED only)
@@ -566,7 +591,7 @@ def admin_payments_dashboard(request):
 
         amount = (
             delivered_orders.filter(
-                created_at__date=day
+                delivered_at__date=day
             ).aggregate(total=Sum("total_amount"))["total"] or 0
         )
 
@@ -625,6 +650,7 @@ def admin_contact(request):
 
 @admin_required
 @login_required
+@never_cache
 def admin_wallet_dashboard(request):
     wallets = (
         Wallet.objects
