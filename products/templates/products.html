@@ -148,11 +148,11 @@
                         <select name="sort" onchange="this.form.submit()"
                             class="bg-gray-50 border-0 rounded-lg pl-10 pr-8 py-2 text-sm text-gray-600 focus:ring-2 focus:ring-fantasy-gold/20 cursor-pointer hover:bg-gray-100 transition-colors appearance-none font-medium">
                             <option value="" disabled selected>Sort By</option>
-                            <option value="price_low" {% if request.GET.sort=='price_low' %}selected{% endif %}>Price:
+                            <option value="price_low" {% if request.GET.sort == 'price_low' %}selected{% endif %}>Price:
                                 Low to High</option>
-                            <option value="price_high" {% if request.GET.sort=='price_high' %}selected{% endif %}>Price:
+                            <option value="price_high" {% if request.GET.sort == 'price_high' %}selected{% endif %}>Price:
                                 High to Low</option>
-                            <option value="newest" {% if request.GET.sort=='newest' %}selected{% endif %}>Newest First
+                            <option value="newest" {% if request.GET.sort == 'newest' %}selected{% endif %}>Newest First
                             </option>
                         </select>
                     </div>
