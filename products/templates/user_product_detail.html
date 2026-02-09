@@ -229,7 +229,7 @@
                                     </button>
                                 </a>
                             {% else %}
-                                <a href="{% url 'login' %}?next={% url 'write_review' product.slug %}"
+                                <a href="{% url 'account_login' %}?next={% url 'write_review' product.slug %}"
                                 class="block w-full mt-6 py-2 border border-gray-300 text-gray-500 font-bold rounded-lg
                                         hover:bg-gray-50 transition-colors text-center">
                                     Login to Review
