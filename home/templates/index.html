@@ -8,6 +8,7 @@
     <title>Fantasy Bakery | Where Taste Meets Fantasy</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
 
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <script>
@@ -15,332 +16,395 @@
             theme: {
                 extend: {
                     colors: {
-                        'fantasy-cream': '#FDFBF7',
-                        'fantasy-pink': '#FCE7E7',
-                        'fantasy-pink-dark': '#F4C2C2',
-                        'fantasy-brown': '#5D4037',
+                        'fantasy-cream': '#FFF9F0',
+                        'fantasy-brown': '#5a3e2b',
                         'fantasy-gold': '#D4AF37',
                         'fantasy-gold-light': '#F4E5B2',
+                        'fantasy-pink': '#FCE7E7', // Kept for backward compatibility if needed, but primary is now cream/walnut
+                        'fantasy-pink-dark': '#F4C2C2',
                     },
                     fontFamily: {
                         serif: ['"Playfair Display"', 'serif'],
-                        sans: ['"Lato"', 'sans-serif'],
+                        sans: ['"Inter"', '"Lato"', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
                     }
                 }
             }
         }
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
         rel="stylesheet">
+    <!-- Keeping FontAwesome as backup or for specific icons not in Lucide yet, but primarily using Lucide -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Custom Utilities */
+        .warm-overlay {
+            position: relative;
+        }
+
+        .warm-overlay::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 249, 240, 0.1);
+            /* Very subtle warm tint */
+            pointer-events: none;
+            border-radius: inherit;
+        }
+
+        .text-shadow-sm {
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 
 <body class="bg-fantasy-cream text-gray-800 font-sans antialiased">
-<div id="homepage-content">
-    <!-- Navigation -->
-    <nav id="navbar"
-        class="fixed w-full z-50 transition-all duration-300 bg-fantasy-cream/90 backdrop-blur-md shadow-sm py-4">
-        <div class="container mx-auto px-6 flex justify-between items-center">
-            <!-- Logo -->
-            <a href="{% url 'home' %}" class="text-3xl font-serif font-bold text-fantasy-brown flex items-center gap-2">
-            <i class="fa-solid fa-basket-shopping text-fantasy-gold"></i>
-                Fantasy Bakery
-            </a>
-
-            <!-- Desktop Menu -->
-            <div class="hidden md:flex items-center space-x-8 font-medium text-fantasy-brown">
-                <a href="{% url 'home' %}" class="hover:text-fantasy-gold transition-colors">Home</a>
-                <a href="{% url 'products' %}" class="hover:text-fantasy-gold transition-colors">Products</a>
-                <a href="{% url 'contact' %}" class="hover:text-fantasy-gold transition-colors">Contact</a>
-                <a href="{% url 'aboutus' %}" class="hover:text-fantasy-gold transition-colors">About Us</a>
-                <a href="{% url 'order' %}" class="hover:text-fantasy-gold transition-colors">My orders</a>
-               
-            </div>
-
-            <!-- Icons -->
-            <div class="flex items-center space-x-6 text-fantasy-brown">
-                
-            <form method="GET" action="{% url 'products' %}" class="flex items-center gap-2">
-                <input
-                    type="text"
-                    name="q"
-                    placeholder="Search products..."
-                    value="{{ request.GET.q }}"
-                    class="border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-fantasy-gold"/>
-
-                <button type="submit" class="hover:text-fantasy-gold transition-colors">
-                    <i class="fa-solid fa-magnifying-glass text-xl"></i>
-                </button>
-            </form>
-                        
-                <a href="{% url 'wishlist:wishlist'  %}" class="hover:text-fantasy-gold transition-colors relative">
-                    <i class="fa-regular fa-heart text-xl"></i></a>
-
-                <a href="{% url 'cart:cart' %}"
-                class="hover:text-fantasy-gold transition-colors relative inline-block">
-                    <i class="fa-solid fa-cart-shopping text-xl"></i></a>
-
-                {% if user.is_authenticated and not user.is_staff %}
-                    <a href="{% url 'profile' %}" class="hover:text-fantasy-gold transition-colors">
-                    <i class="fa-regular fa-user text-xl"></i></a>
-                {% else %}
-                    <a href="{% url 'account_signup' %}" class="hover:text-fantasy-gold transition-colors">
-                     Sign up</a>
-                {% endif %}
-
-
-                <!-- Mobile Menu Button -->
-                <button id="mobile-menu-btn" class="md:hidden hover:text-fantasy-gold transition-colors">
-                    <i class="fa-solid fa-bars text-2xl"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- Mobile Menu (Hidden by default) -->
-        <div id="mobile-menu"
-            class="hidden md:hidden bg-white border-t border-gray-100 absolute w-full left-0 top-full shadow-lg">
-            <div class="flex flex-col p-4 space-y-4 font-medium text-fantasy-brown">
-                <a href="{% url 'home' %}" class="hover:text-fantasy-gold">Home</a>
-                <a href="{% url 'products' %}" class="hover:text-fantasy-gold">Products</a>
-                <a href="{% url 'order' %}" class="hover:text-fantasy-gold">Track Order</a>
-                <a href="{% url 'aboutus' %}" class="hover:text-fantasy-gold">About</a>
-                <a href="{% url 'contact' %}" class="hover:text-fantasy-gold">Contact</a>             
-                <a href="{% url 'account_signup' %}" class="hover:text-fantasy-gold">Sign up</a>               
-            </div>
-        </div>
-    </nav>
-{% block content %}
-    <!-- Hero Section -->
-    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
-        <div class="absolute inset-0 z-0">
-            <!-- Placeholder for Hero Image -->
-            <img src="{% static 'images/potati.jpg' %}"
-                alt="Fantasy Bakery Hero" class="w-full h-full object-cover opacity-40">
-            <div class="absolute inset-0 bg-gradient-to-b from-fantasy-cream/50 to-fantasy-cream"></div>
-        </div>
-
-        <div class="container mx-auto px-6 relative z-10 text-center">
-            
-            <h1
-                class="text-5xl md:text-7xl font-serif font-bold text-fantasy-brown mb-6 leading-tight animate-fade-in-up delay-100">
-                Where Taste Meets <span class="text-fantasy-gold">Fantasy</span>
-            </h1>
-            <p class="text-lg md:text-xl text-gray-600 mb-10 max-w-2xl mx-auto animate-fade-in-up delay-200">
-                Handcrafted delights,experience the real taste of our moms bakes,
-                Experience the sweetness of imagination.
-            </p>
-            <div class="flex flex-col sm:flex-row justify-center gap-4 animate-fade-in-up delay-300">
-                <a href="{% url 'products' %}"
-                    class="px-8 py-4 bg-fantasy-brown text-white rounded-full font-bold shadow-lg hover:bg-opacity-90 hover:shadow-xl transition-all transform hover:-translate-y-1">
-                    Shop Now
+    <div id="homepage-content">
+        <!-- Navigation -->
+        <nav id="navbar"
+            class="fixed w-full z-50 transition-all duration-300 bg-fantasy-cream/95 backdrop-blur-md shadow-sm py-3 md:py-4">
+            <div class="container mx-auto px-4 md:px-6 flex justify-between items-center">
+                <!-- Logo -->
+                <a href="{% url 'home' %}"
+                    class="text-2xl md:text-3xl font-serif font-bold text-fantasy-brown flex items-center gap-2 hover:opacity-90 transition-opacity">
+                    <i data-lucide="shopping-basket" class="text-fantasy-gold w-6 h-6 md:w-8 md:h-8"></i>
+                    <span>Fantasy Bakery</span>
                 </a>
-                <a href="#offers"
-                    class="px-8 py-4 bg-white text-fantasy-brown border-2 border-fantasy-brown rounded-full font-bold shadow-md hover:bg-fantasy-pink transition-all transform hover:-translate-y-1">
-                    Browse Offers
-                </a>
-            </div>
-        </div>
 
-        <!-- Floating Elements (Decorative) -->
-        <div class="absolute top-1/4 left-10 hidden lg:block animate-float">
-            <i class="fa-solid fa-star text-fantasy-gold text-2xl opacity-50"></i>
-        </div>
-        <div class="absolute bottom-1/4 right-10 hidden lg:block animate-float-delayed">
-            <i class="fa-solid fa-wand-magic-sparkles text-fantasy-pink-dark text-3xl opacity-50"></i>
-        </div>
-    </section>
-
-    <!-- Category Highlights -->
-    <section id="categories" class="py-16 bg-white">
-        <div class="container mx-auto px-6">
-            <div class="mb-12">
-                <h2 class="text-3xl md:text-4xl font-serif font-bold text-fantasy-brown mb-4">Our Categories</h2>
-                <div class="w-30 h-1 bg-fantasy-gold ms-3 rounded-full"></div>
-            </div>
-
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-    <!-- Category Item -->
-     {% for cat in category %}
-    <a href="{% url 'products_by_category' cat.slug %}" class="group text-center">
-        <div
-            class="w-full aspect-square rounded-2xl overflow-hidden mb-4 shadow-md group-hover:shadow-xl transition-all duration-300 relative">
-            <img src="{{ cat.image.url }}"
-                alt="whaeat flakes"
-                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-            <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
-        </div>
-        <h3
-            class="font-serif font-bold text-lg text-fantasy-brown group-hover:text-fantasy-gold transition-colors">
-            {{ cat.name }}
-        </h3>
-    </a>
-    {% endfor %}
-    
-</div>
-    </div>
-    </section>
-
-    <!-- Featured Products -->
-    <section id="products" class="py-16 bg-fantasy-cream">
-        <div class="container mx-auto px-6">
-            <div class="flex justify-between items-end mb-12">
-                <div>
-                    <h2 class="text-3xl md:text-4xl font-serif font-bold text-fantasy-brown mb-2">Latest ones
-                    </h2>
-                    <p class="text-gray-600">Discover our most loved new creations.</p>
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8 font-medium text-fantasy-brown text-sm tracking-wide">
+                    <a href="{% url 'home' %}" class="hover:text-fantasy-gold transition-colors relative group">
+                        Home
+                        <span
+                            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-fantasy-gold transition-all group-hover:w-full"></span>
+                    </a>
+                    <a href="{% url 'products' %}" class="hover:text-fantasy-gold transition-colors relative group">
+                        Products
+                        <span
+                            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-fantasy-gold transition-all group-hover:w-full"></span>
+                    </a>
+                    <a href="{% url 'contact' %}" class="hover:text-fantasy-gold transition-colors relative group">
+                        Contact
+                        <span
+                            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-fantasy-gold transition-all group-hover:w-full"></span>
+                    </a>
+                    <a href="{% url 'aboutus' %}" class="hover:text-fantasy-gold transition-colors relative group">
+                        About Us
+                        <span
+                            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-fantasy-gold transition-all group-hover:w-full"></span>
+                    </a>
+                    <a href="{% url 'order' %}" class="hover:text-fantasy-gold transition-colors relative group">
+                        My Orders
+                        <span
+                            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-fantasy-gold transition-all group-hover:w-full"></span>
+                    </a>
                 </div>
-                <a href="{% url 'products' %}" class="hidden md:block text-fantasy-brown font-bold hover:text-fantasy-gold transition-colors">
-                    View All <i class="fa-solid fa-arrow-right ml-2"></i></a>
+
+                <!-- Icons -->
+                <div class="flex items-center space-x-4 md:space-x-6 text-fantasy-brown">
+
+                    <form method="GET" action="{% url 'products' %}"
+                        class="hidden md:flex items-center gap-2 relative group">
+                        <input type="text" name="q" placeholder="Search..." value="{{ request.GET.q }}"
+                            class="bg-transparent border-b border-fantasy-brown/30 px-2 py-1 text-sm focus:outline-none focus:border-fantasy-gold w-24 focus:w-40 transition-all placeholder-fantasy-brown/50" />
+
+                        <button type="submit" class="hover:text-fantasy-gold transition-colors">
+                            <i data-lucide="search" class="w-5 h-5"></i>
+                        </button>
+                    </form>
+
+                    <a href="{% url 'wishlist:wishlist'  %}"
+                        class="hover:text-fantasy-gold transition-colors relative group" aria-label="Wishlist">
+                        <i data-lucide="heart" class="w-5 h-5 md:w-6 md:h-6"></i>
+                    </a>
+
+                    <a href="{% url 'cart:cart' %}"
+                        class="hover:text-fantasy-gold transition-colors relative inline-block group" aria-label="Cart">
+                        <i data-lucide="shopping-cart" class="w-5 h-5 md:w-6 md:h-6"></i>
+                    </a>
+
+                    {% if user.is_authenticated and not user.is_staff %}
+                    <a href="{% url 'profile' %}" class="hover:text-fantasy-gold transition-colors"
+                        aria-label="Profile">
+                        <i data-lucide="user" class="w-5 h-5 md:w-6 md:h-6"></i>
+                    </a>
+                    {% else %}
+                    <a href="{% url 'account_signup' %}"
+                        class="hidden md:inline-block px-4 py-2 bg-fantasy-brown text-white text-xs font-bold rounded-full hover:bg-opacity-90 transition-all uppercase tracking-wider">
+                        Sign up
+                    </a>
+                    {% endif %}
+
+
+                    <!-- Mobile Menu Button -->
+                    <button id="mobile-menu-btn" class="md:hidden hover:text-fantasy-gold transition-colors p-1">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                <!-- Product Card 1 -->
-                 {% for pdc in products %}
-                <a href="{% url 'user_product' pdc.slug %}"
-                    class="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 group overflow-hidden border border-gray-100">
-                    <div class="relative aspect-[4/5] overflow-hidden">
-                        <img src="{{ pdc.main_image.url }}"
-                            alt="Product"
-                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                    </div>
-                    <div class="p-4">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="font-serif font-bold text-lg text-fantasy-brown">{{ pdc.name }}</h3>
-                        </div>
-                        <p class="text-sm text-gray-500 mb-3 line-clamp-2">{{pdc.description}}</p>
-                        <div class="flex items-baseline gap-2">
-                            <span class="text-xl font-bold text-fantasy-brown">{{ pdc.base_price }}</span>
-                        </div>
-                    </div>
-                </a>
-            {% endfor %}
-            <div class="text-center mt-12 md:hidden">
-                <a href="{% url 'products' %}" class="inline-block px-8 py-3 border-2 border-fantasy-brown text-fantasy-brown rounded-full font-bold hover:bg-fantasy-brown hover:text-white transition-colors">
-                    View All Products</a>
+            <!-- Mobile Menu (Hidden by default) -->
+            <div id="mobile-menu"
+                class="hidden md:hidden bg-fantasy-cream border-t border-fantasy-brown/10 absolute w-full left-0 top-full shadow-lg h-screen bg-opacity-95 backdrop-blur-sm">
+                <div class="flex flex-col p-6 space-y-6 font-medium text-fantasy-brown text-lg text-center">
+                    <a href="{% url 'home' %}"
+                        class="hover:text-fantasy-gold py-2 border-b border-fantasy-brown/10">Home</a>
+                    <a href="{% url 'products' %}"
+                        class="hover:text-fantasy-gold py-2 border-b border-fantasy-brown/10">Products</a>
+                    <a href="{% url 'order' %}"
+                        class="hover:text-fantasy-gold py-2 border-b border-fantasy-brown/10">Track Order</a>
+                    <a href="{% url 'aboutus' %}"
+                        class="hover:text-fantasy-gold py-2 border-b border-fantasy-brown/10">About</a>
+                    <a href="{% url 'contact' %}"
+                        class="hover:text-fantasy-gold py-2 border-b border-fantasy-brown/10">Contact</a>
+                    <a href="{% url 'account_signup' %}" class="hover:text-fantasy-gold py-2">Sign up</a>
+                </div>
             </div>
-        </div>
-    </section>
+        </nav>
+        {% block content %}
+        <!-- Hero Section -->
+        <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+            <div class="absolute inset-0 z-0">
+                <!-- Placeholder for Hero Image -->
+                <img src="{% static 'images/potati.jpg' %}" alt="Fantasy Bakery Hero"
+                    class="w-full h-full object-cover opacity-40">
+                <div class="absolute inset-0 bg-gradient-to-b from-fantasy-cream/50 to-fantasy-cream"></div>
+            </div>
 
-    <!-- Offer Highlight -->
-{% if top_coupon %}
-<section id="offers" class="py-20 bg-fantasy-pink/30">
-    <div class="container mx-auto px-6">
-        <div
-            class="bg-white rounded-3xl p-8 md:p-14 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center gap-10 md:gap-16">
+            <div class="container mx-auto px-6 relative z-10 text-center">
 
-            <!-- Decorative Background -->
-            <div class="absolute -top-20 -right-20 w-72 h-72 bg-fantasy-pink rounded-full opacity-50 blur-3xl"></div>
-            <div class="absolute -bottom-20 -left-20 w-72 h-72 bg-fantasy-gold-light rounded-full opacity-50 blur-3xl"></div>
-
-            <!-- Text Content -->
-            <div class="w-full md:w-1/2 relative z-10">
-                <span
-                    class="inline-block mb-3 text-fantasy-brown font-bold tracking-widest uppercase text-xs bg-fantasy-cream px-4 py-1 rounded-full">
-                    🎁 Special Celebration Offer
-                </span>
-
-                <h2 class="text-4xl md:text-5xl font-serif font-bold text-fantasy-brown mb-5 leading-tight">
-                    {{ top_coupon.name }}
-                </h2>
-
-                <p class="text-gray-700 mb-4 text-lg">
-                    Because every moment deserves a little extra sweetness.
-                    Enjoy exclusive savings on our handcrafted treats, carefully baked to spread joy,
-                    love, and unforgettable memories.
+                <h1
+                    class="text-5xl md:text-7xl font-serif font-bold text-fantasy-brown mb-6 leading-tight animate-fade-in-up delay-100">
+                    Where Taste Meets <span class="text-fantasy-gold">Fantasy</span>
+                </h1>
+                <p class="text-lg md:text-xl text-gray-600 mb-10 max-w-2xl mx-auto animate-fade-in-up delay-200">
+                    Handcrafted delights,experience the real taste of our moms bakes,
+                    Experience the sweetness of imagination.
                 </p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4 animate-fade-in-up delay-300">
+                    <a href="{% url 'products' %}"
+                        class="px-8 py-4 bg-fantasy-brown text-white rounded-full font-bold shadow-lg hover:bg-opacity-90 hover:shadow-xl transition-all transform hover:-translate-y-1">
+                        Shop Now
+                    </a>
+                    <a href="#offers"
+                        class="px-8 py-4 bg-white text-fantasy-brown border-2 border-fantasy-brown rounded-full font-bold shadow-md hover:bg-fantasy-pink transition-all transform hover:-translate-y-1">
+                        Browse Offers
+                    </a>
+                </div>
+            </div>
 
-                <p class="text-gray-600 mb-6">
-                    Whether it’s a surprise gift, a celebration, or just a well-earned indulgence —
-                    this offer is our way of making your moments even more magical ✨
-                </p>
+            <!-- Floating Elements (Decorative) -->
+            <div class="absolute top-1/4 left-10 hidden lg:block animate-float">
+                <i class="fa-solid fa-star text-fantasy-gold text-2xl opacity-50"></i>
+            </div>
+            <div class="absolute bottom-1/4 right-10 hidden lg:block animate-float-delayed">
+                <i class="fa-solid fa-wand-magic-sparkles text-fantasy-pink-dark text-3xl opacity-50"></i>
+            </div>
+        </section>
 
-                <!-- Coupon Box -->
+        <!-- Category Highlights -->
+        <section id="categories" class="py-16 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="mb-12">
+                    <h2 class="text-3xl md:text-4xl font-serif font-bold text-fantasy-brown mb-4">Our Categories</h2>
+                    <div class="w-30 h-1 bg-fantasy-gold ms-3 rounded-full"></div>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                    <!-- Category Item -->
+                    {% for cat in category %}
+                    <a href="{% url 'products_by_category' cat.slug %}" class="group text-center">
+                        <div
+                            class="w-full aspect-square rounded-2xl overflow-hidden mb-4 shadow-md group-hover:shadow-xl transition-all duration-300 relative">
+                            <img src="{{ cat.image.url }}" alt="whaeat flakes"
+                                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
+                        </div>
+                        <h3
+                            class="font-serif font-bold text-lg text-fantasy-brown group-hover:text-fantasy-gold transition-colors">
+                            {{ cat.name }}
+                        </h3>
+                    </a>
+                    {% endfor %}
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Products -->
+        <section id="products" class="py-16 bg-fantasy-cream">
+            <div class="container mx-auto px-6">
+                <div class="flex justify-between items-end mb-12">
+                    <div>
+                        <h2 class="text-3xl md:text-4xl font-serif font-bold text-fantasy-brown mb-2">Latest ones
+                        </h2>
+                        <p class="text-gray-600">Discover our most loved new creations.</p>
+                    </div>
+                    <a href="{% url 'products' %}"
+                        class="hidden md:block text-fantasy-brown font-bold hover:text-fantasy-gold transition-colors">
+                        View All <i class="fa-solid fa-arrow-right ml-2"></i></a>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <!-- Product Card 1 -->
+                    {% for pdc in products %}
+                    <a href="{% url 'user_product' pdc.slug %}"
+                        class="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 group overflow-hidden border border-gray-100">
+                        <div class="relative aspect-[4/5] overflow-hidden">
+                            <img src="{{ pdc.main_image.url }}" alt="Product"
+                                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        </div>
+                        <div class="p-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-serif font-bold text-lg text-fantasy-brown">{{ pdc.name }}</h3>
+                            </div>
+                            <p class="text-sm text-gray-500 mb-3 line-clamp-2">{{pdc.description}}</p>
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-xl font-bold text-fantasy-brown">{{ pdc.base_price }}</span>
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                    <div class="text-center mt-12 md:hidden">
+                        <a href="{% url 'products' %}"
+                            class="inline-block px-8 py-3 border-2 border-fantasy-brown text-fantasy-brown rounded-full font-bold hover:bg-fantasy-brown hover:text-white transition-colors">
+                            View All Products</a>
+                    </div>
+                </div>
+        </section>
+
+        <!-- Offer Highlight -->
+        {% if top_coupon %}
+        <section id="offers" class="py-20 bg-fantasy-pink/30">
+            <div class="container mx-auto px-6">
                 <div
-                    class="bg-fantasy-cream border-2 border-dashed border-fantasy-brown p-4 rounded-xl inline-flex items-center gap-4 mb-3">
-                    <span class="font-mono text-2xl font-bold text-fantasy-brown tracking-wider">
-                        {{ top_coupon.code }}
-                    </span>
-<button
-    type="button"
-    class="text-sm text-fantasy-gold font-bold hover:underline transition"
-    onclick="copyCoupon(this, '{{ top_coupon.code }}')">
-    COPY CODE
-</button>
+                    class="bg-white rounded-3xl p-8 md:p-14 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center gap-10 md:gap-16">
 
-                </div>
-
-                <p class="text-sm text-gray-500">
-                    Apply at checkout to unlock instant savings 💖
-                </p>
-
-                {% if top_coupon.valid_to %}
-                <p class="mt-2 text-xs text-red-400 font-semibold flex items-center gap-1">
-                    <i class="fa-regular fa-clock"></i>
-                    Hurry! Offer valid till {{ top_coupon.valid_to|date:"d M Y, h:i A" }}
-                </p>
-                {% endif %}
-            </div>
-
-            <!-- Image -->
-            <div class="w-full md:w-1/2 relative z-10">
-                <img src="{% static 'images/creamy.jpg' %}"
-                     alt="Gift Hamper"
-                     class="rounded-2xl shadow-xl transform rotate-2 hover:rotate-0 transition-transform duration-500">
-            </div>
-
-        </div>
-    </div>
-</section>
-{% endif %}
-
-
-    <!-- Why Choose Us -->
-    <section class="py-16 bg-white">
-        <div class="container mx-auto px-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <div class="text-center p-6 rounded-2xl hover:bg-fantasy-cream transition-colors">
-                    <div
-                        class="w-16 h-16 bg-fantasy-pink/50 rounded-full flex items-center justify-center mx-auto mb-4 text-fantasy-brown text-2xl">
-                        <i class="fa-solid fa-bread-slice"></i>
+                    <!-- Decorative Background -->
+                    <div class="absolute -top-20 -right-20 w-72 h-72 bg-fantasy-pink rounded-full opacity-50 blur-3xl">
                     </div>
-                    <h3 class="font-serif font-bold text-lg text-fantasy-brown mb-2">Fresh Daily</h3>
-                    <p class="text-gray-500 text-sm">Baked fresh every morning with premium ingredients.</p>
-                </div>
-
-                <div class="text-center p-6 rounded-2xl hover:bg-fantasy-cream transition-colors">
                     <div
-                        class="w-16 h-16 bg-fantasy-gold-light/50 rounded-full flex items-center justify-center mx-auto mb-4 text-fantasy-brown text-2xl">
-                        <i class="fa-solid fa-truck-fast"></i>
+                        class="absolute -bottom-20 -left-20 w-72 h-72 bg-fantasy-gold-light rounded-full opacity-50 blur-3xl">
                     </div>
-                    <h3 class="font-serif font-bold text-lg text-fantasy-brown mb-2">Fast Delivery</h3>
-                    <p class="text-gray-500 text-sm">Magical delivery to your doorstep within three days maximum.</p>
-                </div>
 
-                <div class="text-center p-6 rounded-2xl hover:bg-fantasy-cream transition-colors">
-                    <div
-                        class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-fantasy-brown text-2xl">
-                        <i class="fa-solid fa-leaf"></i>
-                    </div>
-                    <h3 class="font-serif font-bold text-lg text-fantasy-brown mb-2">Eco-Friendly</h3>
-                    <p class="text-gray-500 text-sm">Sustainable packaging that loves the planet.</p>
-                </div>
+                    <!-- Text Content -->
+                    <div class="w-full md:w-1/2 relative z-10">
+                        <span
+                            class="inline-block mb-3 text-fantasy-brown font-bold tracking-widest uppercase text-xs bg-fantasy-cream px-4 py-1 rounded-full">
+                            🎁 Special Celebration Offer
+                        </span>
 
-                <div class="text-center p-6 rounded-2xl hover:bg-fantasy-cream transition-colors">
-                    <div
-                        class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 text-fantasy-brown text-2xl">
-                        <i class="fa-solid fa-gift"></i>
+                        <h2 class="text-4xl md:text-5xl font-serif font-bold text-fantasy-brown mb-5 leading-tight">
+                            {{ top_coupon.name }}
+                        </h2>
+
+                        <p class="text-gray-700 mb-4 text-lg">
+                            Because every moment deserves a little extra sweetness.
+                            Enjoy exclusive savings on our handcrafted treats, carefully baked to spread joy,
+                            love, and unforgettable memories.
+                        </p>
+
+                        <p class="text-gray-600 mb-6">
+                            Whether it’s a surprise gift, a celebration, or just a well-earned indulgence —
+                            this offer is our way of making your moments even more magical ✨
+                        </p>
+
+                        <!-- Coupon Box -->
+                        <div
+                            class="bg-fantasy-cream border-2 border-dashed border-fantasy-brown p-4 rounded-xl inline-flex items-center gap-4 mb-3">
+                            <span class="font-mono text-2xl font-bold text-fantasy-brown tracking-wider">
+                                {{ top_coupon.code }}
+                            </span>
+                            <button type="button" class="text-sm text-fantasy-gold font-bold hover:underline transition"
+                                onclick="copyCoupon(this, '{{ top_coupon.code }}')">
+                                COPY CODE
+                            </button>
+
+                        </div>
+
+                        <p class="text-sm text-gray-500">
+                            Apply at checkout to unlock instant savings 💖
+                        </p>
+
+                        {% if top_coupon.valid_to %}
+                        <p class="mt-2 text-xs text-red-400 font-semibold flex items-center gap-1">
+                            <i class="fa-regular fa-clock"></i>
+                            Hurry! Offer valid till {{ top_coupon.valid_to|date:"d M Y, h:i A" }}
+                        </p>
+                        {% endif %}
                     </div>
-                    <h3 class="font-serif font-bold text-lg text-fantasy-brown mb-2">Custom Gifting</h3>
-                    <p class="text-gray-500 text-sm">Personalized notes and wrapping for special moments.</p>
+
+                    <!-- Image -->
+                    <div class="w-full md:w-1/2 relative z-10">
+                        <img src="{% static 'images/creamy.jpg' %}" alt="Gift Hamper"
+                            class="rounded-2xl shadow-xl transform rotate-2 hover:rotate-0 transition-transform duration-500">
+                    </div>
+
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+        {% endif %}
 
-    
-{% endblock %}
-    <footer
+
+        <!-- Why Choose Us -->
+        <section class="py-16 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="text-center p-6 rounded-2xl hover:bg-fantasy-cream transition-colors">
+                        <div
+                            class="w-16 h-16 bg-fantasy-pink/50 rounded-full flex items-center justify-center mx-auto mb-4 text-fantasy-brown text-2xl">
+                            <i class="fa-solid fa-bread-slice"></i>
+                        </div>
+                        <h3 class="font-serif font-bold text-lg text-fantasy-brown mb-2">Fresh Daily</h3>
+                        <p class="text-gray-500 text-sm">Baked fresh every morning with premium ingredients.</p>
+                    </div>
+
+                    <div class="text-center p-6 rounded-2xl hover:bg-fantasy-cream transition-colors">
+                        <div
+                            class="w-16 h-16 bg-fantasy-gold-light/50 rounded-full flex items-center justify-center mx-auto mb-4 text-fantasy-brown text-2xl">
+                            <i class="fa-solid fa-truck-fast"></i>
+                        </div>
+                        <h3 class="font-serif font-bold text-lg text-fantasy-brown mb-2">Fast Delivery</h3>
+                        <p class="text-gray-500 text-sm">Magical delivery to your doorstep within three days maximum.
+                        </p>
+                    </div>
+
+                    <div class="text-center p-6 rounded-2xl hover:bg-fantasy-cream transition-colors">
+                        <div
+                            class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-fantasy-brown text-2xl">
+                            <i class="fa-solid fa-leaf"></i>
+                        </div>
+                        <h3 class="font-serif font-bold text-lg text-fantasy-brown mb-2">Eco-Friendly</h3>
+                        <p class="text-gray-500 text-sm">Sustainable packaging that loves the planet.</p>
+                    </div>
+
+                    <div class="text-center p-6 rounded-2xl hover:bg-fantasy-cream transition-colors">
+                        <div
+                            class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 text-fantasy-brown text-2xl">
+                            <i class="fa-solid fa-gift"></i>
+                        </div>
+                        <h3 class="font-serif font-bold text-lg text-fantasy-brown mb-2">Custom Gifting</h3>
+                        <p class="text-gray-500 text-sm">Personalized notes and wrapping for special moments.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        {% endblock %}
+        <footer
             class="bg-[#1a120b] text-[#e5d0ac] pt-20 pb-10 border-t-[6px] border-[#DAA520] relative overflow-hidden font-sans">
             <!-- Pattern Overlay -->
             <div class="absolute inset-0 opacity-[0.03]"
@@ -489,25 +553,27 @@
                 </div>
             </div>
         </footer>
-   
-    <!-- Overlay for Cart/Mobile Menu -->
-    <div id="overlay" class="fixed inset-0 bg-black/50 hidden z-40 backdrop-blur-sm"></div>
-</div>
-    <script src="{% static 'script/script.js' %}"></script>
-<script>
-function copyCoupon(button, code) {
-    navigator.clipboard.writeText(code).then(() => {
-        const originalText = button.innerText;
-        button.innerText = "COPIED ✓";
-        button.classList.add("text-green-600");
 
-        setTimeout(() => {
-            button.innerText = originalText;
-            button.classList.remove("text-green-600");
-        }, 2000);
-    });
-}
-</script>
+        <!-- Overlay for Cart/Mobile Menu -->
+        <div id="overlay" class="fixed inset-0 bg-black/50 hidden z-40 backdrop-blur-sm"></div>
+    </div>
+    <script src="{% static 'script/script.js' %}"></script>
+    <script>
+        function copyCoupon(button, code) {
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = button.innerText;
+                button.innerText = "COPIED ✓";
+                button.classList.add("text-green-600");
+
+                setTimeout(() => {
+                    button.innerText = originalText;
+                    button.classList.remove("text-green-600");
+                }, 2000);
+            });
+        }
+        // Initialize Lucide Icons
+        lucide.createIcons();
+    </script>
 
 </body>
 
