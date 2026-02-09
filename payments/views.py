@@ -80,7 +80,10 @@ def create_razorpay_order(request):
 @csrf_exempt
 @transaction.atomic
 def razorpay_webhook(request):
-    payload = request.body.decode()
+    if request.method != "POST":
+        return HttpResponse(status=400)
+
+    payload = request.body 
     signature = request.META.get("HTTP_X_RAZORPAY_SIGNATURE")
 
     if not signature:
@@ -99,14 +102,13 @@ def razorpay_webhook(request):
     except razorpay.errors.SignatureVerificationError:
         return HttpResponse(status=400)
 
-    data = json.loads(payload)
+    data = json.loads(payload.decode())
 
     if data.get("event") != "payment.captured":
         return HttpResponse(status=200)
 
     entity = data["payload"]["payment"]["entity"]
     razorpay_order_id = entity["order_id"]
-    paid_amount = entity["amount"] / Decimal("100")
 
     payment = Payment.objects.select_related("order").filter(
         razorpay_order_id=razorpay_order_id
@@ -115,7 +117,8 @@ def razorpay_webhook(request):
     if not payment or payment.status == "SUCCESS":
         return HttpResponse(status=200)
 
-    if paid_amount != payment.amount:
+    
+    if entity["amount"] != int(payment.amount * 100):
         return HttpResponse(status=400)
 
     order = payment.order
@@ -130,7 +133,6 @@ def razorpay_webhook(request):
     order.paid_at = timezone.now()
     order.save()
 
-    # 🔒 Lock coupon ONLY here
     if order.discount_type == "COUPON" and order.coupon:
         PromotionUsage.objects.get_or_create(
             user=order.user,
@@ -138,7 +140,6 @@ def razorpay_webhook(request):
             order=order
         )
 
-    # 🧹 Clear cart
     CartItem.objects.filter(cart__user=order.user).delete()
 
     return HttpResponse(status=200)
