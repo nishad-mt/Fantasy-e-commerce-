@@ -119,8 +119,7 @@
 
                         <!-- keep params -->
                         {% if request.GET.q %}<input type="hidden" name="q" value="{{ request.GET.q }}">{% endif %}
-                        {% if request.GET.sort %}<input type="hidden" name="sort" value="{{ request.GET.sort }}">{%
-                        endif %}
+                        {% if request.GET.sort %}<input type="hidden" name="sort" value="{{ request.GET.sort }}">{% endif %}
 
                         <button type="submit"
                             class="w-full bg-fantasy-brown text-white py-3 rounded-xl font-bold text-sm hover:bg-fantasy-gold transition-colors duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
@@ -204,15 +203,15 @@
 
                             <div class="flex items-center gap-1 mb-4">
                                 <div class="flex text-yellow-400 text-xs">
-                                    {% for i in "12345" %}
-                                    {% if forloop.counter <= pdc.avg_rating %} <i class="fa-solid fa-star"></i>
-                                        {% else %}
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= pdc.avg_rating %}
+                                        <i class="fa-solid fa-star"></i>
+                                    {% else %}
                                         <i class="fa-regular fa-star text-gray-200"></i>
-                                        {% endif %}
-                                        {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
                                 </div>
-                                <span class="text-xs text-fantasy-brown/40 font-medium">({{ pdc.review_count|default:0
-                                    }})</span>
+                                <span class="text-xs text-fantasy-brown/40 font-medium">({{ pdc.review_count|default:0}})</span>
                             </div>
 
                             <div class="mt-auto flex items-end justify-between">
