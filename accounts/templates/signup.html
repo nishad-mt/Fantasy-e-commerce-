@@ -1,228 +1,172 @@
 {% load static %}
+{% load socialaccount %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sign Up | Enchanted Bakery</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Join the Family | Artisanal Collection</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  />
-  <link
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    rel="stylesheet"
-  />
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
+    :root {
+      --color-cream: #FFF9F0;
+      --color-walnut: #5a3e2b;
+      --color-gold: #D4AF37;
+    }
+
     body {
-      background: linear-gradient(135deg, #f7e9d3, #f3d7b8);
-      font-family: "Poppins", sans-serif;
+      font-family: 'Inter', sans-serif;
+      background-color: var(--color-cream);
     }
 
-    .container-box {
-      max-width: 1100px;
-      margin: auto;
-      background: #fff8ef;
-      border-radius: 18px;
-      overflow: hidden;
-      box-shadow: rgba(0, 0, 0, 0.15) 0px 8px 24px;
+    h1,
+    h2,
+    h3,
+    h4,
+    .font-serif {
+      font-family: 'Playfair Display', serif;
     }
 
-    .container-box {
-  display: flex;
-  flex-wrap: wrap;
-  border-radius: 18px;
-  overflow: hidden;
-  box-shadow: rgba(0, 0, 0, 0.15) 0px 8px 24px;
-}
-
-.left-panel {
-  flex: 0 0 45%;       /* width */
-  min-height: 100%;    /* make it fill container height */
-  background-image: url('{% static "images/foodie.jpg" %}');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 30px;
-  color: white;
-  text-align: center;
-  position: relative;
-}
-
-.left-panel::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.3);
-  z-index: 0;
-}
-
-.left-panel h2,
-.left-panel p {
-  position: relative;
-  z-index: 1;
-}
-    .signup-area {
-      padding: 55px;
-      width: 55%;
+    .animate-fade-in-up {
+      animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      opacity: 0;
+      transform: translateY(20px);
     }
 
-    .input-box {
-      border: 1px solid #d1b89c;
-      border-radius: 10px;
-      padding: 12px;
-      padding-left: 42px;
-      width: 100%;
-      background: #fffdf8;
-    }
-
-    .input-wrapper {
-      position: relative;
-      margin-bottom: 18px;
-    }
-
-    .input-wrapper i {
-      position: absolute;
-      left: 14px;
-      top: 14px;
-      color: #6b4a33;
-    }
-
-    .signup-btn {
-      background: #c58950;
-      color: white;
-      border-radius: 10px;
-      width: 100%;
-      padding: 12px;
-      transition: 0.3s;
-    }
-
-    .signup-btn:hover {
-      background: #a06c3b;
-    }
-    button:hover {
-    transform: scale(1.08);
-    background:#fff7ee;
-    cursor: pointer;
-    }
-    .google-link{
-      background: #d2e8f7;
-      color: white;
-      border-radius: 10px;
-      width: 100%;
-      padding: 12px;
-      transition: 0.3s; 
-    }
-    
-    .google-link:hover{
-      background:rgba(82, 138, 234, 0.89);
-      transform: scale(1.08);
-    }
-    .g-link{
-      text-decoration: none;
-    }
-    .link-text {
-      text-align: center;
-      margin-top: 12px;
-      font-size: 14px;
-    }
-
-    .link-text a {
-      color: #c58950;
-      font-weight: 600;
-      text-decoration: none;
-    }
-
-    .link-text a:hover {
-      text-decoration: underline;
-    }
-
-    @media (max-width: 768px) {
-      .container-box {
-        flex-direction: column;
-      }
-      .left-panel,
-      .signup-area {
-        width: 100%;
-        height: auto;
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
       }
     }
   </style>
 </head>
 
-<body>
-  <div class="container my-5">
-    <div class="container-box d-flex flex-wrap">
-      <!-- LEFT SECTION -->
-      <div class="left-panel">
-       
-        <h2>Welcome to the World of fanatasy food products </h2>
-        <p>
-          A taste that brings back childhood
-        </p>
+<body class="min-h-screen flex items-center justify-center p-4 lg:p-0">
+
+  <div
+    class="w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col lg:flex-row min-h-[700px] animate-fade-in-up">
+
+    <!-- Left Side - Image -->
+    <div class="lg:w-1/2 relative hidden lg:block">
+      <img
+        src="https://images.unsplash.com/photo-1517433670267-08bbd4be890f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1280&q=80"
+        alt="Artisanal Bakery Creation" class="absolute inset-0 w-full h-full object-cover">
+      <div
+        class="absolute inset-0 bg-gradient-to-t from-fantasy-walnut/90 via-fantasy-walnut/40 to-transparent flex flex-col justify-end p-12 text-white">
+        <h2 class="text-4xl font-serif font-bold mb-4">Begin Your Culinary Journey.</h2>
+        <p class="text-lg opacity-90 font-light">Join our community of food lovers and experience the magic of artisanal
+          baking.</p>
       </div>
+    </div>
 
-      <!-- SIGNUP FORM -->
-      <div class="signup-area">
-        <h3 class="fw-bold text-center mb-4" style="color: #5a3e2b;">Create Your Account</h3>
+    <!-- Right Side - Form -->
+    <div class="lg:w-1/2 p-8 lg:p-12 flex flex-col justify-center bg-white relative">
+      <div class="max-w-md mx-auto w-full">
 
-        <form method="POST" action="{% url 'account_ignup' %}">
-          {%  csrf_token %}
-          <div class="input-wrapper">
-          <i class="fa fa-user"></i>
-          {{ form.username }}
-          {% for error in form.username.errors %}
-          <div class="errorlist">{{ error }}</div>
-          {% endfor %}
+        <div class="text-center mb-8">
+          <a href="{% url 'home' %}"
+            class="inline-block mb-4 p-3 bg-fantasy-cream rounded-full text-fantasy-walnut hover:scale-110 transition-transform">
+            <i data-lucide="chef-hat" class="w-8 h-8"></i>
+          </a>
+          <h2 class="text-3xl font-serif font-bold text-[#5a3e2b] mb-2">Create Account</h2>
+          <p class="text-gray-500">Fill in your details to get started.</p>
         </div>
 
-          <div class="input-wrapper">
-            <i class="fa fa-envelope"></i>
-            {{ form.email }}
-          {% for error in form.email.errors %}
-          <div class="errorlist">{{ error }}</div>
-          {% endfor %}
-        </div>
+        <form method="POST" action="{% url 'account_signup' %}" class="space-y-5">
+          {% csrf_token %}
 
-          <div class="input-wrapper">
-            <i class="fa fa-lock"></i>
-            {{ form.password1 }}
-          {% for error in form.password1.errors %}
-          <div class="errorlist">{{ error }}</div>
-          {% endfor %}
-        </div>
-
-          <div class="input-wrapper">
-            <i class="fa fa-lock"></i>
-            {{ form.password2 }}
-          {% for error in form.password2.errors %}
-          <div class="errorlist">{{ error }}</div>
-          {% endfor %}
-        </div>
-
-          <button type="submit" class="btn signup-btn mt-2">Sign Up</button>
-        </form>
-          {% load socialaccount static %}
-          <div class="google-link text-center mt-3">
-            <a href="{% provider_login_url 'google' %}"
-              class="g-link w-100 d-flex align-items-center justify-content-center gap-2 py-2 px-3 border-0 bg-white text-decoration-none">
-              
-              <img src="{% static 'images/image.svg' %}" alt="Google Logo"
-                  style="width:20px; height:20px;">
-              <span>Sign in with Google</span>
-            </a>
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-2 ml-1">Username</label>
+            <div class="relative">
+              <i data-lucide="user" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+              <input type="text" name="username" placeholder="Choose a username" class="w-full pl-12 pr-5 py-3.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-800 
+                                       focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 focus:border-[#D4AF37] 
+                                       focus:bg-white transition-all duration-300" required>
+            </div>
           </div>
 
-        <p class="link-text">
-          Already have an account? <a href="{% url 'account_login' %}">Login</a>
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-2 ml-1">Email Address</label>
+            <div class="relative">
+              <i data-lucide="mail" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+              <input type="email" name="email" placeholder="name@example.com" class="w-full pl-12 pr-5 py-3.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-800 
+                                       focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 focus:border-[#D4AF37] 
+                                       focus:bg-white transition-all duration-300" required>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-2 ml-1">Password</label>
+              <div class="relative">
+                <i data-lucide="lock" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                <input type="password" name="password" placeholder="••••••••" class="w-full pl-12 pr-5 py-3.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-800 
+                                           focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 focus:border-[#D4AF37] 
+                                           focus:bg-white transition-all duration-300" required>
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-2 ml-1">Confirm</label>
+              <div class="relative">
+                <i data-lucide="check-circle"
+                  class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                <input type="password" name="confirm_password" placeholder="••••••••" class="w-full pl-12 pr-5 py-3.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-800 
+                                           focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 focus:border-[#D4AF37] 
+                                           focus:bg-white transition-all duration-300" required>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-2">
+            <button type="submit"
+              class="w-full bg-[#5a3e2b] text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-[#5a3e2b]/20 
+                                   hover:bg-[#D4AF37] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2">
+              Create Account <i data-lucide="arrow-right" class="w-5 h-5"></i>
+            </button>
+          </div>
+        </form>
+
+        <!-- OR Divider -->
+        <div class="relative my-6">
+          <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-gray-200"></div>
+          </div>
+          <div class="relative flex justify-center text-sm">
+            <span class="px-4 bg-white text-gray-400 font-medium">Or join with</span>
+          </div>
+        </div>
+
+        <!-- Google Sign In -->
+        <div class="text-center">
+          {% get_providers as social_providers %}
+          {% for provider in social_providers %}
+          {% if provider.id == 'google' %}
+          <a href="{% provider_login_url 'google' %}" class="flex items-center justify-center gap-3 w-full py-3 px-4 rounded-xl border-2 border-gray-100 
+                                hover:border-[#D4AF37]/30 hover:bg-[#FFF9F0] transition-all duration-300 group">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="w-6 h-6">
+            <span class="font-bold text-gray-600 group-hover:text-[#5a3e2b]">Sign up with Google</span>
+          </a>
+          {% endif %}
+          {% endfor %}
+        </div>
+
+        <p class="text-center text-sm mt-8 text-gray-500">
+          Already have an account? <a href="{% url 'account_login' %}"
+            class="text-[#5a3e2b] font-bold hover:text-[#D4AF37] transition-colors">Log In</a>
         </p>
       </div>
     </div>
   </div>
+
+  <script>
+    lucide.createIcons();
+  </script>
 </body>
+
 </html>

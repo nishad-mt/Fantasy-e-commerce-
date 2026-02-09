@@ -1,245 +1,261 @@
 {% extends 'index.html' %}
 {% load static %}
-{% block title %} <title>Fantasy Products</title>{% endblock %}
+{% block title %} <title>Fantasy Products | Artisanal Collection</title>{% endblock %}
 {% block content %}
-<head><meta name="csrf-token" content="{{ csrf_token }}">
+
+<head>
+    <meta name="csrf-token" content="{{ csrf_token }}">
 </head>
-    <!-- Header / Breadcrumb -->
-    <header class="pt-32 pb-8 bg-fantasy-cream border-b border-gray-100">
-        <div class="container mx-auto px-3">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                {% if selected_category %}
-                    <div class="flex items-center gap-5">
-                        {% if selected_category.image %}
-                            <img
-                                src="{{ selected_category.image.url }}"
-                                alt="{{ selected_category.name }}"
-                                class="w-28 h-20 rounded-xl object-cover shadow-sm border border-gray-200">
-                        {% endif %}
-                        <div>
-                            <h1 class="text-3xl font-serif font-bold text-fantasy-brown">
-                                {{ selected_category.name }}
-                            </h1>
-                            <p class="text-gray-500 text-md mt-1">
-                                {{ selected_category.description }}
-                            </p>
-                        </div>
-                    </div>
-                {% else %}
-                    <div>
-                        <h1 class="text-3xl font-serif font-bold text-fantasy-brown">
-                            Fresh Provisions
-                        </h1>
-                        <p class="text-gray-500 text-sm mt-1">
-                            Home made foods and crispy snacks.
-                        </p>
-                    </div>
-                {% endif %}
-                
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Content -->
-    <div class="container mx-auto px-6 py-8">
-        <div class="flex flex-col lg:flex-row gap-8">
-
-            <!-- Sidebar / Filters -->
-            <aside class="w-full lg:w-1/4 shrink-0">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 sticky top-28">
-
-                    <!-- Categories -->
-                    <div class="mb-8">
-                        <h3 class="font-bold text-fantasy-brown mb-4 flex justify-between items-center">
-                            Categories
-                            <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
-                        </h3>
-                        <ul class="space-y-3 text-sm text-gray-600">
-                            <li>
-                                <a href="{% url 'products' %}"
-                                    class="flex items-center gap-3 hover:text-fantasy-gold transition-colors text-fantasy-gold font-bold bg-fantasy-cream p-2 rounded-lg -mx-2">
-                                    <span class="w-6 text-center"><i class="fa-solid fa-basket-shopping text-fantasy-gold"></i>
-                                    </span> All Products
-                                    <span class="ml-auto text-xs text-gray-400 font-normal">{{total_product_count}}</span>
-                                </a>
-                            </li>
-                            {% for cat in category %}
-                            <li>
-                                <a href="{% url 'products_by_category' cat.slug %}"
-                                    class="flex items-center gap-3 hover:text-fantasy-brown hover:bg-gray-50 p-2 rounded-lg -mx-2 transition-colors">
-                                    {% if selected_category == cat %}  {% endif %}
-                                    <span>{{forloop.counter}}</span> {{ cat.name }}
-                                    <span class="ml-auto text-xs text-gray-400">{{cat.product_count}}</span>
-                                </a>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-
-                    <!-- Price Filter -->
-<form method="GET" class="mb-8">
-    <h3 class="font-bold text-fantasy-brown mb-4">Price Range</h3>
-
-    <div class="flex items-center gap-4 mb-4">
-        <input
-            type="number"
-            name="min_price"
-            placeholder="Min"
-            value="{{ request.GET.min_price }}"
-            class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-fantasy-gold"
-        >
-
-        <span class="text-gray-400">-</span>
-
-        <input
-            type="number"
-            name="max_price"
-            placeholder="Max"
-            value="{{ request.GET.max_price }}"
-            class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-fantasy-gold"
-        >
+<!-- Header / Breadcrumb -->
+<header class="pt-32 pb-12 bg-fantasy-cream relative overflow-hidden">
+    <div
+        class="absolute top-0 right-0 w-64 h-64 bg-fantasy-gold/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2">
     </div>
 
-    <!-- keep search -->
-    {% if request.GET.q %}
-        <input type="hidden" name="q" value="{{ request.GET.q }}">
-    {% endif %}
-
-    <!-- keep sort -->
-    {% if request.GET.sort %}
-        <input type="hidden" name="sort" value="{{ request.GET.sort }}">
-    {% endif %}
-
-    <button
-        type="submit"
-        class="w-full bg-fantasy-gold text-white py-2 rounded-lg text-sm hover:opacity-90 transition"
-    >
-        Apply Filter
-    </button>
-</form>
-
+    <div class="container mx-auto px-6 relative z-10">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+            {% if selected_category %}
+            <div class="flex items-center gap-6 animate-fade-in-up">
+                {% if selected_category.image %}
+                <img src="{{ selected_category.image.url }}" alt="{{ selected_category.name }}"
+                    class="w-24 h-24 md:w-32 md:h-32 rounded-2xl object-cover shadow-lg border-2 border-white rotate-3 hover:rotate-0 transition-transform duration-500">
+                {% endif %}
+                <div>
+                    <span
+                        class="text-xs font-bold tracking-widest text-fantasy-gold uppercase mb-2 block">Collection</span>
+                    <h1 class="text-4xl md:text-5xl font-serif font-bold text-fantasy-brown mb-2">
+                        {{ selected_category.name }}
+                    </h1>
+                    <p class="text-fantasy-brown/70 text-lg font-light max-w-xl">
+                        {{ selected_category.description }}
+                    </p>
                 </div>
-            </aside>
+            </div>
+            {% else %}
+            <div class="animate-fade-in-up">
+                <span class="text-xs font-bold tracking-widest text-fantasy-gold uppercase mb-2 block">Our Pantry</span>
+                <h1 class="text-4xl md:text-5xl font-serif font-bold text-fantasy-brown mb-2">
+                    Fresh Provisions
+                </h1>
+                <p class="text-fantasy-brown/70 text-lg font-light">
+                    Handcrafted delicacies, made with love and tradition.
+                </p>
+            </div>
+            {% endif %}
 
-            <!-- Product Grid Area -->
-            <main class="flex-1">
+        </div>
+    </div>
+</header>
 
-                <!-- Toolbar -->
-                <form method="GET" class="flex flex-col sm:flex-row items-center mb-6 gap-4">
-                    <div class="flex items-center gap-3 ml-auto">
+<!-- Main Content -->
+<div class="container mx-auto px-6 py-12">
+    <div class="flex flex-col lg:flex-row gap-12">
+
+        <!-- Sidebar / Filters -->
+        <aside class="w-full lg:w-1/4 shrink-0 space-y-8 h-fit lg:sticky lg:top-32 transition-all duration-300">
+            <!-- Mobile Filter Toggle (Visible on small screens) -->
+            <div class="lg:hidden mb-4">
+                <button
+                    class="w-full py-3 bg-white border border-fantasy-brown/20 rounded-xl flex items-center justify-center gap-2 font-bold text-fantasy-brown shadow-sm"
+                    onclick="document.getElementById('filters-panel').classList.toggle('hidden')">
+                    <i data-lucide="sliders-horizontal" class="w-4 h-4"></i> Filters
+                </button>
+            </div>
+
+            <div id="filters-panel" class="hidden lg:block space-y-8">
+                <!-- Categories -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-fantasy-brown/5">
+                    <h3 class="font-serif font-bold text-xl text-fantasy-brown mb-6 flex items-center gap-2">
+                        <i data-lucide="layout-grid" class="w-5 h-5 text-fantasy-gold"></i> Categories
+                    </h3>
+                    <ul class="space-y-2">
+                        <li>
+                            <a href="{% url 'products' %}"
+                                class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group {% if not selected_category %}bg-fantasy-cream text-fantasy-brown font-bold shadow-inner{% else %}text-gray-600 hover:bg-gray-50{% endif %}">
+                                <span
+                                    class="w-1 h-1 rounded-full {% if not selected_category %}bg-fantasy-gold{% else %}bg-gray-300 group-hover:bg-fantasy-gold{% endif %}"></span>
+                                All Products
+                                <span
+                                    class="ml-auto text-xs opacity-60 bg-white px-2 py-0.5 rounded-full border border-gray-100">{{total_product_count}}</span>
+                            </a>
+                        </li>
+                        {% for cat in category %}
+                        <li>
+                            <a href="{% url 'products_by_category' cat.slug %}"
+                                class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group {% if selected_category == cat %}bg-fantasy-cream text-fantasy-brown font-bold shadow-inner{% else %}text-gray-600 hover:bg-gray-50{% endif %}">
+                                <span
+                                    class="w-1 h-1 rounded-full {% if selected_category == cat %}bg-fantasy-gold{% else %}bg-gray-300 group-hover:bg-fantasy-gold{% endif %}"></span>
+                                {{ cat.name }}
+                                <span
+                                    class="ml-auto text-xs opacity-60 bg-white px-2 py-0.5 rounded-full border border-gray-100">{{cat.product_count}}</span>
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <!-- Price Filter -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-fantasy-brown/5">
+                    <form method="GET">
+                        <h3 class="font-serif font-bold text-xl text-fantasy-brown mb-6 flex items-center gap-2">
+                            <i data-lucide="banknote" class="w-5 h-5 text-fantasy-gold"></i> Price Range
+                        </h3>
+
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="relative flex-1">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">₹</span>
+                                <input type="number" name="min_price" placeholder="Min"
+                                    value="{{ request.GET.min_price }}"
+                                    class="w-full bg-gray-50 border-0 rounded-lg pl-7 pr-3 py-2 text-sm focus:ring-2 focus:ring-fantasy-gold/20 transition-all font-medium">
+                            </div>
+                            <span class="text-gray-300 font-light">/</span>
+                            <div class="relative flex-1">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">₹</span>
+                                <input type="number" name="max_price" placeholder="Max"
+                                    value="{{ request.GET.max_price }}"
+                                    class="w-full bg-gray-50 border-0 rounded-lg pl-7 pr-3 py-2 text-sm focus:ring-2 focus:ring-fantasy-gold/20 transition-all font-medium">
+                            </div>
+                        </div>
+
+                        <!-- keep params -->
+                        {% if request.GET.q %}<input type="hidden" name="q" value="{{ request.GET.q }}">{% endif %}
+                        {% if request.GET.sort %}<input type="hidden" name="sort" value="{{ request.GET.sort }}">{%
+                        endif %}
+
+                        <button type="submit"
+                            class="w-full bg-fantasy-brown text-white py-3 rounded-xl font-bold text-sm hover:bg-fantasy-gold transition-colors duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
+                            Apply Filter <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Product Grid Area -->
+        <main class="flex-1">
+
+            <!-- Toolbar -->
+            <div
+                class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4 bg-white p-4 rounded-xl shadow-sm border border-fantasy-brown/5">
+                <p class="text-sm text-gray-500 font-medium">
+                    Showing <span class="text-fantasy-brown font-bold">{{ products|length }}</span> results
+                </p>
+
+                <form method="GET" class="flex items-center gap-3">
+                    <div class="relative group">
+                        <i data-lucide="arrow-up-down"
+                            class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-hover:text-fantasy-gold transition-colors"></i>
                         <select name="sort" onchange="this.form.submit()"
-                            class="bg-white border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-600 focus:outline-none focus:border-fantasy-gold shadow-sm cursor-pointer">
-                            <option value="">Sort: --------</option>
-                            <option value="price_low" {% if request.GET.sort == 'price_low' %}selected{% endif %}>
-                                Price: Low to High
-                            </option>
-                            <option value="price_high" {% if request.GET.sort == 'price_high' %}selected{% endif %}>
-                                Price: High to Low
-                            </option>
-                            <option value="newest" {% if request.GET.sort == 'newest' %}selected{% endif %}>
-                                Newest First
+                            class="bg-gray-50 border-0 rounded-lg pl-10 pr-8 py-2 text-sm text-gray-600 focus:ring-2 focus:ring-fantasy-gold/20 cursor-pointer hover:bg-gray-100 transition-colors appearance-none font-medium">
+                            <option value="" disabled selected>Sort By</option>
+                            <option value="price_low" {% if request.GET.sort=='price_low' %}selected{% endif %}>Price:
+                                Low to High</option>
+                            <option value="price_high" {% if request.GET.sort=='price_high' %}selected{% endif %}>Price:
+                                High to Low</option>
+                            <option value="newest" {% if request.GET.sort=='newest' %}selected{% endif %}>Newest First
                             </option>
                         </select>
-
-                        <!-- keep search query -->
-                        {% if request.GET.q %}
-                            <input type="hidden" name="q" value="{{ request.GET.q }}">
-                        {% endif %}
                     </div>
+                    {% if request.GET.q %}<input type="hidden" name="q" value="{{ request.GET.q }}">{% endif %}
                 </form>
+            </div>
 
 
-                <!-- Grid -->
-                <!-- Note: Using local images provided in the file list -->
+            <!-- Grid -->
+            <!-- Staggered Entrance Class applied -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 stagger-enter">
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                {% for pdc in products %}
+                <div
+                    class="group relative bg-white rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-2 border border-black/5 overflow-hidden flex flex-col h-full">
 
-                    {% for pdc in products %}
-                    <a href="{% url 'user_product' pdc.slug %}">
-                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 group flex flex-col relative overflow-hidden">
-                    <form method="POST" action="{% url 'wishlist:toggle_wishlist' pdc.product_id %}">
+                    <!-- Wishlist Toggle -->
+                    <form method="POST" action="{% url 'wishlist:toggle_wishlist' pdc.product_id %}"
+                        class="absolute top-4 right-4 z-20">
                         {% csrf_token %}
-                        <button
-                            type="submit"
-                            class="absolute top-3 right-3 z-10 w-8 h-8 bg-white/80 backdrop-blur
-                            rounded-full flex items-center justify-center transition-all shadow-sm
-                            {% if pdc.product_id in wishlist_product_ids %}
-                                text-red-500
-                            {% else %}
-                                text-gray-400 hover:text-red-500
-                            {% endif %}">
+                        <button type="submit"
+                            class="w-10 h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110 active:scale-95
+                                {% if pdc.product_id in wishlist_product_ids %}text-red-500{% else %}text-gray-300 hover:text-red-500{% endif %}">
                             <i class="fa-solid fa-heart"></i>
                         </button>
                     </form>
 
-
+                    <a href="{% url 'user_product' pdc.slug %}" class="block h-full flex flex-col">
                         <!-- Image -->
-                        <div class="h-48 overflow-hidden bg-gray-50 relative">
-                            <img src="{{ pdc.main_image.url }}" alt="Fresh Onions"
-                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="aspect-[4/5] overflow-hidden bg-fantasy-cream/30 relative">
+                            <img src="{{ pdc.main_image.url }}" alt="{{ pdc.name }}"
+                                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]">
+
+                            <!-- Overlay on Hover -->
+                            <div
+                                class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            </div>
                         </div>
 
                         <!-- Content -->
-                        <div class="p-4 flex-1 flex flex-col">
-                            <div class="text-xs text-gray-400 mb-1">{{ pdc.category }}</div>
+                        <div class="p-6 flex-1 flex flex-col relative z-10 bg-white">
+                            <div class="text-xs font-bold tracking-widest text-fantasy-gold uppercase mb-2">{{
+                                pdc.category }}</div>
+
                             <h3
-                                class="font-bold text-gray-800 mb-1 text-lg group-hover:text-fantasy-brown transition-colors">
-                                {{ pdc.name }}</h3>
-                            <div class="flex items-center gap-1 mb-3">
-                                <div class="flex text-yellow-400 text-xs">
-                                    {% for i in "12345" %}
-                                        {% if forloop.counter <= pdc.avg_rating %}
-                                            <i class="fa-solid fa-star"></i>
-                                        {% else %}
-                                            <i class="fa-regular fa-star"></i>
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
-                                <span class="text-xs text-gray-400">
-                                    ({{ pdc.review_count|default:0 }} reviews)
-                                </span>
-                            </div>
-
-                            <div>
-                                {% if pdc.is_out_of_stock %}
-                                <span class="text-red-800">Unavailable</span>
-                                {% endif %}
-                            </div>
-                            <div class="mt-auto flex items-center justify-between gap-4">
-                            <div>
-                                <span class="text-lg font-bold text-fantasy-brown">
-                                    ₹{{ pdc.min_price }}
-                                </span>
-                                <span class="text-xs text-gray-500">
-                                    starting
-                                </span>
-                            </div>
-
-                            </div>
-                        </div>
-                    </div></a>
-                     {% empty %}
-                        <div class="col-span-full flex flex-col items-center justify-center py-16 text-center">
-                            <img
-                                src="{% static 'images/unnamed.png' %}"
-                                alt="No products"
-                                class="w-32 mb-6 opacity-20"
-                            />
-
-                            <h3 class="text-lg font-semibold text-gray-700">
-                                Products not added yet
+                                class="font-serif font-bold text-xl text-fantasy-brown mb-2 group-hover:text-fantasy-gold transition-colors leading-tight">
+                                {{ pdc.name }}
                             </h3>
 
-                            <p class="text-sm text-gray-500 mt-2">
-                                We’re getting things ready. Check back soon!
-                            </p>
+                            <div class="flex items-center gap-1 mb-4">
+                                <div class="flex text-yellow-400 text-xs">
+                                    {% for i in "12345" %}
+                                    {% if forloop.counter <= pdc.avg_rating %} <i class="fa-solid fa-star"></i>
+                                        {% else %}
+                                        <i class="fa-regular fa-star text-gray-200"></i>
+                                        {% endif %}
+                                        {% endfor %}
+                                </div>
+                                <span class="text-xs text-fantasy-brown/40 font-medium">({{ pdc.review_count|default:0
+                                    }})</span>
+                            </div>
+
+                            <div class="mt-auto flex items-end justify-between">
+                                <div>
+                                    {% if pdc.is_out_of_stock %}
+                                    <span
+                                        class="inline-block px-3 py-1 bg-red-100 text-red-600 text-xs font-bold rounded-full">Sold
+                                        Out</span>
+                                    {% else %}
+                                    <p class="text-xs text-gray-400 mb-1">Starting from</p>
+                                    <p class="text-2xl font-serif font-bold text-fantasy-brown">₹{{ pdc.min_price }}</p>
+                                    {% endif %}
+                                </div>
+
+                                <div
+                                    class="w-10 h-10 rounded-full bg-fantasy-cream flex items-center justify-center text-fantasy-brown group-hover:bg-fantasy-brown group-hover:text-white transition-colors duration-300">
+                                    <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                                </div>
+                            </div>
                         </div>
-                   {% endfor %}
+                    </a>
                 </div>
+                {% empty %}
+                <div
+                    class="col-span-full flex flex-col items-center justify-center py-24 text-center bg-fantasy-cream/30 rounded-3xl border border-dashed border-fantasy-brown/20 animate-fade-in-up">
+                    <div class="w-24 h-24 bg-fantasy-cream rounded-full flex items-center justify-center mb-6">
+                        <i data-lucide="cookie" class="w-10 h-10 text-fantasy-brown/30"></i>
+                    </div>
 
-            </main>
-        </div>
+                    <h3 class="text-xl font-serif font-bold text-fantasy-brown mb-2">
+                        Pantry is Empty
+                    </h3>
+
+                    <p class="text-gray-500 max-w-md mx-auto">
+                        We're baking something special! Check back soon or try adjusting your filters.
+                    </p>
+
+                    <a href="{% url 'products' %}" class="mt-6 text-fantasy-gold font-bold hover:underline">Clear
+                        Filters</a>
+                </div>
+                {% endfor %}
+            </div>
+        </main>
     </div>
-
-
+</div>
 {% endblock %}

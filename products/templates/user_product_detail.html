@@ -1,134 +1,144 @@
 {% extends 'index.html' %}
 {% load static %}
 
-{% block title %}{{ product.name|default:"Fantasy_bakery" }} | Fantasy Bakery{% endblock %}
+{% block title %}{{ product.name|default:"Fantasy_bakery" }} | Artisanal Collection{% endblock %}
 
 {% block content %}
 
-<div class="bg-fantasy-cream py-4 pt-28">
+<head>
+    <meta name="csrf-token" content="{{ csrf_token }}">
+</head>
+
+<!-- Breadcrumb -->
+<div class="bg-fantasy-cream pt-32 pb-6 border-b border-fantasy-brown/5">
     <div class="container mx-auto px-6">
-        <nav class="text-sm font-medium text-gray-500">
+        <nav class="text-sm font-medium text-fantasy-brown/50">
             <a href="{% url 'home' %}" class="hover:text-fantasy-brown transition-colors">Home</a>
-            <span class="mx-2">/</span>
-            <a href="{% url 'products_by_category' product.category.slug %}" class="hover:text-fantasy-brown transition-colors">{{ product.category }}</a>
-            <span class="mx-2">/</span>
+            <span class="mx-2 text-fantasy-gold">/</span>
+            <a href="{% url 'products_by_category' product.category.slug %}"
+                class="hover:text-fantasy-brown transition-colors">{{ product.category }}</a>
+            <span class="mx-2 text-fantasy-gold">/</span>
             <span class="text-fantasy-brown font-bold">{{ product.name|default:"Fantasy Foods" }}</span>
         </nav>
     </div>
 </div>
 
 <!-- Product Hero Section -->
-<section class="py-12 bg-white">
-    <div class="container mx-auto px-6">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
-            <!-- Product Images Gallery (Reduced Size: 5 cols instead of 6/half) -->
-            <div class="lg:col-span-5 space-y-4">
-                <div class="relative overflow-hidden rounded-2xl shadow-lg bg-gray-50 aspect-square group">
-                    <img id="main-product-image"
-                        src="{{ product.main_image.url }}"
-                        alt="Product Image"
-                        class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 cursor-zoom-in">
+<section class="py-12 bg-white relative">
+    <!-- Decorative background blobs -->
+    <div
+        class="absolute top-20 left-0 w-96 h-96 bg-fantasy-cream/50 rounded-full blur-3xl -translate-x-1/2 pointer-events-none">
+    </div>
 
-                    <!-- Discount Badge -->
-                    <!-- <span
-                        class="absolute top-4 left-4 bg-fantasy-pink-dark text-white text-sm font-bold px-3 py-1 rounded-full shadow-md">
-                        20% OFF
-                    </span> -->
+    <div class="container mx-auto px-6 relative z-10">
+        <div class="flex flex-col lg:flex-row gap-16">
 
-                    <!-- Wishlist Button -->
+            <!-- Product Images Gallery (Sticky on Desktop) -->
+            <div class="lg:w-1/2 space-y-6 h-fit lg:sticky lg:top-32 animate-fade-in-up">
+
+                <!-- Main Image Container -->
+                <div
+                    class="relative overflow-hidden rounded-3xl shadow-xl bg-white aspect-[4/3] group border border-gray-100">
+                    <img id="main-product-image" src="{{ product.main_image.url }}" alt="{{ product.name }}"
+                        class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] cursor-zoom-in">
+
+                    <!-- Wishlist Button (Floating) -->
                     <form method="POST" action="{% url 'wishlist:toggle_wishlist' product.product_id %}">
                         {% csrf_token %}
-                        <button
-                            type="submit"class="absolute top-3 right-3 z-10 w-8 h-8 bg-white/80 backdrop-blur
-                            rounded-full flex items-center justify-center transition-all shadow-sm
+                        <button type="submit" class="absolute top-6 right-6 z-20 w-12 h-12 bg-white/90 backdrop-blur-md
+                            rounded-full flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-110 active:scale-95
                             {% if product.product_id in wishlist_product_ids %}
                                 text-red-500
                             {% else %}
                                 text-gray-400 hover:text-red-500
                             {% endif %}">
-                            <i class="fa-solid fa-heart"></i>
+                            <i class="fa-solid fa-heart text-lg"></i>
                         </button>
                     </form>
-               </div>
 
-                <!-- Thumbnails -->
-                <div class="flex gap-4 overflow-x-auto pb-2 hide-scrollbar">
-                    <button 
-                    onclick="updateMainImage('{{ product.main_image.url }}', this)"
-                        class="relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border-2 border-fantasy-gold shadow-sm">
-                        <img src="{{ product.main_image.url }}"
-                            class="w-full h-full object-cover">
+                    {% if not product.is_active or product.is_out_of_stock %}
+                    <div class="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center z-10">
+                        <span
+                            class="bg-fantasy-brown text-white px-6 py-2 rounded-full font-bold tracking-widest uppercase shadow-xl">Out
+                            of Stock</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Thumbnails Scroll -->
+                <div class="flex gap-4 overflow-x-auto pb-4 hide-scrollbar snap-x">
+                    <button onclick="updateMainImage('{{ product.main_image.url }}', this)"
+                        class="relative w-24 h-24 flex-shrink-0 snap-start rounded-xl overflow-hidden border-2 border-fantasy-gold ring-2 ring-fantasy-gold/20 shadow-md transition-all hover:-translate-y-1">
+                        <img src="{{ product.main_image.url }}" class="w-full h-full object-cover">
                     </button>
                     {% for img in images %}
-                    <button 
-                    onclick="updateMainImage('{{ img.image.url }}', this)"
-                        class="relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border-2 border-fantasy-gold shadow-sm">
-                        <img src="{{ img.image.url }}"
-                            class="w-full h-full object-cover">
+                    <button onclick="updateMainImage('{{ img.image.url }}', this)"
+                        class="relative w-24 h-24 flex-shrink-0 snap-start rounded-xl overflow-hidden border-2 border-transparent hover:border-fantasy-gold shadow-sm transition-all hover:-translate-y-1">
+                        <img src="{{ img.image.url }}" class="w-full h-full object-cover">
                     </button>
                     {% endfor %}
                 </div>
             </div>
 
-            <!-- Product Details (Expanded Size: 7 cols) -->
-            <div class="lg:col-span-7 flex flex-col h-full">
-                <div class="mb-2">
-                    <span class="text-fantasy-gold font-bold uppercase tracking-wider text-xs">{{ product.category}}</span>
+            <!-- Product Details -->
+            <div class="lg:w-1/2 flex flex-col animate-fade-in-up delay-100">
+                <div class="mb-4">
+                    <span
+                        class="text-fantasy-gold font-bold uppercase tracking-widest text-xs border border-fantasy-gold/30 px-3 py-1 rounded-full">{{
+                        product.category}}</span>
                 </div>
 
-                <h1 class="text-4xl md:text-5xl font-serif font-bold text-fantasy-brown mb-4 leading-tight">
+                <h1 class="text-4xl md:text-6xl font-serif font-bold text-fantasy-brown mb-6 leading-tight">
                     {{ product.name|default:"Fantasy Foods" }}
                 </h1>
 
-                <!-- Ratings -->
-                <div class="flex items-center gap-4 mb-6">
-                    <div class="flex text-yellow-400 text-sm">
-                        {% for i in "12345" %}
-                                {% if forloop.counter <= avg_rating %}
-                                    <i class="fa-solid fa-star"></i>
-                                {% elif forloop.counter <= avg_rating|add:"0.5" %}
-                                    <i class="fa-solid fa-star-half-stroke"></i>
-                                {% else %}
-                                    <i class="fa-regular fa-star"></i>
-                                {% endif %}
-                        {% endfor %}
+                <!-- Ratings / Status -->
+                <div class="flex items-center gap-6 mb-8 border-b border-gray-100 pb-8">
+                    <div class="flex items-center gap-2">
+                        <div class="flex text-yellow-400 text-sm">
+                            {% for i in "12345" %}
+                            {% if forloop.counter <= avg_rating %} <i class="fa-solid fa-star"></i>
+                                {% elif forloop.counter <= avg_rating|add:"0.5" %} <i
+                                    class="fa-solid fa-star-half-stroke"></i>
+                                    {% else %}
+                                    <i class="fa-regular fa-star text-gray-300"></i>
+                                    {% endif %}
+                                    {% endfor %}
+                        </div>
+                        <span class="text-gray-400 text-sm font-medium">
+                            ({{review_count}} reviews)
+                        </span>
                     </div>
-                    <span class="text-gray-500 text-sm font-medium border-l border-gray-300 pl-4">
-                        {{ avg_rating|floatformat:1 }} ({{review_count}} reviews)
-                    </span>
-                    {% if product.is_active %}
-                    <span class="text-green-600 text-sm font-bold bg-green-50 px-2 py-0.5 rounded-full">
-                        In Stock
-                    </span>
-                    {% else %}
-                    <span class="text-red-600 text-sm font-bold bg-red-50 px-2 py-0.5 rounded-full">
-                        Out Of Stock
-                    </span>
-                    {% endif %}
                 </div>
 
-                <!-- Price -->
-                <div class="flex items-end gap-3 mb-6 bg-fantasy-cream/50 p-4 rounded-xl inline-block w-max">
-                    <span class="text-4xl font-bold text-fantasy-brown" id="product-price">{{ initial_variant.price }}</span>
-                    <span id= "product-mrp" class="text-xl text-gray-400 line-through mb-1">{{ initial_variant.price }}</span>
+                <!-- Price Area -->
+                <div class="mb-8">
+                    <p class="text-sm text-gray-500 mb-1">Total Price</p>
+                    <div class="flex items-baseline gap-4">
+                        <span class="text-5xl font-serif font-bold text-fantasy-brown" id="product-price">₹{{
+                            initial_variant.price }}</span>
+                        <span id="product-mrp"
+                            class="text-2xl text-gray-400 line-through decoration-fantasy-gold/50">₹{{
+                            initial_variant.price|add:29 }}</span>
+                    </div>
                 </div>
 
-                <p class="text-gray-600 leading-relaxed mb-8 text-lg">
+                <p class="text-fantasy-brown/80 leading-relaxed mb-10 text-lg font-light">
                     {{ product.description }}
                 </p>
 
                 <!-- Variants -->
                 {% if has_variants %}
-                <div class="mb-8">
-                    <h3 class="font-bold text-fantasy-brown mb-3">Choose Weight</h3>
+                <div class="mb-10 bg-fantasy-cream/30 p-6 rounded-2xl border border-fantasy-brown/5">
+                    <h3 class="font-bold text-fantasy-brown mb-4 flex items-center gap-2">
+                        <i data-lucide="scale" class="w-4 h-4"></i> Choose Quantity/Weight
+                    </h3>
                     <div class="flex flex-wrap gap-3" id="variant-selector">
                         {% for var in variants %}
                         <button type="button"
-                            class="variant-btn px-6 py-2 rounded-full border-2 border-gray-200 text-gray-600 transition-all font-medium"
-                            data-price="{{ var.price }}"
-                            data-mrp="{{ var.price|add:29 }}" 
-                            data-variant-id="{{ var.id }}"
-                            onclick="selectVariant(this)">
+                            class="variant-btn px-6 py-3 rounded-xl border-2 border-white bg-white text-gray-600 transition-all font-medium hover:border-fantasy-brown/30 shadow-sm"
+                            data-price="{{ var.price }}" data-mrp="{{ var.price|add:29 }}"
+                            data-variant-id="{{ var.id }}" onclick="selectVariant(this)">
                             {{ var.size_name }}
                         </button>
                         {% endfor %}
@@ -136,388 +146,341 @@
                 </div>
                 {% endif %}
 
-                <!-- Actions -->
-                <div class="flex flex-col sm:flex-row gap-4 mb-8">
-                    <!-- Quantity -->
-                    <div class="flex items-center border-2 border-gray-200 rounded-full h-14 w-max px-2">
-                        <button onclick="updateQuantity(-1)"
-                            class="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-fantasy-brown transition-colors">
-                            <i class="fa-solid fa-minus"></i>
-                        </button>
-                        <input type="text" value="1" id="quantity-input"
-                            class="w-12 text-center font-bold text-fantasy-brown bg-transparent focus:outline-none"
-                            readonly>
-                        <button onclick="updateQuantity(1)"
-                            class="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-fantasy-brown transition-colors">
-                            <i class="fa-solid fa-plus"></i>
-                        </button>
-                    </div>
+                <!-- Action Bar -->
+                <div
+                    class="mt-auto bg-white border-t border-gray-100 pt-8 lg:border-none lg:pt-0 sticky bottom-0 z-20 pb-6 lg:pb-0 lg:static">
+                    <div class="flex flex-col xl:flex-row gap-4">
+                        <!-- Quantity -->
+                        <div
+                            class="flex items-center justify-between border-2 border-gray-100 rounded-full h-16 px-2 w-full xl:w-48 bg-gray-50">
+                            <button onclick="updateQuantity(-1)"
+                                class="w-12 h-12 rounded-full flex items-center justify-center text-gray-400 hover:bg-white hover:shadow-sm hover:text-fantasy-brown transition-all">
+                                <i class="fa-solid fa-minus"></i>
+                            </button>
+                            <input type="text" value="1" id="quantity-input"
+                                class="w-12 text-center font-bold text-xl text-fantasy-brown bg-transparent focus:outline-none"
+                                readonly>
+                            <button onclick="updateQuantity(1)"
+                                class="w-12 h-12 rounded-full flex items-center justify-center text-gray-400 hover:bg-white hover:shadow-sm hover:text-fantasy-brown transition-all">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
 
-                        <!-- Add to Cart -->
-<form method="POST"
-      data-base-url="/cart/toggle/"
-      id="addToCartForm">
-
+                        <!-- Add to Cart Form -->
+                        <form method="POST" data-base-url="/cart/toggle/" id="addToCartForm" class="flex-1 w-full">
                             {% csrf_token %}
-
                             <input type="hidden" name="variant_id" id="selectedVariantInput">
                             <input type="hidden" name="quantity" id="quantityHidden" value="1">
 
-                            <button type="submit"
-                                id="addToCartBtn"
-                                class="flex-1 min-w-[240px] h-14 rounded-full bg-fantasy-brown
-                                    text-white font-semibold text-lg transition-all duration-300 ease-out hover:bg-fantasy-gold hover:text-fantasy-brown
-                                hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 active:shadow-md">
-                                <i class="fa-solid fa-cart-plus"></i> Add to Cart
+                            <button type="submit" id="addToCartBtn" class="w-full h-16 rounded-full bg-fantasy-cream border-2 border-fantasy-brown text-fantasy-brown font-bold text-lg 
+                                       transition-all duration-300 hover:bg-fantasy-brown hover:text-white
+                                       hover:shadow-xl active:scale-95 flex items-center justify-center gap-3">
+                                <i class="fa-solid fa-cart-shopping"></i> Add to Cart
                             </button>
                         </form>
 
-                    <!-- Buy Now -->
-<form method="POST"
-      data-base-url="/order/buy-now/"
-      id="buyNowForm"
-      class="flex-1">
-                        {% csrf_token %}
-                        <input type="hidden" name="variant_id" id="buyNowVariantInput">
-                        <input type="hidden" name="quantity" id="buyNowQuantity" value="1">
-                        <button
-                            class="w-full h-14 rounded-full font-semibold text-lg bg-fantasy-brown text-white
-                                transition-all duration-300 ease-out hover:bg-fantasy-gold hover:text-fantasy-brown
-                                hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 active:shadow-md">
-                            Buy Now
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+                        <!-- Buy Now Form -->
+                        <form method="POST" data-base-url="/order/buy-now/" id="buyNowForm" class="flex-1 w-full">
+                            {% csrf_token %}
+                            <input type="hidden" name="variant_id" id="buyNowVariantInput">
+                            <input type="hidden" name="quantity" id="buyNowQuantity" value="1">
 
-<!-- Description & Reviews Sections (Stacked) -->
-<section class="bg-fantasy-cream border-t border-fantasy-brown/10">
-    <div class="container mx-auto px-6 max-w-5xl">
-
-
-        <!-- Reviews Content (Stacked Below Description) -->
-        <div class="py-16">
-            <h3 class="text-3xl font-serif font-bold text-fantasy-brown mb-12 text-center">Customer Reviews ({{review_count}})</h3>
-
-            <div class="grid md:grid-cols-3 gap-12">
-                <!-- Summary -->
-                <div class="md:col-span-1">
-                    <div class="bg-white p-6 rounded-2xl shadow-sm text-center sticky top-24">
-                        <h4 class="text-5xl font-bold text-fantasy-brown mb-2">{{ avg_rating|floatformat:1 }}</h4>
-                        <div class="text-yellow-400 text-xl mb-2">
-                            {% for i in "12345" %}
-                                {% if forloop.counter <= avg_rating %}
-                                    <i class="fa-solid fa-star"></i>
-                                {% elif forloop.counter <= avg_rating|add:"0.5" %}
-                                    <i class="fa-solid fa-star-half-stroke"></i>
-                                {% else %}
-                                    <i class="fa-regular fa-star"></i>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                        <p class="text-gray-500 text-sm mb-6">Based on {{review_count}} reviews</p>
-
-                        {% if user.is_authenticated %}
-                                <a href="{% url 'write_review' product.slug %}">
-                                    <button
-                                        class="w-full mt-6 py-2 border border-fantasy-brown text-fantasy-brown font-bold rounded-lg
-                                            hover:bg-fantasy-brown hover:text-white transition-colors">
-                                        Write a Review
-                                    </button>
-                                </a>
-                            {% else %}
-                                <a href="{% url 'account_login' %}?next={% url 'write_review' product.slug %}"
-                                class="block w-full mt-6 py-2 border border-gray-300 text-gray-500 font-bold rounded-lg
-                                        hover:bg-gray-50 transition-colors text-center">
-                                    Login to Review
-                                </a>
-                            {% endif %}
-
-                    </div>
-                </div>
-
-                <!-- Review List & Form -->
-                <div class="md:col-span-2 space-y-6">
-
-                    <!-- Review Form (Hidden initially) -->
-                    <div id="review-form"
-                        class="hidden bg-gray-50 p-6 rounded-2xl border border-gray-200 mb-6 animate-fade-in-up">
-                        <div class="flex justify-between items-center mb-4">
-                            <h4 class="font-bold text-fantasy-brown">Write your review</h4>
-                            <button onclick="document.getElementById('review-form').classList.add('hidden')"
-                                class="text-gray-400 function hover:text-gray-600"><i
-                                    class="fa-solid fa-xmark"></i></button>
-                        </div>
-                        <form method="POST" action="{% url 'write_review' product.slug %}">
-                        {% csrf_token %}
-                            <div class="mb-4">
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Rating</label>
-                                <div class="flex gap-2 text-2xl text-gray-300 hover:text-yellow-400 cursor-pointer">
-                                    <i class="fa-solid fa-star hover:text-yellow-400"></i>
-                                    <i class="fa-solid fa-star hover:text-yellow-400"></i>
-                                    <i class="fa-solid fa-star hover:text-yellow-400"></i>
-                                    <i class="fa-solid fa-star hover:text-yellow-400"></i>
-                                    <i class="fa-solid fa-star hover:text-yellow-400"></i>
-                                </div>
-                            </div>
-                            <div class="mb-4">
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Your Review</label>
-                                <textarea rows="4"
-                                    class="w-full rounded-lg border-gray-200 p-3 focus:ring-fantasy-brown focus:border-fantasy-brown"
-                                    placeholder="What did you like or dislike?"></textarea>
-                            </div>
-                            <button type="submit"
-                                class="bg-fantasy-brown text-white px-6 py-2 rounded-lg font-bold hover:bg-opacity-90">Submit
-                                Review</button>
+                            <button class="w-full h-16 rounded-full bg-fantasy-gold text-white font-bold text-lg
+                                    transition-all duration-300 shadow-lg hover:shadow-gold/50
+                                    hover:-translate-y-1 active:scale-95 hover:bg-[#C5A028]">
+                                Buy Now
+                            </button>
                         </form>
                     </div>
-
-                        {% for r in product.reviews.all %}
-                            {% if r.is_approved %}
-                            <div class="review-item {% if forloop.counter > 2 %}hidden extra-review{% endif %}
-                                bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-
-                                <div class="flex justify-between items-start mb-4">
-
-                                    <!-- Left: Avatar + Name -->
-                                    <div class="flex items-center gap-4">
-                                        <div class="w-10 h-10 rounded-full bg-fantasy-gold/20 flex items-center justify-center text-fantasy-brown font-bold">
-                                            {{ r.user.username|slice:":2"|upper }}
-                                        </div>
-                                        <div>
-                                            <h5 class="font-bold text-gray-800">
-                                                {{ r.user.get_full_name|default:r.user.username }}
-                                            </h5>
-
-                                            <div class="text-yellow-400 text-xs">
-                                                {% for i in "12345" %}
-                                                    {% if forloop.counter <= r.rating %}
-                                                        <i class="fa-solid fa-star"></i>
-                                                    {% else %}
-                                                        <i class="fa-regular fa-star"></i>
-                                                    {% endif %}
-                                                {% endfor %}
-                                            </div>
-
-                                            {% if r.is_verified_purchase %}
-                                                <span class="text-xs text-green-600 font-medium">
-                                                    Verified Purchase
-                                                </span>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-
-                                    <!-- Right: Time + Actions -->
-                                    <div class="text-right">
-                                        <span class="block text-xs text-gray-400">
-                                            {{ r.created_at|timesince }} ago
-                                        </span>
-
-                                        {% if r.user == request.user or request.user.is_staff %}
-                                        <div class="flex gap-3 text-xs mt-2 justify-end">
-                                            <a href="{% url 'edit_review' r.review_id %}"
-                                            class="text-blue-500 hover:underline">
-                                                Edit
-                                            </a>
-                                            <a href="{% url 'delete_review' r.review_id %}"
-                                            class="text-red-500 hover:underline"
-                                            onclick="return confirm('Delete this review?');">
-                                                Delete
-                                            </a>
-                                        </div>
-                                        {% endif %}
-                                    </div>
-
-                                </div>
-
-                                <p class="text-gray-600">{{ r.review }}</p>
-                            </div>
-                            {% endif %}
-                        {% endfor %}
-                        {% if review_count > 2 %}
-                        <button id="viewMoreBtn"
-                            class="mt-4 text-fantasy-brown font-semibold text-sm hover:underline">
-                            View more reviews
-                        </button>
-                        {% endif %}
-
                 </div>
+
+                <!-- Guarantee Badges -->
+                <div
+                    class="flex gap-6 mt-8 pt-8 border-t border-gray-100 text-gray-400 text-xs font-bold uppercase tracking-widest">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="shield-check" class="w-5 h-5 text-fantasy-gold"></i>
+                        Secure Payment
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="truck" class="w-5 h-5 text-fantasy-gold"></i>
+                        Fast Delivery
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="badge-check" class="w-5 h-5 text-fantasy-gold"></i>
+                        Quality Assured
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
 </section>
 
-<!-- Related Products -->
-<section class="py-16 bg-white">
-    <div class="container mx-auto px-6">
-        <h2 class="text-3xl font-serif font-bold text-fantasy-brown mb-8 text-center">You Might also like</h2>
+<!-- Reviews & Related (Combined Section for Cleanliness) -->
+<section class="bg-fantasy-cream border-t border-fantasy-brown/5 py-20">
+    <div class="container mx-auto px-6 max-w-6xl">
 
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-5">
-            {% for latest in latest_products %}
-
-            <a href="{% url 'user_product' latest.slug %}"
-            class="group cursor-pointer block">
-
-                <div class="relative overflow-hidden rounded-xl bg-gray-100 aspect-[4/5] mb-3">
-                    <img src="{{ latest.main_image.url }}"
-                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                </div>
-
-                <h3 class="font-bold text-gray-800 text-sm group-hover:text-fantasy-gold transition-colors">
-                    {{ latest.name }}
-                </h3>
-
-                <span class="font-bold text-fantasy-brown">
-                    ₹{{ latest.starting_price }}
-                </span>
-
-            </a>
-
-            {% endfor %}
+        <!-- Tab Headers (Visual only for now) -->
+        <div class="flex items-center justify-center gap-8 mb-16 border-b border-fantasy-brown/10 pb-1">
+            <button
+                class="text-2xl font-serif font-bold text-fantasy-brown border-b-2 border-fantasy-brown pb-4 px-4">Reviews
+                ({{review_count}})</button>
+            <button
+                class="text-2xl font-serif font-bold text-gray-400 hover:text-fantasy-brown transition-colors pb-4 px-4">Description</button>
         </div>
 
+        <div class="grid lg:grid-cols-12 gap-12">
+            <!-- Review Summary & List -->
+            <div class="lg:col-span-8 space-y-8">
+
+                <!-- Review List -->
+                <div class="space-y-6">
+                    {% for r in product.reviews.all %}
+                    {% if r.is_approved %}
+                    <div class="review-item {% if forloop.counter > 2 %}hidden extra-review{% endif %}
+                            bg-white p-8 rounded-3xl shadow-sm border border-gray-100 flex gap-6">
+
+                        <!-- Avatar -->
+                        <div
+                            class="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-fantasy-gold to-fantasy-brown flex items-center justify-center text-white font-bold text-lg shadow-md">
+                            {{ r.user.get_full_name|slice:":1"|default:r.user.username|slice:":1"|upper }}
+                        </div>
+
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-2">
+                                <h5 class="font-bold text-fantasy-brown text-lg">
+                                    {{ r.user.get_full_name|default:r.user.username }}
+                                </h5>
+                                <span class="text-xs text-gray-400">{{ r.created_at|timesince }} ago</span>
+                            </div>
+
+                            <div class="flex items-center gap-2 mb-4">
+                                <div class="text-yellow-400 text-xs flex">
+                                    {% for i in "12345" %}
+                                    {% if forloop.counter <= r.rating %} <i class="fa-solid fa-star"></i>
+                                        {% else %}
+                                        <i class="fa-regular fa-star text-gray-200"></i>
+                                        {% endif %}
+                                        {% endfor %}
+                                </div>
+                                {% if r.is_verified_purchase %}
+                                <span
+                                    class="text-[10px] text-green-600 font-bold uppercase tracking-wide bg-green-50 px-2 py-0.5 rounded-full">Verified</span>
+                                {% endif %}
+                            </div>
+
+                            <p class="text-gray-600 leading-relaxed">{{ r.review }}</p>
+
+                            <!-- Edit Actions -->
+                            {% if r.user == request.user or request.user.is_staff %}
+                            <div class="flex gap-4 text-xs mt-4 pt-4 border-t border-gray-50">
+                                <a href="{% url 'edit_review' r.review_id %}"
+                                    class="text-fantasy-brown font-bold hover:underline">Edit</a>
+                                <a href="{% url 'delete_review' r.review_id %}"
+                                    class="text-red-500 font-bold hover:underline"
+                                    onclick="return confirm('Delete this review?');">Delete</a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+
+                {% if review_count > 2 %}
+                <div class="text-center">
+                    <button id="viewMoreBtn"
+                        class="inline-flex items-center gap-2 text-fantasy-brown font-bold hover:text-fantasy-gold transition-colors">
+                        View More Reviews <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                {% endif %}
+
+                <!-- Write Review CTA -->
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-fantasy-brown/5 text-center mt-12">
+                    <h3 class="font-serif font-bold text-2xl text-fantasy-brown mb-2">Have you tasted this?</h3>
+                    <p class="text-gray-500 mb-6">Share your experience with our community.</p>
+
+                    {% if user.is_authenticated %}
+                    <button onclick="document.getElementById('review-form').classList.remove('hidden')"
+                        class="px-8 py-3 bg-fantasy-brown text-white font-bold rounded-full hover:shadow-lg transition-all hover:-translate-y-1">
+                        Write a Review
+                    </button>
+                    {% else %}
+                    <a href="{% url 'account_login' %}?next={{ request.path }}"
+                        class="px-8 py-3 border-2 border-fantasy-brown text-fantasy-brown font-bold rounded-full hover:bg-fantasy-brown hover:text-white transition-all inline-block">
+                        Login to Review
+                    </a>
+                    {% endif %}
+
+                    <!-- Hidden Form -->
+                    <div id="review-form" class="hidden mt-8 text-left animate-fade-in-up">
+                        <form method="POST" action="{% url 'write_review' product.slug %}">
+                            {% csrf_token %}
+                            <div class="mb-6">
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Rating</label>
+                                <div
+                                    class="flex gap-2 text-3xl text-gray-200 hover:text-yellow-400 cursor-pointer w-max">
+                                    <i class="fa-solid fa-star hover:text-yellow-400 transition-colors"></i>
+                                    <i class="fa-solid fa-star hover:text-yellow-400 transition-colors"></i>
+                                    <i class="fa-solid fa-star hover:text-yellow-400 transition-colors"></i>
+                                    <i class="fa-solid fa-star hover:text-yellow-400 transition-colors"></i>
+                                    <i class="fa-solid fa-star hover:text-yellow-400 transition-colors"></i>
+                                </div>
+                                <p class="text-xs text-gray-400 mt-1">Tap stars to rate</p>
+                            </div>
+                            <div class="mb-6">
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Your Review</label>
+                                <textarea name="review" rows="4"
+                                    class="w-full rounded-2xl border-gray-200 p-4 focus:ring-2 focus:ring-fantasy-gold/20 focus:border-fantasy-gold outline-none transition-all"
+                                    placeholder="Tell us what you loved..."></textarea>
+                            </div>
+                            <button type="submit"
+                                class="w-full py-4 bg-fantasy-brown text-white rounded-xl font-bold hover:shadow-lg hover:bg-fantasy-gold transition-colors">
+                                Submit Review
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Related Products (Sidebar Style) -->
+            <div class="lg:col-span-4">
+                <h3 class="font-serif font-bold text-2xl text-fantasy-brown mb-6">You Might Also Like</h3>
+                <div class="grid grid-cols-1 gap-6">
+                    {% for latest in latest_products|slice:":3" %}
+                    <a href="{% url 'user_product' latest.slug %}"
+                        class="group flex gap-4 items-center bg-white p-4 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all hover:-translate-y-1">
+                        <div class="w-20 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-gray-50">
+                            <img src="{{ latest.main_image.url }}"
+                                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-bold text-fantasy-gold uppercase tracking-wider">{{
+                                latest.category.name }}</span>
+                            <h4
+                                class="font-bold text-fantasy-brown text-lg leading-tight mb-1 group-hover:text-fantasy-gold transition-colors">
+                                {{ latest.name }}
+                            </h4>
+                            <span class="font-serif font-bold text-gray-500">
+                                ₹{{ latest.starting_price }}
+                            </span>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
     </div>
 </section>
 
 <!-- Page Specific Scripts -->
 <script>
+    // Initialize
+    document.addEventListener("DOMContentLoaded", function () {
+        lucide.createIcons();
+
+        // Select first variant by default
+        const firstVariantBtn = document.querySelector('.variant-btn');
+        if (firstVariantBtn) {
+            selectVariant(firstVariantBtn);
+        }
+    });
+
     // Image Gallery
-    function updateMainImage(src) {
+    function updateMainImage(src, btn) {
         const mainImage = document.getElementById('main-product-image');
-        // Simple fade effect
+        // Effect
         mainImage.style.opacity = '0.5';
+        mainImage.style.transform = 'scale(0.98)';
+
+        // Highlight active thumb
+        document.querySelectorAll('[onclick^="updateMainImage"]').forEach(b => {
+            b.classList.remove('ring-2', 'ring-fantasy-gold/20', 'border-fantasy-gold');
+            b.classList.add('border-transparent');
+        });
+        btn.classList.add('ring-2', 'ring-fantasy-gold/20', 'border-fantasy-gold');
+        btn.classList.remove('border-transparent');
+
         setTimeout(() => {
             mainImage.src = src;
             mainImage.style.opacity = '1';
-        }, 150);
-
-        // Update active state of thumbnails (optional visual enhancement)
-        // ... code to toggle active class on clicked thumb
+            mainImage.style.transform = 'scale(1)';
+        }, 200);
     }
 
-    // Variant Selection & Price Update
-function selectVariant(btn) {
-    // Reset all buttons
-    document.querySelectorAll('.variant-btn').forEach(b => {
-        b.classList.remove(
-            'bg-fantasy-brown',
-            'text-white',
-            'border-fantasy-brown',
-            'shadow-md',
-            'scale-105'
-        );
-        b.classList.add('text-gray-600', 'border-gray-200');
-    });
+    // Variant Selection & Price Update logic maintained
+    function selectVariant(btn) {
+        // Reset all buttons style
+        document.querySelectorAll('.variant-btn').forEach(b => {
+            b.className = 'variant-btn px-6 py-3 rounded-xl border-2 border-white bg-white text-gray-600 transition-all font-medium hover:border-fantasy-brown/30 shadow-sm cursor-pointer';
+        });
 
-    // Activate selected button
-    btn.classList.remove('text-gray-600', 'border-gray-200');
-    btn.classList.add(
-        'bg-fantasy-brown',
-        'text-white',
-        'border-fantasy-brown',
-        'shadow-md',
-        'scale-105'
-    );
+        // Activate selected
+        btn.className = 'variant-btn px-6 py-3 rounded-xl border-2 border-fantasy-brown bg-fantasy-brown text-white transition-all font-bold shadow-lg shadow-fantasy-brown/20 scale-105 cursor-pointer';
 
-    // Prices
-    selectedPrice = parseFloat(btn.dataset.price);
-    selectedMrp   = parseFloat(btn.dataset.mrp);
+        // Update Prices
+        selectedPrice = parseFloat(btn.dataset.price);
+        const qty = parseInt(document.getElementById('quantity-input').value, 10);
 
-    const qty = parseInt(document.getElementById('quantity-input').value, 10);
-    updateTotalPrice(qty);
+        // Update DOM Price
+        document.getElementById('product-price').innerText = `₹${selectedPrice}`;
+        document.getElementById('product-mrp').innerText = `₹${selectedPrice + 29}`;
 
-    // ✅ CART FIX (CRITICAL)
-    const variantId = btn.dataset.variantId;
+        // ✅ IMPORTANT: Sync Forms
+        const variantId = btn.dataset.variantId;
 
-    // set hidden input
-    const addToCartForm = document.getElementById('addToCartForm');
-    const buyNowForm = document.getElementById('buyNowForm');
+        const addToCartForm = document.getElementById('addToCartForm');
+        const buyNowForm = document.getElementById('buyNowForm');
 
-    addToCartForm.action = `${addToCartForm.dataset.baseUrl}${variantId}/`;
-    buyNowForm.action = `${buyNowForm.dataset.baseUrl}${variantId}/`;
+        // Update Action URLs? Logic in original code uses dataset.baseUrl + variantId
+        // Keeping it simpler: Just ensure the hidden input variant_id is set. 
+        // The original code appended /variant_id/ to the form action. I will maintain that if required, but standard hidden input is cleaner.
+        // Let's assume the view handles POST variable 'variant_id'. But looking at original code:
+        // `addToCartForm.action = ${addToCartForm.dataset.baseUrl}${variantId}/;` 
+        // implies the URL structure expects the variant ID in the path. I must preserve this.
 
-    document.getElementById('buyNowVariantInput').value = variantId;
-    document.getElementById('buyNowForm').action = `/order/buy-now/${variantId}/`;
+        addToCartForm.action = `${addToCartForm.dataset.baseUrl}${variantId}/`;
+        buyNowForm.action = `${buyNowForm.dataset.baseUrl}${variantId}/`;
 
-    // reset quantity
-    document.getElementById('quantity-input').value = 1;
-    document.getElementById('quantityHidden').value = 1;
-    document.getElementById('buyNowQuantity').value = 1;
+        document.getElementById('selectedVariantInput').value = variantId; // Backup
+        document.getElementById('buyNowVariantInput').value = variantId; // Backup
 
-    updateTotalPrice(1);
-
-}
-
-    // Quantity Logic
-let selectedMrp   = {{ initial_variant.price|add:29 }};
-let quantity = 1;
-let selectedPrice = {{ initial_variant.price }};   // updated when variant is selected
-let maxQty = 10;         // can be dynamic from stock
-
-function updateQuantity(change) {
-    const input = document.getElementById('quantity-input');
-    let qty = parseInt(input.value, 10);
-
-    qty += change;
-    if (qty < 1) qty = 1;
-    if (qty > maxQty) qty = maxQty;
-
-    input.value = qty;
-
-    // ✅ sync quantity to form
-    document.getElementById('quantityHidden').value = qty;
-    document.getElementById('buyNowQuantity').value = qty;   
-
-    updateTotalPrice(qty);
-    toggleQtyButtons(qty);
-}
-
-function updateTotalPrice(qty) {
-    const sellingTotal = selectedPrice * qty;
-    const mrpTotal = selectedMrp * qty;
-
-    document.getElementById('product-price').innerText =
-        `₹${sellingTotal.toFixed(2)}`;
-
-    document.getElementById('product-mrp').innerText =
-        `₹${mrpTotal.toFixed(2)}`;
-}
-
-
-function toggleQtyButtons(qty) {
-    const minusBtn = document.querySelector('[onclick="updateQuantity(-1)"]');
-    const plusBtn  = document.querySelector('[onclick="updateQuantity(1)"]');
-
-    minusBtn.classList.toggle('opacity-40', qty === 1);
-    plusBtn.classList.toggle('opacity-40', qty === maxQty);
-
-    minusBtn.disabled = qty === 1;
-    plusBtn.disabled  = qty === maxQty;
-}
-
-
-    document.addEventListener("DOMContentLoaded", function () {
-    const firstVariantBtn = document.querySelector('.variant-btn');
-
-    if (firstVariantBtn) {
-        selectVariant(firstVariantBtn);
+        updateTotalPrice(qty);
     }
-});
-    
-    setTimeout(() => {
-        const msg = document.getElementById("cart-success");
-        if (msg) msg.style.display = "none";
-    }, 3000);
 
-    document.getElementById("viewMoreBtn").addEventListener("click", function () {
-    document.querySelectorAll(".extra-review").forEach(el => {
-        el.classList.remove("hidden");
+    let selectedPrice = {{ initial_variant.price }};
+    let maxQty = 10;
+
+    function updateQuantity(change) {
+        const input = document.getElementById('quantity-input');
+        let qty = parseInt(input.value, 10);
+        qty += change;
+        if (qty < 1) qty = 1;
+        if (qty > maxQty) qty = maxQty;
+        input.value = qty;
+
+        // Sync to forms
+        document.getElementById('quantityHidden').value = qty;
+        document.getElementById('buyNowQuantity').value = qty;
+
+        updateTotalPrice(qty);
+    }
+
+    function updateTotalPrice(qty) {
+        document.getElementById('product-price').innerText = `₹${(selectedPrice * qty)}`;
+        document.getElementById('product-mrp').innerText = `₹${((selectedPrice + 29) * qty)}`;
+    }
+
+    // View More Reviews
+    document.getElementById("viewMoreBtn")?.addEventListener("click", function () {
+        document.querySelectorAll(".extra-review").forEach(el => {
+            el.classList.remove("hidden");
+            el.classList.add("animate-fade-in-up");
+        });
+        this.style.display = "none";
     });
-
-    this.style.display = "none";
-});
 </script>
 {% endblock %}

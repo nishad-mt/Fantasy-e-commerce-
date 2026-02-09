@@ -559,6 +559,7 @@
     </div>
     <script src="{% static 'script/script.js' %}"></script>
     <script>
+        // Copy Coupon
         function copyCoupon(button, code) {
             navigator.clipboard.writeText(code).then(() => {
                 const originalText = button.innerText;
@@ -571,8 +572,64 @@
                 }, 2000);
             });
         }
+
         // Initialize Lucide Icons
         lucide.createIcons();
+
+        // Artisanal Mobile Menu Logic
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuItems = document.querySelectorAll('.stagger-enter-item');
+        let isMenuOpen = false;
+
+        menuBtn.addEventListener('click', () => {
+            isMenuOpen = !isMenuOpen;
+
+            if (isMenuOpen) {
+                // Open Menu
+                mobileMenu.classList.remove('translate-x-full');
+
+                // Stagger Animations for Links
+                menuItems.forEach((item, index) => {
+                    item.style.opacity = '0';
+                    item.style.transform = 'translateY(20px)';
+                    setTimeout(() => {
+                        item.style.transition = 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+                        item.style.opacity = '1';
+                        item.style.transform = 'translateY(0)';
+                    }, 100 + (index * 100));
+                });
+
+                // Icon Change
+                menuBtn.innerHTML = '<i data-lucide="x" class="w-7 h-7"></i>';
+                lucide.createIcons();
+
+            } else {
+                // Close Menu
+                mobileMenu.classList.add('translate-x-full');
+                menuBtn.innerHTML = '<i data-lucide="menu" class="w-7 h-7"></i>';
+                lucide.createIcons();
+            }
+        });
+
+        // Page Transition Handling
+        document.addEventListener('DOMContentLoaded', () => {
+            // Handle internal links for smooth fade-out
+            const links = document.querySelectorAll('a[href^="/"]');
+            links.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    // Check if it's not a new tab or modifier key
+                    if (link.target !== '_blank' && !e.ctrlKey && !e.metaKey) {
+                        e.preventDefault();
+                        document.body.style.opacity = '0';
+                        setTimeout(() => {
+                            window.location.href = link.href;
+                        }, 300); // Wait for fade out
+                    }
+                });
+            });
+        });
+
     </script>
 
 </body>
