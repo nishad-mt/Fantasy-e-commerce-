@@ -162,73 +162,72 @@
 
             <!-- Grid -->
             <!-- Staggered Entrance Class applied -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 stagger-enter">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 stagger-enter">
 
                 {% for pdc in products %}
                 <div
-                    class="group relative bg-white rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-2 border border-black/5 overflow-hidden flex flex-col h-full">
+                    class="group relative bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 ease-out hover:-translate-y-1 border border-black/5 overflow-hidden flex flex-col h-full">
 
                     <!-- Wishlist Toggle -->
                     <form method="POST" action="{% url 'wishlist:toggle_wishlist' pdc.product_id %}"
-                        class="absolute top-4 right-4 z-20">
+                        class="absolute top-2 right-2 z-20">
                         {% csrf_token %}
                         <button type="submit"
-                            class="w-10 h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110 active:scale-95
+                            class="w-8 h-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110 active:scale-95
                                 {% if pdc.product_id in wishlist_product_ids %}text-red-500{% else %}text-gray-300 hover:text-red-500{% endif %}">
-                            <i class="fa-solid fa-heart"></i>
+                            <i class="fa-solid fa-heart text-xs"></i>
                         </button>
                     </form>
 
                     <a href="{% url 'user_product' pdc.slug %}" class="block h-full flex flex-col">
                         <!-- Image -->
-                        <div class="aspect-[4/5] overflow-hidden bg-fantasy-cream/30 relative">
+                        <div class="aspect-square overflow-hidden bg-fantasy-cream/30 relative">
                             <img src="{{ pdc.main_image.url }}" alt="{{ pdc.name }}"
-                                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]">
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out">
 
                             <!-- Overlay on Hover -->
                             <div
-                                class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                class="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                             </div>
                         </div>
 
                         <!-- Content -->
-                        <div class="p-6 flex-1 flex flex-col relative z-10 bg-white">
-                            <div class="text-xs font-bold tracking-widest text-fantasy-gold uppercase mb-2">{{
-                                pdc.category }}</div>
+                        <div class="p-4 flex-1 flex flex-col relative z-10 bg-white">
+                            <div class="text-[10px] font-bold tracking-widest text-fantasy-gold uppercase mb-1">{{ pdc.category }}</div>
 
                             <h3
-                                class="font-serif font-bold text-xl text-fantasy-brown mb-2 group-hover:text-fantasy-gold transition-colors leading-tight">
+                                class="font-serif font-bold text-sm md:text-base text-fantasy-brown mb-1 group-hover:text-fantasy-gold transition-colors leading-tight line-clamp-2">
                                 {{ pdc.name }}
                             </h3>
 
-                            <div class="flex items-center gap-1 mb-4">
-                                <div class="flex text-yellow-400 text-xs">
-                                {% for i in "12345" %}
-                                    {% if forloop.counter <= pdc.avg_rating %}
-                                        <i class="fa-solid fa-star"></i>
-                                    {% else %}
+                            <div class="flex items-center gap-1 mb-2">
+                                <div class="flex text-yellow-400 text-[10px]">
+                                    {% for i in "12345" %}
+                                    {% if forloop.counter <= pdc.avg_rating %} <i class="fa-solid fa-star"></i>
+                                        {% else %}
                                         <i class="fa-regular fa-star text-gray-200"></i>
-                                    {% endif %}
-                                {% endfor %}
+                                        {% endif %}
+                                        {% endfor %}
                                 </div>
-                                <span class="text-xs text-fantasy-brown/40 font-medium">({{ pdc.review_count|default:0}})</span>
+                                <span class="text-[10px] text-fantasy-brown/40 font-medium">({{
+                                    pdc.review_count|default:0}})</span>
                             </div>
 
                             <div class="mt-auto flex items-end justify-between">
                                 <div>
                                     {% if pdc.is_out_of_stock %}
                                     <span
-                                        class="inline-block px-3 py-1 bg-red-100 text-red-600 text-xs font-bold rounded-full">Sold
-                                        Out</span>
+                                        class="inline-block px-2 py-0.5 bg-red-100 text-red-600 text-[10px] font-bold rounded-full">Unavailable
+                                    </span>
                                     {% else %}
-                                    <p class="text-xs text-gray-400 mb-1">Starting from</p>
-                                    <p class="text-2xl font-serif font-bold text-fantasy-brown">₹{{ pdc.min_price }}</p>
+                                    <p class="text-[10px] text-gray-400 leading-none">From</p>
+                                    <p class="text-sm font-bold text-fantasy-brown">₹{{ pdc.min_price }}</p>
                                     {% endif %}
                                 </div>
 
                                 <div
-                                    class="w-10 h-10 rounded-full bg-fantasy-cream flex items-center justify-center text-fantasy-brown group-hover:bg-fantasy-brown group-hover:text-white transition-colors duration-300">
-                                    <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                                    class="w-8 h-8 rounded-full bg-fantasy-cream flex items-center justify-center text-fantasy-brown group-hover:bg-fantasy-brown group-hover:text-white transition-colors duration-300">
+                                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
                                 </div>
                             </div>
                         </div>
