@@ -224,8 +224,6 @@
             <button
                 class="text-2xl font-serif font-bold text-fantasy-brown border-b-2 border-fantasy-brown pb-4 px-4">Reviews
                 ({{review_count}})</button>
-            <button
-                class="text-2xl font-serif font-bold text-gray-400 hover:text-fantasy-brown transition-colors pb-4 px-4">Description</button>
         </div>
 
         <div class="grid lg:grid-cols-12 gap-12">
@@ -328,9 +326,12 @@
                                 </div>
                                 <p class="text-xs text-gray-400 mt-1">Tap stars to rate</p>
                             </div>
+                            <p id="review-error" class="hidden text-red-500 text-sm mt-3 font-medium">
+                                Please write a review before submitting.
+                            </p>
                             <div class="mb-6">
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Your Review</label>
-                                <textarea name="review" rows="4"
+                                <textarea name="review" id="review-text" rows="4"
                                     class="w-full rounded-2xl border-gray-200 p-4 focus:ring-2 focus:ring-fantasy-gold/20 focus:border-fantasy-gold outline-none transition-all"
                                     placeholder="Tell us what you loved..."></textarea>
                             </div>
@@ -471,7 +472,31 @@
         document.getElementById('product-price').innerText = `₹${(selectedPrice * qty)}`;
         document.getElementById('product-mrp').innerText = `₹${((selectedPrice + 29) * qty)}`;
     }
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.querySelector("#review-form form");
+        const reviewText = document.getElementById("review-text");
+        const ratingInput = document.getElementById("rating-input");
+        const errorMsg = document.getElementById("review-error");
 
+        form.addEventListener("submit", (e) => {
+            errorMsg.classList.add("hidden");
+
+            if (!reviewText.value.trim()) {
+                e.preventDefault();
+                errorMsg.textContent = "Please write a review before submitting.";
+                errorMsg.classList.remove("hidden");
+                reviewText.focus();
+                return;
+            }
+
+            if (!ratingInput.value) {
+                e.preventDefault();
+                errorMsg.textContent = "Please select a rating before submitting.";
+                errorMsg.classList.remove("hidden");
+                return;
+            }
+        });
+    });
     // View More Reviews
     document.getElementById("viewMoreBtn")?.addEventListener("click", function () {
         document.querySelectorAll(".extra-review").forEach(el => {
