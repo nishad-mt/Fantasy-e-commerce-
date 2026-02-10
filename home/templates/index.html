@@ -244,7 +244,7 @@
             <div class="absolute inset-0 z-0 opacity-[0.03]"
                 style="background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');"></div>
 
-            <div class="container mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div class="container mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-1 gap-12 items-center">
                 <!-- Text Content -->
                 <div class="text-center lg:text-left order-2 lg:order-1">
                     <div class="inline-block mb-4 px-4 py-1 border border-fantasy-brown/20 rounded-full bg-white/50 backdrop-blur-sm opacity-0 animate-fade-in-up"
@@ -286,7 +286,7 @@
                 </div>
 
                 <!-- Hero Image/Visual Column -->
-                <div class="relative order-1 lg:order-2 opacity-0 animate-zoom-out parallax-layer flex justify-center items-center"
+                <div class="relative order-1 lg:order-2 opacity-0 animate-zoom-out parallax-layer flex justify-center items-center min-h-[300px] h-full"
                     style="animation-delay: 0.3s; transform-style: preserve-3d;">
                     <!-- Decorative SVG Warning/Fallback Background -->
                     <div class="absolute inset-0 bg-fantasy-gold/5 rounded-[3rem] transform rotate-3 scale-105 -z-10">
@@ -305,12 +305,12 @@
                             <!-- Product Image -->
                             <img src="{% static 'images/potati.jpg' %}" alt="Artisanal Bakes"
                                 class="relative z-10 w-full h-full object-cover hover:scale-105 transition-transform duration-[2s]"
-                                onerror="this.style.display='none'">
+                                onerror="this.src='https://via.placeholder.com/500x500?text=Premium+Bakery'">
                         </div>
 
                         <!-- Floating Highlight Card (The 'Feature List') -->
                         <div
-                            class="absolute -bottom-10 -left-6 md:-left-12 bg-[#F5E6D3] border border-fantasy-gold p-6 rounded-2xl shadow-dual animate-float z-20 max-w-xs w-[95%] mx-auto">
+                            class="absolute -bottom-10 -left-6 md:-left-12 bg-[#F5E6D3] border border-fantasy-brown p-6 rounded-2xl shadow-dual animate-float z-20 max-w-xs w-[95%] mx-auto">
                             <h3 class="font-serif font-bold text-fantasy-brown text-lg mb-3 flex items-center gap-2">
                                 <i class="fa-solid fa-star text-fantasy-gold"></i> Premium Quality
                             </h3>
@@ -393,12 +393,13 @@
                             class="absolute top-0 right-0 w-32 h-32 bg-fantasy-gold/10 rounded-full blur-2xl -mr-10 -mt-10">
                         </div>
                         <h3 class="text-2xl font-serif font-bold text-fantasy-brown mb-4">Curated Categories</h3>
-                        <div class="flex gap-4 overflow-x-auto pb-4 hide-scrollbar">
-                            {% for cat in category|slice:":3" %}
+                        <div
+                            class="flex md:grid md:grid-cols-4 gap-4 overflow-x-auto md:overflow-visible pb-4 md:pb-0 hide-scrollbar">
+                            {% for cat in category %}
                             <a href="{% url 'products_by_category' cat.slug %}"
-                                class="flex flex-col items-center gap-2 min-w-[80px] group/cat">
+                                class="flex flex-col items-center gap-2 min-w-[80px] group/cat hover:scale-110 transition-transform duration-300">
                                 <div
-                                    class="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-sm group-hover/cat:border-fantasy-gold transition-colors">
+                                    class="w-16 h-16 rounded-full overflow-hidden border-2 border-fantasy-gold shadow-sm group-hover/cat:border-fantasy-brown transition-colors">
                                     <img src="{{ cat.image.url }}" alt="{{ cat.name }}"
                                         class="w-full h-full object-cover">
                                 </div>
@@ -431,7 +432,7 @@
                         </div>
                         <h3 class="text-lg font-serif font-bold text-fantasy-brown">Offers</h3>
                         <p class="text-xs text-fantasy-brown/70 mb-2">Grab deals up to 50% Off</p>
-                        <a href="#offers"
+                        <a href="{% url 'offers' %}"
                             class="text-xs font-bold text-white bg-fantasy-brown px-4 py-2 rounded-full hover:bg-fantasy-gold transition-colors">View
                             Deals</a>
                     </div>
@@ -460,7 +461,7 @@
                             <p class="font-script text-2xl text-fantasy-gold">Freshly Baked</p>
                         </div>
                         <div class="reveal-clip">
-                            <h2 class="text-4xl md:text-6xl font-serif font-extrabold text-fantasy-brown">Latest
+                            <h2 class="text-4xl md:text-6xl font-serif font-extrabold text-fantasy-brown">
                                 Creations</h2>
                         </div>
                     </div>
@@ -471,7 +472,7 @@
                     </a>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-8">
                     {% for pdc in products|slice:":4" %}
                     <div class="group reveal-on-scroll relative mt-6">
                         <div
@@ -486,9 +487,9 @@
 
                                 <!-- Add to Cart (Quick) -->
                                 <button
-                                    class="absolute bottom-3 right-3 w-10 h-10 bg-white text-fantasy-brown rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 hover:bg-fantasy-brown hover:text-white"
+                                    class="absolute bottom-3 right-3 w-8 h-8 md:w-10 md:h-10 bg-white text-fantasy-brown rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 hover:bg-fantasy-brown hover:text-white"
                                     title="Add to Cart">
-                                    <i class="fa-solid fa-plus"></i>
+                                    <i class="fa-solid fa-plus text-xs md:text-base"></i>
                                 </button>
                             </a>
 
@@ -496,7 +497,7 @@
                                 <p class="text-[10px] font-bold tracking-widest text-fantasy-gold uppercase mb-1">
                                     {{ pdc.category.name|default:"Artisanal" }}</p>
                                 <h3
-                                    class="font-serif font-bold text-xl text-fantasy-brown mb-2 group-hover:text-fantasy-gold transition-colors line-clamp-1">
+                                    class="font-serif font-bold text-xs md:text-xl text-fantasy-brown mb-2 group-hover:text-fantasy-gold transition-colors line-clamp-1">
                                     <a href="{% url 'user_product' pdc.slug %}">{{ pdc.name }}</a>
                                 </h3>
                                 <div class="h-px w-10 bg-fantasy-brown/10 mx-auto mb-3"></div>

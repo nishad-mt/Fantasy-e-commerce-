@@ -20,7 +20,7 @@ from promotions.models import Promotion
 def home(request):
     now = timezone.now()
 
-    category = Categories.objects.all()[:5]
+    category = Categories.objects.filter(is_active = True)[:5]
     products = Product.objects.filter(is_active=True).order_by('-created_at')[:5]
     contact_details = SiteContact.objects.get(id=1)
 
