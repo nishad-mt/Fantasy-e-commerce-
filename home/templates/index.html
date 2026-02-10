@@ -21,19 +21,22 @@
                         'fantasy-gold': '#D4AF37',
                         'fantasy-gold-light': '#F4E5B2',
                         'fantasy-pink': '#FCE7E7',
+                        'fantasy-brown-dark': '#4a332a',
                     },
                     fontFamily: {
                         serif: ['"Playfair Display"', 'serif'],
                         sans: ['"Inter"', '"Lato"', 'sans-serif'],
+                        script: ['"Great Vibes"', 'cursive'],
                     },
                     animation: {
-                        'fade-in-up': 'fadeInUp 1s ease-out forwards',
+                        'fade-in-up': 'fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards',
                         'zoom-out': 'zoomOut 1.5s ease-out forwards',
                         'gentle-fade': 'gentleFadeIn 1s ease-out forwards',
+                        'float': 'float 6s ease-in-out infinite',
                     },
                     keyframes: {
                         fadeInUp: {
-                            '0%': { opacity: '0', transform: 'translateY(30px)' },
+                            '0%': { opacity: '0', transform: 'translateY(40px)' },
                             '100%': { opacity: '1', transform: 'translateY(0)' },
                         },
                         zoomOut: {
@@ -43,7 +46,19 @@
                         gentleFadeIn: {
                             '0%': { opacity: '0', transform: 'translateY(20px)' },
                             '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
                         }
+                    },
+                    boxShadow: {
+                        'dual': '0 10px 30px -10px rgba(90, 62, 43, 0.3), 0 4px 10px -5px rgba(212, 175, 55, 0.2)',
+                        'dual-hover': '0 20px 40px -12px rgba(90, 62, 43, 0.4), 0 8px 16px -6px rgba(212, 175, 55, 0.3)',
+                    },
+                    rotate: {
+                        '3': '3deg',
+                        '6': '6deg',
                     }
                 }
             }
@@ -52,12 +67,42 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Great+Vibes&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* Hide scrollbar for clean look */
+        /* Grain Overlay */
+        .grain-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            z-index: 9999;
+            mix-blend-mode: overlay;
+        }
+
+        /* Glassmorphism Navigation */
+        .glass-nav {
+            background: rgba(255, 249, 240, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Hide scrollbar */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -75,30 +120,48 @@
             background: #d4af37;
         }
 
+        /* Progressive Reveal */
+        .reveal-clip {
+            clip-path: polygon(0 0, 0 100%, 0 100%, 0 0);
+            transition: clip-path 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal-active .reveal-clip {
+            clip-path: polygon(0 0, 0 100%, 100% 100%, 100% 0);
+        }
+
         .reveal-on-scroll {
             opacity: 0;
             transform: translateY(30px);
             transition: all 1s ease-out;
         }
 
-        .reveal-active {
+        .reveal-active.reveal-on-scroll {
             opacity: 1;
             transform: translateY(0);
+        }
+
+        /* Smooth Parallax */
+        .parallax-wrapper {
+            will-change: transform;
         }
     </style>
 </head>
 
-<body class="bg-fantasy-cream text-gray-800 font-sans antialiased selection:bg-fantasy-gold selection:text-white">
+<body
+    class="bg-fantasy-cream text-gray-800 font-sans antialiased selection:bg-fantasy-gold selection:text-white overflow-x-hidden">
+    <!-- Grain Texture -->
+    <div class="grain-overlay"></div>
+
     <div id="homepage-content">
         <!-- Navigation -->
-        <nav id="navbar"
-            class="fixed w-full z-50 transition-all duration-300 bg-fantasy-cream/90 backdrop-blur-md border-b border-fantasy-brown/5 py-4">
+        <nav id="navbar" class="fixed w-full z-50 transition-all duration-300 glass-nav py-4">
             <div class="container mx-auto px-6 flex justify-between items-center">
                 <!-- Logo -->
                 <a href="{% url 'home' %}"
                     class="text-2xl font-serif font-bold text-fantasy-brown flex items-center gap-2 tracking-tight group">
                     <span
-                        class="w-8 h-8 flex items-center justify-center bg-fantasy-brown text-fantasy-gold rounded-full group-hover:bg-fantasy-gold group-hover:text-fantasy-brown transition-colors duration-500">
+                        class="w-8 h-8 flex items-center justify-center bg-fantasy-brown text-fantasy-gold rounded-full group-hover:bg-fantasy-gold group-hover:text-fantasy-brown transition-colors duration-500 shadow-dual">
                         <i class="fa-solid fa-cookie-bite text-sm"></i>
                     </span>
                     <span>Fantasy Bakery</span>
@@ -107,12 +170,29 @@
                 <!-- Desktop Menu -->
                 <div
                     class="hidden md:flex items-center space-x-10 font-medium text-fantasy-brown text-sm tracking-wide">
-                    <a href="{% url 'home' %}" class="hover:text-fantasy-gold transition-colors">Home</a>
-                    <a href="{% url 'products' %}" class="hover:text-fantasy-gold transition-colors">Shop</a>
-                    <a href="{% url 'aboutus' %}" class="hover:text-fantasy-gold transition-colors">Our Story</a>
-                    <a href="{% url 'contact' %}" class="hover:text-fantasy-gold transition-colors">Contact</a>
+                    <a href="{% url 'home' %}" class="hover:text-fantasy-gold transition-colors relative group">Home
+                        <span
+                            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-fantasy-gold transition-all group-hover:w-full"></span>
+                    </a>
+                    <a href="{% url 'products' %}" class="hover:text-fantasy-gold transition-colors relative group">Shop
+                        <span
+                            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-fantasy-gold transition-all group-hover:w-full"></span>
+                    </a>
+                    <a href="{% url 'aboutus' %}" class="hover:text-fantasy-gold transition-colors relative group">Our
+                        Story
+                        <span
+                            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-fantasy-gold transition-all group-hover:w-full"></span>
+                    </a>
+                    <a href="{% url 'contact' %}"
+                        class="hover:text-fantasy-gold transition-colors relative group">Contact
+                        <span
+                            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-fantasy-gold transition-all group-hover:w-full"></span>
+                    </a>
                     {% if user.is_authenticated %}
-                    <a href="{% url 'order' %}" class="hover:text-fantasy-gold transition-colors">Orders</a>
+                    <a href="{% url 'order' %}" class="hover:text-fantasy-gold transition-colors relative group">Orders
+                        <span
+                            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-fantasy-gold transition-all group-hover:w-full"></span>
+                    </a>
                     {% endif %}
                 </div>
 
@@ -133,7 +213,7 @@
                     </a>
                     {% else %}
                     <a href="{% url 'account_login' %}"
-                        class="text-sm font-bold hover:text-fantasy-gold transition-colors">Login</a>
+                        class="text-sm font-bold hover:text-fantasy-gold transition-colors border border-fantasy-brown px-4 py-1.5 rounded-full hover:bg-fantasy-brown hover:text-white transition-all">Login</a>
                     {% endif %}
 
                     <!-- Mobile Menu Button -->
@@ -157,9 +237,9 @@
 
         {% block content %}
 
-        <!-- Cinematic Hero Section -->
+        <!-- Cinematic Hero Section with Parallax -->
         <header
-            class="relative min-h-screen flex items-center justify-center overflow-hidden pt-24 pb-16 bg-fantasy-cream">
+            class="relative min-h-screen flex items-center justify-center overflow-hidden pt-24 pb-16 bg-fantasy-cream perspective-1000">
             <!-- Background Texture -->
             <div class="absolute inset-0 z-0 opacity-[0.03]"
                 style="background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');"></div>
@@ -183,37 +263,40 @@
                     <p class="text-lg md:text-xl font-medium text-fantasy-brown/80 mb-10 max-w-lg mx-auto lg:mx-0 opacity-0 animate-fade-in-up leading-relaxed"
                         style="animation-delay: 0.4s;">
                         Handcrafted delicacies baking with love, premium ingredients, and a touch of fantasy.
-                        <span class="block mt-2 font-serif italic text-fantasy-gold text-2xl">~ Pure Artisanal Bliss
-                            ~</span>
+                        <span class="block mt-2 font-script text-fantasy-gold text-3xl">~ Pure Artisanal Bliss ~</span>
                     </p>
 
-                    <!-- CTA Button -->
+                    <!-- Magnetic CTA Button -->
                     <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start opacity-0 animate-fade-in-up"
                         style="animation-delay: 0.6s;">
-                        <a href="{% url 'products' %}"
-                            class="px-10 py-4 bg-fantasy-brown text-fantasy-gold border-2 border-fantasy-gold rounded-lg font-bold uppercase tracking-widest text-sm hover:bg-fantasy-gold hover:text-fantasy-brown transition-all duration-300 shadow-xl hover:shadow-2xl hover:-translate-y-1 relative overflow-hidden group">
-                            <span class="relative z-10">Shop Now</span>
+                        <a href="{% url 'products' %}" id="magnet-btn"
+                            class="relative px-10 py-4 bg-fantasy-brown text-fantasy-gold border-2 border-fantasy-gold rounded-lg font-bold uppercase tracking-widest text-sm hover:bg-fantasy-gold hover:text-fantasy-brown transition-all duration-300 shadow-dual hover:shadow-dual-hover group overflow-hidden">
+                            <span
+                                class="relative z-10 transition-transform duration-300 inline-block pointer-events-none">Shop
+                                Now</span>
                             <div
-                                class="absolute inset-0 bg-fantasy-gold transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300">
+                                class="absolute inset-0 bg-fantasy-gold transform scale-y-0 group-hover:scale-y-100 transition-transform origin-bottom duration-300 pointer-events-none">
                             </div>
                         </a>
                         <a href="{% url 'aboutus' %}"
-                            class="px-10 py-4 bg-white text-fantasy-brown border-2 border-fantasy-brown/20 rounded-lg font-bold uppercase tracking-widest text-sm hover:border-fantasy-brown hover:bg-fantasy-cream transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1">
+                            class="px-10 py-4 bg-white/50 backdrop-blur-sm text-fantasy-brown border-2 border-fantasy-brown/20 rounded-lg font-bold uppercase tracking-widest text-sm hover:border-fantasy-brown hover:bg-fantasy-cream transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-1">
                             Our Story
                         </a>
                     </div>
                 </div>
 
-                <!-- Hero Image with Frame -->
-                <div class="relative order-1 lg:order-2 opacity-0 animate-zoom-out" style="animation-delay: 0.3s;">
-                    <div class="relative rounded-[3rem] overflow-hidden shadow-2xl border-8 border-white">
+                <!-- Hero Image with Parallax -->
+                <div class="relative order-1 lg:order-2 opacity-0 animate-zoom-out parallax-layer"
+                    style="animation-delay: 0.3s; transform-style: preserve-3d;">
+                    <div
+                        class="relative rounded-[3rem] overflow-hidden shadow-dual border-8 border-white backdrop-blur-sm">
                         <img src="{% static 'images/potati.jpg' %}" alt="Artisanal Bakes"
-                            class="w-full h-[60vh] object-cover scale-105 hover:scale-100 transition-transform duration-[2s]"
+                            class="w-full h-[60vh] object-cover scale-110 transition-transform duration-100 ease-out parallax-img"
                             fetchpriority="high">
 
                         <!-- Floating Badge -->
-                        <div
-                            class="absolute bottom-8 right-8 bg-white/95 backdrop-blur px-6 py-4 rounded-xl shadow-lg border border-fantasy-gold/30 text-center animate-bounce duration-[3s]">
+                        <div class="absolute bottom-8 right-8 bg-white/90 backdrop-blur-md px-6 py-4 rounded-xl shadow-lg border border-fantasy-gold/30 text-center animate-float"
+                            style="animation-delay: 1s;">
                             <span class="block text-3xl mb-1">🌿</span>
                             <span class="block font-serif font-bold text-fantasy-brown leading-none">100%</span>
                             <span
@@ -225,58 +308,105 @@
                     </div>
                 </div>
             </div>
+
+            <!-- SVG Wave Divider -->
+            <div class="absolute bottom-0 left-0 w-full leading-none overflow-hidden z-20">
+                <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120"
+                    preserveAspectRatio="none" class="relative block w-full h-[60px] fill-white">
+                    <path
+                        d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z">
+                    </path>
+                </svg>
+            </div>
         </header>
 
-        <!-- Social Proof / Trusted By -->
-        <section class="py-12 bg-white border-y border-fantasy-brown/10 relative">
-            <div class="container mx-auto px-6 text-center reveal-on-scroll">
-                <p class="font-serif italic text-fantasy-brown/60 text-lg mb-8">"Where every bite tells a story..."</p>
-                <div class="flex flex-wrap justify-center gap-12 md:gap-20 items-center opacity-60">
-                    <!-- Text Placeholders for Logos -->
-                    <h3 class="font-serif font-bold text-xl text-gray-400 uppercase tracking-widest">The Hindu</h3>
-                    <h3 class="font-serif font-bold text-xl text-gray-400 uppercase tracking-widest">EatKochiEat</h3>
-                    <h3 class="font-serif font-bold text-xl text-gray-400 uppercase tracking-widest">Manorama</h3>
-                    <h3 class="font-serif font-bold text-xl text-gray-400 uppercase tracking-widest">FoodiePolis</h3>
-                </div>
-            </div>
-        </section>
-
-        <!-- Curated Categories -->
-        <section class="py-24 bg-gradient-to-b from-fantasy-cream to-white relative">
-            <!-- Divider Line -->
-            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-px h-20 bg-fantasy-gold/30"></div>
-
+        <!-- Bento Grid Section -->
+        <section class="py-20 bg-white relative reveal-on-scroll">
             <div class="container mx-auto px-6">
-                <div class="text-center mb-20 reveal-on-scroll">
-                    <span class="text-fantasy-gold font-bold tracking-[0.3em] uppercase text-xs mb-3 block">Curated
-                        Collections</span>
-                    <h2 class="text-4xl md:text-5xl font-serif font-extrabold text-fantasy-brown mb-6">Explore Our Menu
-                    </h2>
-                    <img src="https://img.icons8.com/ios/50/5a3e2b/wheat.png" alt="divider"
-                        class="w-8 mx-auto opacity-50">
+                <div class="text-center mb-16">
+                    <p class="font-script text-3xl text-fantasy-gold mb-2">Discover More</p>
+                    <div class="reveal-clip">
+                        <h2 class="text-4xl md:text-5xl font-serif font-extrabold text-fantasy-brown">Explore Fantasy
+                        </h2>
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-                    {% for cat in category|slice:":4" %}
-                    <a href="{% url 'products_by_category' cat.slug %}" class="group text-center reveal-on-scroll">
+                <!-- Bento Grid Layout -->
+                <div class="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-6 h-auto md:h-[600px]">
+                    <!-- Best Sellers (Large Box) -->
+                    <div
+                        class="md:col-span-2 md:row-span-2 relative group overflow-hidden rounded-3xl shadow-dual hover:shadow-dual-hover transition-all duration-500">
+                        <img src="{% static 'images/potati.jpg' %}" alt="Best Sellers"
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
                         <div
-                            class="relative w-full aspect-[4/5] rounded-2xl overflow-hidden mb-6 shadow-md group-hover:shadow-2xl transition-all duration-500 border-4 border-white">
-                            <img src="{{ cat.image.url }}" alt="{{ cat.name }}"
-                                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out">
-                            <div
-                                class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-6 pt-20">
-                                <h3
-                                    class="font-serif font-bold text-2xl text-white group-hover:text-fantasy-gold transition-colors">
-                                    {{ cat.name }}</h3>
-                            </div>
+                            class="absolute inset-0 bg-gradient-to-t from-fantasy-brown/90 via-transparent to-transparent flex flex-col justify-end p-8">
+                            <h3
+                                class="text-3xl font-serif font-bold text-white mb-2 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                                Best Sellers</h3>
+                            <p
+                                class="text-fantasy-gold-light mb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                                Our customers' favorite indulgences.</p>
+                            <a href="{% url 'products' %}?sort=price_high"
+                                class="inline-flex items-center gap-2 text-white font-bold hover:text-fantasy-gold transition-colors w-fit">
+                                Shop Now <i class="fa-solid fa-arrow-right"></i>
+                            </a>
                         </div>
-                    </a>
-                    {% endfor %}
+                    </div>
+
+                    <!-- Categories (Top Right) -->
+                    <div
+                        class="md:col-span-2 md:row-span-1 bg-fantasy-cream rounded-3xl p-8 relative overflow-hidden shadow-dual hover:-translate-y-1 transition-transform duration-300 group">
+                        <div
+                            class="absolute top-0 right-0 w-32 h-32 bg-fantasy-gold/10 rounded-full blur-2xl -mr-10 -mt-10">
+                        </div>
+                        <h3 class="text-2xl font-serif font-bold text-fantasy-brown mb-4">Curated Categories</h3>
+                        <div class="flex gap-4 overflow-x-auto pb-4 hide-scrollbar">
+                            {% for cat in category|slice:":3" %}
+                            <a href="{% url 'products_by_category' cat.slug %}"
+                                class="flex flex-col items-center gap-2 min-w-[80px] group/cat">
+                                <div
+                                    class="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-sm group-hover/cat:border-fantasy-gold transition-colors">
+                                    <img src="{{ cat.image.url }}" alt="{{ cat.name }}"
+                                        class="w-full h-full object-cover">
+                                </div>
+                                <span class="text-xs font-bold text-fantasy-brown uppercase tracking-wide">{{ cat.name
+                                    }}</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Our Story (Bottom Left) -->
+                    <div
+                        class="md:col-span-1 md:row-span-1 bg-fantasy-brown text-white rounded-3xl p-8 relative overflow-hidden shadow-dual group hover:bg-fantasy-brown-dark transition-colors">
+                        <i class="fa-solid fa-quote-left text-fantasy-gold/20 text-6xl absolute top-4 left-4"></i>
+                        <div class="relative z-10 h-full flex flex-col justify-between">
+                            <h3 class="text-xl font-serif font-bold">Our Story</h3>
+                            <p class="text-sm text-white/80 line-clamp-3">From a small kitchen in Kerala to your table.
+                                Read about our journey.</p>
+                            <a href="{% url 'aboutus' %}"
+                                class="text-fantasy-gold text-sm font-bold mt-2 hover:underline">Read More</a>
+                        </div>
+                    </div>
+
+                    <!-- Special Offer (Bottom Right) -->
+                    <div
+                        class="md:col-span-1 md:row-span-1 bg-fantasy-pink/30 rounded-3xl p-8 relative overflow-hidden shadow-dual flex flex-col justify-center items-center text-center group hover:bg-fantasy-pink/50 transition-colors">
+                        <div
+                            class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-fantasy-brown mb-3 shadow-sm group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-gift"></i>
+                        </div>
+                        <h3 class="text-lg font-serif font-bold text-fantasy-brown">Offers</h3>
+                        <p class="text-xs text-fantasy-brown/70 mb-2">Grab deals up to 50% Off</p>
+                        <a href="#offers"
+                            class="text-xs font-bold text-white bg-fantasy-brown px-4 py-2 rounded-full hover:bg-fantasy-gold transition-colors">View
+                            Deals</a>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- Featured Products (Floating Cards) -->
+        <!-- Featured Products (Floating Cards with Depth) -->
         <section class="py-24 bg-fantasy-cream relative overflow-hidden">
             <!-- Background Texture -->
             <div class="absolute inset-0 z-0 opacity-[0.03]"
@@ -286,17 +416,20 @@
             <div
                 class="absolute top-0 right-0 w-96 h-96 bg-fantasy-gold/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2">
             </div>
+            <div
+                class="absolute bottom-0 left-0 w-96 h-96 bg-fantasy-brown/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2">
+            </div>
 
             <div class="container mx-auto px-6 relative z-10">
                 <div class="flex flex-col md:flex-row justify-between items-end mb-16 reveal-on-scroll">
                     <div>
                         <div class="flex items-center gap-3 mb-2">
-                            <div class="w-10 h-px bg-fantasy-brown"></div>
-                            <span class="text-fantasy-brown font-bold tracking-widest uppercase text-xs">Fresh from Our
-                                Kitchen</span>
+                            <p class="font-script text-2xl text-fantasy-gold">Freshly Baked</p>
                         </div>
-                        <h2 class="text-4xl md:text-6xl font-serif font-extrabold text-fantasy-brown">Latest Creations
-                        </h2>
+                        <div class="reveal-clip">
+                            <h2 class="text-4xl md:text-6xl font-serif font-extrabold text-fantasy-brown">Latest
+                                Creations</h2>
+                        </div>
                     </div>
                     <a href="{% url 'products' %}"
                         class="group flex items-center gap-2 mt-6 md:mt-0 text-fantasy-brown font-bold hover:text-fantasy-gold transition-colors">
@@ -307,11 +440,9 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                     {% for pdc in products|slice:":4" %}
-                    <div class="group reveal-on-scroll relative mt-6"> <!-- Added margin top for hover lift space -->
+                    <div class="group reveal-on-scroll relative mt-6">
                         <div
-                            class="bg-white rounded-2xl p-4 shadow-sm group-hover:shadow-2xl transition-all duration-500 ease-out transform group-hover:-translate-y-2 border border-fantasy-brown/5 relative z-10">
-
-                            <!-- Badges (if any) could go here -->
+                            class="bg-white rounded-2xl p-4 shadow-dual hover:shadow-dual-hover transition-all duration-500 ease-out transform group-hover:-translate-y-2 border border-fantasy-brown/5 relative z-10">
 
                             <a href="{% url 'user_product' pdc.slug %}"
                                 class="block relative overflow-hidden rounded-xl mb-4 bg-fantasy-cream">
@@ -329,7 +460,8 @@
                             </a>
 
                             <div class="text-center">
-                                <p class="text-[10px] font-bold tracking-widest text-fantasy-gold uppercase mb-1">{{ pdc.category.name|default:"Artisanal" }}</p>
+                                <p class="text-[10px] font-bold tracking-widest text-fantasy-gold uppercase mb-1">{{
+                                    pdc.category.name|default:"Artisanal" }}</p>
                                 <h3
                                     class="font-serif font-bold text-xl text-fantasy-brown mb-2 group-hover:text-fantasy-gold transition-colors line-clamp-1">
                                     <a href="{% url 'user_product' pdc.slug %}">{{ pdc.name }}</a>
@@ -350,24 +482,24 @@
         </section>
 
         <!-- Handmade Badge Section -->
-        <section class="py-16 bg-fantasy-brown text-fantasy-cream text-center relative overflow-hidden">
+        <section class="py-20 bg-fantasy-brown text-fantasy-cream text-center relative overflow-hidden">
             <div class="absolute inset-0 opacity-10"
                 style="background-image: url('https://www.transparenttextures.com/patterns/wood-pattern.png');"></div>
             <div class="container mx-auto px-6 relative z-10 reveal-on-scroll">
                 <div
-                    class="w-20 h-20 mx-auto border-2 border-fantasy-gold rounded-full flex items-center justify-center mb-6 text-3xl">
+                    class="w-20 h-20 mx-auto border-2 border-fantasy-gold rounded-full flex items-center justify-center mb-6 text-3xl shadow-lg bg-fantasy-brown">
                     🍯
                 </div>
-                <h2 class="font-serif text-3xl md:text-4xl italic mb-4">"Handmade with love in Kerala"</h2>
-                <p class="text-fantasy-gold/60 max-w-2xl mx-auto text-sm tracking-wide leading-relaxed">
-                    EVERY BATCH IS A TRIBUTE TO TRADITION, BAKED FRESH DAILY USING LOCALLY SOURCED INGREDIENTS.
+                <h2 class="font-serif text-3xl md:text-5xl italic mb-6">"Handmade with love in Kerala"</h2>
+                <p class="text-fantasy-gold/60 max-w-2xl mx-auto text-sm tracking-[0.2em] leading-relaxed uppercase">
+                    Every batch is a tribute to tradition, baked fresh daily using locally sourced ingredients.
                 </p>
             </div>
         </section>
 
         {% endblock %}
 
-        <footer class="bg-[#1a120b] text-[#e5d0ac] py-20 border-t border-[#DAA520]/20">
+        <footer class="bg-[#1a120b] text-[#e5d0ac] py-20 border-t border-[#DAA520]/20 font-sans">
             <div class="container mx-auto px-6 text-center">
                 <div
                     class="w-16 h-16 mx-auto mb-8 border border-[#DAA520] rounded-full flex items-center justify-center text-[#DAA520] text-2xl">
@@ -390,6 +522,36 @@
     <script>
         // Lucide Icons
         lucide.createIcons();
+
+        // Parallax Effect
+        const parallaxImg = document.querySelector('.parallax-img');
+        if (parallaxImg) {
+            window.addEventListener('scroll', () => {
+                const scrolled = window.scrollY;
+                const rate = scrolled * 0.15;
+                parallaxImg.style.transform = `translateY(${rate}px) scale(1.1)`; // Keep scale to avoid edges showing
+            });
+        }
+
+        // Magnetic Button Effect
+        const magnetBtn = document.getElementById('magnet-btn');
+        if (magnetBtn) {
+            magnetBtn.addEventListener('mousemove', (e) => {
+                const rect = magnetBtn.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+
+                magnetBtn.style.transform = `translate(${x * 0.2}px, ${y * 0.2}px)`;
+                const text = magnetBtn.querySelector('span'); // Span has pointer-events: none, so easy to move
+                if (text) text.style.transform = `translate(${x * 0.1}px, ${y * 0.1}px)`;
+            });
+
+            magnetBtn.addEventListener('mouseleave', () => {
+                magnetBtn.style.transform = 'translate(0, 0)';
+                const text = magnetBtn.querySelector('span');
+                if (text) text.style.transform = 'translate(0, 0)';
+            });
+        }
 
         // Mobile Menu Logic
         const menuBtn = document.getElementById('mobile-menu-btn');
@@ -419,12 +581,12 @@
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         entry.target.classList.add('reveal-active');
-                        observer.unobserve(entry.target); // Only animate once
+                        observer.unobserve(entry.target);
                     }
                 });
             }, observerOptions);
 
-            const revealElements = document.querySelectorAll('.reveal-on-scroll');
+            const revealElements = document.querySelectorAll('.reveal-on-scroll, .reveal-clip');
             revealElements.forEach(el => observer.observe(el));
         });
     </script>
