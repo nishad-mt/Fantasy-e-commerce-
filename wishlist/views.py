@@ -1,4 +1,5 @@
 from django.shortcuts import render,redirect
+from django.http import JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import WishlistModel, WishlistItem, Product
@@ -13,14 +14,22 @@ def toggle_wishlist(request, product_id):
         )
 
         item = WishlistItem.objects.filter(wishlist=wishlist,product=product).first()
+        added = False
 
         if item:
             item.delete()
+            message = "Removed from Wishlist"
         else:
             WishlistItem.objects.create(
                 wishlist=wishlist,
                 product=product
             )
+            added = True
+            message = "Added to Wishlist"
+        
+        # Check for AJAX request
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+             return JsonResponse({'added': added, 'message': message, 'count': wishlist.items.count()})
 
     return redirect(request.META.get('HTTP_REFERER', 'products'))
 
