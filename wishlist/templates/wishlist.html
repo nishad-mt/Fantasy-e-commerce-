@@ -84,8 +84,6 @@
           <p class="text-sm font-medium text-gray-500">
             {% if item.product.is_out_of_stock %}
             <span class="text-red-500">Out of Stock</span>
-            {% else %}
-            ₹{{ item.product.min_price }}
             {% endif %}
           </p>
           <!-- Rating stars could go here -->

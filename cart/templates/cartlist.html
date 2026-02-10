@@ -35,8 +35,7 @@
           <div class="flex-1 w-full">
             <div class="flex justify-between items-start mb-2">
               <div>
-                <span class="text-[10px] font-bold text-fantasy-gold uppercase tracking-wider">{{
-                  cart.variant.product.category }}</span>
+                <span class="text-[10px] font-bold text-fantasy-gold uppercase tracking-wider">{{ cart.variant.product.category }}</span>
                 <h3 class="text-xl font-bold text-fantasy-brown hover:text-fantasy-gold transition-colors">
                   <a href="{% url 'user_product' cart.variant.product.slug %}">{{ cart.variant.product.name }}</a>
                 </h3>
@@ -55,8 +54,7 @@
                 </div>
                 {% if cart.variant.product.best_before %}
                 <p class="text-xs text-gray-400">
-                  <i data-lucide="clock" class="w-3 h-3 inline mr-1"></i> Best Before: {{
-                  cart.variant.product.best_before }}
+                  <i data-lucide="clock" class="w-3 h-3 inline mr-1"></i> Best Before: {{ cart.variant.product.best_before }}
                 </p>
                 {% endif %}
               </div>
