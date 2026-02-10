@@ -387,13 +387,13 @@
 
                     <!-- Categories (Top Right) -->
                     <div
-                        class="md:col-span-2 md:row-span-1 bg-fantasy-cream rounded-3xl p-8 relative overflow-hidden shadow-dual hover:-translate-y-1 transition-transform duration-300 group">
+                        class="md:col-span-2 md:row-span-1 h-fit bg-fantasy-cream rounded-3xl p-6 md:p-8 relative overflow-hidden shadow-dual hover:-translate-y-1 transition-transform duration-300 group">
                         <div
                             class="absolute top-0 right-0 w-32 h-32 bg-fantasy-gold/10 rounded-full blur-2xl -mr-10 -mt-10">
                         </div>
                         <h3 class="text-2xl font-serif font-bold text-fantasy-brown mb-4">Curated Categories</h3>
                         <div
-                            class="flex md:grid md:grid-cols-4 gap-4 overflow-x-auto md:overflow-visible pb-4 md:pb-0 hide-scrollbar">
+                            class="flex md:grid md:grid-cols-4 gap-4 overflow-x-auto md:overflow-visible pb-0 hide-scrollbar">
                             {% for cat in category %}
                             <a href="{% url 'products_by_category' cat.slug %}"
                                 class="flex flex-col items-center gap-2 min-w-[80px] group/cat hover:scale-110 transition-transform duration-300">
