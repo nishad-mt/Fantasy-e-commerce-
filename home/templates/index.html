@@ -81,7 +81,7 @@
             height: 100%;
             pointer-events: none;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
-            z-index: 9999;
+            z-index: 40;
             mix-blend-mode: overlay;
         }
 
@@ -285,26 +285,59 @@
                     </div>
                 </div>
 
-                <!-- Hero Image with Parallax -->
-                <div class="relative order-1 lg:order-2 opacity-0 animate-zoom-out parallax-layer"
+                <!-- Hero Image/Visual Column -->
+                <div class="relative order-1 lg:order-2 opacity-0 animate-zoom-out parallax-layer flex justify-center items-center"
                     style="animation-delay: 0.3s; transform-style: preserve-3d;">
-                    <div
-                        class="relative rounded-[3rem] overflow-hidden shadow-dual border-8 border-white backdrop-blur-sm">
-                        <img src="{% static 'images/potati.jpg' %}" alt="Artisanal Bakes"
-                            class="w-full h-[60vh] object-cover scale-110 transition-transform duration-100 ease-out parallax-img"
-                            fetchpriority="high">
-
-                        <!-- Floating Badge -->
-                        <div class="absolute bottom-8 right-8 bg-white/90 backdrop-blur-md px-6 py-4 rounded-xl shadow-lg border border-fantasy-gold/30 text-center animate-float"
-                            style="animation-delay: 1s;">
-                            <span class="block text-3xl mb-1">🌿</span>
-                            <span class="block font-serif font-bold text-fantasy-brown leading-none">100%</span>
-                            <span
-                                class="text-[0.6rem] font-bold text-fantasy-gold uppercase tracking-wider">Natural</span>
-                        </div>
+                    <!-- Decorative SVG Warning/Fallback Background -->
+                    <div class="absolute inset-0 bg-fantasy-gold/5 rounded-[3rem] transform rotate-3 scale-105 -z-10">
                     </div>
-                    <!-- Decorative Gold Frame Background -->
-                    <div class="absolute -inset-4 border-2 border-fantasy-gold/30 rounded-[3.5rem] -z-10 rotate-2">
+
+                    <!-- Main Visual Container -->
+                    <div class="relative w-full max-w-md mx-auto">
+                        <!-- Image Container with Fallback Pattern -->
+                        <div
+                            class="relative rounded-[3rem] overflow-hidden shadow-dual border-8 border-white backdrop-blur-sm bg-[#F5E6D3] aspect-[4/5]">
+                            <!-- SVG Pattern for 'No Image' State -->
+                            <div class="absolute inset-0 opacity-20"
+                                style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23D4AF37\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');">
+                            </div>
+
+                            <!-- Product Image -->
+                            <img src="{% static 'images/potati.jpg' %}" alt="Artisanal Bakes"
+                                class="relative z-10 w-full h-full object-cover hover:scale-105 transition-transform duration-[2s]"
+                                onerror="this.style.display='none'">
+                        </div>
+
+                        <!-- Floating Highlight Card (The 'Feature List') -->
+                        <div
+                            class="absolute -bottom-10 -left-6 md:-left-12 bg-[#F5E6D3] border border-fantasy-gold p-6 rounded-2xl shadow-dual animate-float z-20 max-w-xs w-[95%] mx-auto">
+                            <h3 class="font-serif font-bold text-fantasy-brown text-lg mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-star text-fantasy-gold"></i> Premium Quality
+                            </h3>
+                            <ul class="space-y-3">
+                                <li class="flex items-center gap-3">
+                                    <span
+                                        class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-fantasy-gold shadow-sm shrink-0"><i
+                                            class="fa-solid fa-leaf text-xs"></i></span>
+                                    <span class="font-sans font-medium text-fantasy-brown text-sm">100% Natural
+                                        Ingredients</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <span
+                                        class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-fantasy-gold shadow-sm shrink-0"><i
+                                            class="fa-solid fa-utensils text-xs"></i></span>
+                                    <span class="font-sans font-medium text-fantasy-brown text-sm">Traditional Kerala
+                                        Recipes</span>
+                                </li>
+                                <li class="flex items-center gap-3">
+                                    <span
+                                        class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-fantasy-gold shadow-sm shrink-0"><i
+                                            class="fa-solid fa-truck-fast text-xs"></i></span>
+                                    <span class="font-sans font-medium text-fantasy-brown text-sm">Direct from our
+                                        Kitchen</span>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -369,7 +402,8 @@
                                     <img src="{{ cat.image.url }}" alt="{{ cat.name }}"
                                         class="w-full h-full object-cover">
                                 </div>
-                                <span class="text-xs font-bold text-fantasy-brown uppercase tracking-wide">{{ cat.name }}</span>
+                                <span class="text-xs font-bold text-fantasy-brown uppercase tracking-wide">
+                                    {{ cat.name }}</span>
                             </a>
                             {% endfor %}
                         </div>
@@ -459,14 +493,13 @@
                             </a>
 
                             <div class="text-center">
-                                <p class="text-[10px] font-bold tracking-widest text-fantasy-gold uppercase mb-1">{{
-                                    pdc.category.name|default:"Artisanal" }}</p>
+                                <p class="text-[10px] font-bold tracking-widest text-fantasy-gold uppercase mb-1">
+                                    {{ pdc.category.name|default:"Artisanal" }}</p>
                                 <h3
                                     class="font-serif font-bold text-xl text-fantasy-brown mb-2 group-hover:text-fantasy-gold transition-colors line-clamp-1">
                                     <a href="{% url 'user_product' pdc.slug %}">{{ pdc.name }}</a>
                                 </h3>
                                 <div class="h-px w-10 bg-fantasy-brown/10 mx-auto mb-3"></div>
-                                <p class="text-fantasy-brown font-bold text-lg">₹{{ pdc.min_price }}</p>
                             </div>
                         </div>
 
