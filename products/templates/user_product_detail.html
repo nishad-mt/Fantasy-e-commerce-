@@ -316,14 +316,18 @@
                             {% csrf_token %}
                             <div class="mb-6">
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Rating</label>
-                                <div
-                                    class="flex gap-2 text-3xl text-gray-200 hover:text-yellow-400 cursor-pointer w-max">
-                                    <i class="fa-solid fa-star hover:text-yellow-400 transition-colors"></i>
-                                    <i class="fa-solid fa-star hover:text-yellow-400 transition-colors"></i>
-                                    <i class="fa-solid fa-star hover:text-yellow-400 transition-colors"></i>
-                                    <i class="fa-solid fa-star hover:text-yellow-400 transition-colors"></i>
-                                    <i class="fa-solid fa-star hover:text-yellow-400 transition-colors"></i>
+
+                                <div id="star-rating"
+                                    class="flex gap-2 text-3xl text-gray-300 cursor-pointer w-max">
+                                    <i class="fa-solid fa-star" data-value="1"></i>
+                                    <i class="fa-solid fa-star" data-value="2"></i>
+                                    <i class="fa-solid fa-star" data-value="3"></i>
+                                    <i class="fa-solid fa-star" data-value="4"></i>
+                                    <i class="fa-solid fa-star" data-value="5"></i>
                                 </div>
+
+                                <input type="hidden" name="rating" id="rating-input">
+
                                 <p class="text-xs text-gray-400 mt-1">Tap stars to rate</p>
                             </div>
                             <p id="review-error" class="hidden text-red-500 text-sm mt-3 font-medium">
@@ -467,12 +471,29 @@
         document.getElementById('product-price').innerText = `₹${(selectedPrice * qty)}`;
         document.getElementById('product-mrp').innerText = `₹${((selectedPrice + 29) * qty)}`;
     }
+    
     document.addEventListener("DOMContentLoaded", () => {
+
         const form = document.querySelector("#review-form form");
         const reviewText = document.getElementById("review-text");
         const ratingInput = document.getElementById("rating-input");
         const errorMsg = document.getElementById("review-error");
+        const stars = document.querySelectorAll("#star-rating i");
 
+        // Handle star click
+        stars.forEach(star => {
+            star.addEventListener("click", () => {
+                const value = star.dataset.value;
+                ratingInput.value = value;
+
+                stars.forEach(s => {
+                    s.classList.toggle("text-yellow-400", s.dataset.value <= value);
+                    s.classList.toggle("text-gray-300", s.dataset.value > value);
+                });
+            });
+        });
+
+        // Form validation
         form.addEventListener("submit", (e) => {
             errorMsg.classList.add("hidden");
 
@@ -488,17 +509,17 @@
                 e.preventDefault();
                 errorMsg.textContent = "Please select a rating before submitting.";
                 errorMsg.classList.remove("hidden");
-                return;
             }
         });
+
     });
-    // View More Reviews
+
     document.getElementById("viewMoreBtn")?.addEventListener("click", function () {
-        document.querySelectorAll(".extra-review").forEach(el => {
-            el.classList.remove("hidden");
-            el.classList.add("animate-fade-in-up");
+            document.querySelectorAll(".extra-review").forEach(el => {
+                el.classList.remove("hidden");
+                el.classList.add("animate-fade-in-up");
+            });
+            this.style.display = "none";
         });
-        this.style.display = "none";
-    });
 </script>
 {% endblock %}

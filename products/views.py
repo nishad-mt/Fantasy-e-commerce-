@@ -322,17 +322,10 @@ def del_category(request,category_id):
 def write_review(request, slug):
     product = get_object_or_404(Product, slug=slug)
 
-    reviews = product.reviews.filter(is_approved=True)
-    rating_data = reviews.aggregate(
-        avg=Avg("rating"),
-        count=Count("review_id")
-    )
-
     if request.method == "POST":
         review_text = request.POST.get("review", "").strip()
         rating_raw = request.POST.get("rating")
 
-        # VALIDATION (VERY IMPORTANT)
         if not review_text:
             messages.error(request, "Please write a review before submitting.")
             return redirect("user_product", slug=slug)
@@ -341,29 +334,33 @@ def write_review(request, slug):
             messages.error(request, "Please select a rating before submitting.")
             return redirect("user_product", slug=slug)
 
-        # ✅ SAFE CONVERSION
-        rating = int(rating_raw)
+        if ProductReview.objects.filter(product=product, user=request.user).exists():
+            messages.error(request, "You have already reviewed this product.")
+            return redirect("user_product", slug=slug)
+
+        try:
+            rating = int(rating_raw)
+            if rating < 1 or rating > 5:
+                raise ValueError
+        except ValueError:
+            messages.error(request, "Invalid rating value.")
+            return redirect("user_product", slug=slug)
 
         ProductReview.objects.create(
-        product=product,
-        user=request.user,
-        rating=rating,
-        review=review_text,
-        is_verified_purchase = OrderItem.objects.filter(
-            order__user=request.user,
-            order__status="DELIVERED",
-            variant__product=product,
-        ).exists()
-    )
+            product=product,
+            user=request.user,
+            rating=rating,
+            review=review_text,
+            is_verified_purchase=OrderItem.objects.filter(
+                order__user=request.user,
+                order__status="DELIVERED",
+                variant__product=product,
+            ).exists()
+        )
 
+        messages.success(request, "Review submitted successfully!")
         return redirect("user_product", slug=slug)
 
-    return render(request, "product_review.html", {
-        "product": product,
-        "avg_rating": rating_data["avg"] or 0,
-        "review_count": rating_data["count"]
-    })
-    
 @login_required
 @never_cache
 def edit_review(request, review_id):
@@ -373,10 +370,23 @@ def edit_review(request, review_id):
         return HttpResponseForbidden("Not allowed")
 
     if request.method == "POST":
-        review.rating = int(request.POST.get("rating"))
-        review.review = request.POST.get("review")
+        rating_raw = request.POST.get("rating")
+        review_text = request.POST.get("review", "").strip()
+
+        if not review_text or not rating_raw:
+            messages.error(request, "All fields are required.")
+            return redirect("edit_review", review_id=review_id)
+
+        rating = int(rating_raw)
+        if rating < 1 or rating > 5:
+            messages.error(request, "Invalid rating.")
+            return redirect("edit_review", review_id=review_id)
+
+        review.rating = rating
+        review.review = review_text
         review.save()
 
+        messages.success(request, "Review updated successfully.")
         return redirect("user_product", slug=review.product.slug)
 
     return render(request, "edit_review.html", {"review": review})
@@ -384,12 +394,16 @@ def edit_review(request, review_id):
 @login_required
 @never_cache
 def delete_review(request, review_id):
+    if request.method != "POST":
+        return HttpResponseBadRequest("Invalid request")
+
     review = get_object_or_404(ProductReview, review_id=review_id)
 
     if review.user != request.user and not request.user.is_staff:
         return HttpResponseForbidden("Not allowed")
 
     review.delete()
+    messages.success(request, "Review deleted successfully.")
     return redirect("user_product", slug=review.product.slug)
 
 @login_required
@@ -402,13 +416,12 @@ def update_review_status(request, review_id):
 
         if action == "approve":
             review.is_approved = True
-            review.save()
-
         elif action == "hide":
             review.is_approved = False
-            review.save()
-
         elif action == "delete":
             review.delete()
+            return redirect("admin_reviews")
+
+        review.save()
 
     return redirect("admin_reviews")
