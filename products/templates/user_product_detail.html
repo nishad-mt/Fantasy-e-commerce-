@@ -434,12 +434,7 @@
         const addToCartForm = document.getElementById('addToCartForm');
         const buyNowForm = document.getElementById('buyNowForm');
 
-        // Update Action URLs? Logic in original code uses dataset.baseUrl + variantId
-        // Keeping it simpler: Just ensure the hidden input variant_id is set. 
-        // The original code appended /variant_id/ to the form action. I will maintain that if required, but standard hidden input is cleaner.
-        // Let's assume the view handles POST variable 'variant_id'. But looking at original code:
-        // `addToCartForm.action = ${addToCartForm.dataset.baseUrl}${variantId}/;` 
-        // implies the URL structure expects the variant ID in the path. I must preserve this.
+        
 
         addToCartForm.action = `${addToCartForm.dataset.baseUrl}${variantId}/`;
         buyNowForm.action = `${buyNowForm.dataset.baseUrl}${variantId}/`;

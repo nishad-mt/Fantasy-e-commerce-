@@ -329,13 +329,26 @@ def write_review(request, slug):
     )
 
     if request.method == "POST":
-        user = request.user
+        review_text = request.POST.get("review", "").strip()
+        rating_raw = request.POST.get("rating")
+
+        # VALIDATION (VERY IMPORTANT)
+        if not review_text:
+            messages.error(request, "Please write a review before submitting.")
+            return redirect("user_product", slug=slug)
+
+        if not rating_raw:
+            messages.error(request, "Please select a rating before submitting.")
+            return redirect("user_product", slug=slug)
+
+        # ✅ SAFE CONVERSION
+        rating = int(rating_raw)
 
         ProductReview.objects.create(
         product=product,
         user=request.user,
-        rating=int(request.POST.get("rating")),
-        review=request.POST.get("review"),
+        rating=rating,
+        review=review_text,
         is_verified_purchase = OrderItem.objects.filter(
             order__user=request.user,
             order__status="DELIVERED",
