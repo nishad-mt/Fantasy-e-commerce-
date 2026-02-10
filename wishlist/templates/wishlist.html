@@ -110,12 +110,14 @@
 </div>
 
 <!-- Toast Notification Container (Shared) -->
-<div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+<div id="toast-container"
+  class="fixed top-5 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 pointer-events-none w-[90%] md:w-auto items-center">
+</div>
 
 <!-- Toast Template -->
 <template id="toast-template">
   <div
-    class="transform translate-y-10 opacity-0 transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.27,1.55)] max-w-sm w-auto bg-fantasy-cream text-fantasy-brown px-6 py-4 rounded-xl shadow-2xl border border-fantasy-gold/20 flex items-center gap-4 pointer-events-auto">
+    class="transform -translate-y-full opacity-0 transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.27,1.55)] max-w-sm w-full md:w-auto bg-fantasy-cream text-fantasy-brown px-6 py-4 rounded-xl shadow-2xl border border-fantasy-gold/20 flex items-center gap-4 pointer-events-auto">
     <div class="w-8 h-8 rounded-full bg-fantasy-gold/10 flex items-center justify-center shrink-0">
       <i class="fa-solid fa-heart text-fantasy-gold text-sm"></i>
     </div>
@@ -147,11 +149,11 @@
       toastContainer.appendChild(toastEl);
 
       requestAnimationFrame(() => {
-        toastEl.classList.remove('translate-y-10', 'opacity-0');
+        toastEl.classList.remove('-translate-y-full', 'opacity-0');
       });
 
       setTimeout(() => {
-        toastEl.classList.add('translate-y-10', 'opacity-0');
+        toastEl.classList.add('-translate-y-full', 'opacity-0');
         setTimeout(() => {
           if (toastEl.parentNode) toastEl.parentNode.removeChild(toastEl);
         }, 500);
