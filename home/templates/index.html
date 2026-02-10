@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 
 <head>
     <meta charset="UTF-8">
@@ -20,18 +20,27 @@
                         'fantasy-brown': '#5a3e2b',
                         'fantasy-gold': '#D4AF37',
                         'fantasy-gold-light': '#F4E5B2',
-                        'fantasy-pink': '#FCE7E7', // Kept for backward compatibility if needed, but primary is now cream/walnut
-                        'fantasy-pink-dark': '#F4C2C2',
+                        'fantasy-pink': '#FCE7E7',
                     },
                     fontFamily: {
                         serif: ['"Playfair Display"', 'serif'],
                         sans: ['"Inter"', '"Lato"', 'sans-serif'],
                     },
                     animation: {
-                        'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+                        'fade-in-up': 'fadeInUp 1s ease-out forwards',
+                        'zoom-out': 'zoomOut 1.5s ease-out forwards',
+                        'gentle-fade': 'gentleFadeIn 1s ease-out forwards',
                     },
                     keyframes: {
                         fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(30px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        zoomOut: {
+                            '0%': { transform: 'scale(1.1)' },
+                            '100%': { transform: 'scale(1)' },
+                        },
+                        gentleFadeIn: {
                             '0%': { opacity: '0', transform: 'translateY(20px)' },
                             '100%': { opacity: '1', transform: 'translateY(0)' },
                         }
@@ -45,593 +54,307 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
         rel="stylesheet">
-    <!-- Keeping FontAwesome as backup or for specific icons not in Lucide yet, but primarily using Lucide -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* Custom Utilities */
-        .warm-overlay {
-            position: relative;
+        /* Hide scrollbar for clean look */
+        ::-webkit-scrollbar {
+            width: 8px;
         }
 
-        .warm-overlay::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: rgba(255, 249, 240, 0.1);
-            /* Very subtle warm tint */
-            pointer-events: none;
-            border-radius: inherit;
+        ::-webkit-scrollbar-track {
+            background: #FFF9F0;
         }
 
-        .text-shadow-sm {
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        ::-webkit-scrollbar-thumb {
+            background: #e5d0ac;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #d4af37;
+        }
+
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1s ease-out;
+        }
+
+        .reveal-active {
+            opacity: 1;
+            transform: translateY(0);
         }
     </style>
 </head>
 
-<body class="bg-fantasy-cream text-gray-800 font-sans antialiased">
+<body class="bg-fantasy-cream text-gray-800 font-sans antialiased selection:bg-fantasy-gold selection:text-white">
     <div id="homepage-content">
         <!-- Navigation -->
         <nav id="navbar"
-            class="fixed w-full z-50 transition-all duration-300 bg-fantasy-cream/95 backdrop-blur-md shadow-sm py-3 md:py-4">
-            <div class="container mx-auto px-4 md:px-6 flex justify-between items-center">
+            class="fixed w-full z-50 transition-all duration-300 bg-fantasy-cream/90 backdrop-blur-md border-b border-fantasy-brown/5 py-4">
+            <div class="container mx-auto px-6 flex justify-between items-center">
                 <!-- Logo -->
                 <a href="{% url 'home' %}"
-                    class="text-2xl md:text-3xl font-serif font-bold text-fantasy-brown flex items-center gap-2 hover:opacity-90 transition-opacity">
-                    <i data-lucide="shopping-basket" class="text-fantasy-gold w-6 h-6 md:w-8 md:h-8"></i>
+                    class="text-2xl font-serif font-bold text-fantasy-brown flex items-center gap-2 tracking-tight group">
+                    <span
+                        class="w-8 h-8 flex items-center justify-center bg-fantasy-brown text-fantasy-gold rounded-full group-hover:bg-fantasy-gold group-hover:text-fantasy-brown transition-colors duration-500">
+                        <i class="fa-solid fa-cookie-bite text-sm"></i>
+                    </span>
                     <span>Fantasy Bakery</span>
                 </a>
 
                 <!-- Desktop Menu -->
-                <div class="hidden md:flex items-center space-x-8 font-medium text-fantasy-brown text-sm tracking-wide">
-                    <a href="{% url 'home' %}" class="hover:text-fantasy-gold transition-colors relative group">
-                        Home
-                        <span
-                            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-fantasy-gold transition-all group-hover:w-full"></span>
-                    </a>
-                    <a href="{% url 'products' %}" class="hover:text-fantasy-gold transition-colors relative group">
-                        Products
-                        <span
-                            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-fantasy-gold transition-all group-hover:w-full"></span>
-                    </a>
-                    <a href="{% url 'contact' %}" class="hover:text-fantasy-gold transition-colors relative group">
-                        Contact
-                        <span
-                            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-fantasy-gold transition-all group-hover:w-full"></span>
-                    </a>
-                    <a href="{% url 'aboutus' %}" class="hover:text-fantasy-gold transition-colors relative group">
-                        About Us
-                        <span
-                            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-fantasy-gold transition-all group-hover:w-full"></span>
-                    </a>
-                    <a href="{% url 'order' %}" class="hover:text-fantasy-gold transition-colors relative group">
-                        My Orders
-                        <span
-                            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-fantasy-gold transition-all group-hover:w-full"></span>
-                    </a>
+                <div
+                    class="hidden md:flex items-center space-x-10 font-medium text-fantasy-brown text-sm tracking-wide">
+                    <a href="{% url 'home' %}" class="hover:text-fantasy-gold transition-colors">Home</a>
+                    <a href="{% url 'products' %}" class="hover:text-fantasy-gold transition-colors">Shop</a>
+                    <a href="{% url 'aboutus' %}" class="hover:text-fantasy-gold transition-colors">Our Story</a>
+                    <a href="{% url 'contact' %}" class="hover:text-fantasy-gold transition-colors">Contact</a>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'order' %}" class="hover:text-fantasy-gold transition-colors">Orders</a>
+                    {% endif %}
                 </div>
 
                 <!-- Icons -->
-                <div class="flex items-center space-x-4 md:space-x-6 text-fantasy-brown">
-
-                    <form method="GET" action="{% url 'products' %}"
-                        class="hidden md:flex items-center gap-2 relative group">
-                        <input type="text" name="q" placeholder="Search..." value="{{ request.GET.q }}"
-                            class="bg-transparent border-b border-fantasy-brown/30 px-2 py-1 text-sm focus:outline-none focus:border-fantasy-gold w-24 focus:w-40 transition-all placeholder-fantasy-brown/50" />
-
-                        <button type="submit" class="hover:text-fantasy-gold transition-colors">
-                            <i data-lucide="search" class="w-5 h-5"></i>
-                        </button>
-                    </form>
-
-                    <a href="{% url 'wishlist:wishlist'  %}"
-                        class="hover:text-fantasy-gold transition-colors relative group" aria-label="Wishlist">
-                        <i data-lucide="heart" class="w-5 h-5 md:w-6 md:h-6"></i>
+                <div class="flex items-center space-x-6 text-fantasy-brown">
+                    <a href="{% url 'wishlist:wishlist' %}"
+                        class="hover:text-fantasy-gold transition-transform hover:scale-110" aria-label="Wishlist">
+                        <i data-lucide="heart" class="w-5 h-5"></i>
                     </a>
-
-                    <a href="{% url 'cart:cart' %}"
-                        class="hover:text-fantasy-gold transition-colors relative inline-block group" aria-label="Cart">
-                        <i data-lucide="shopping-cart" class="w-5 h-5 md:w-6 md:h-6"></i>
+                    <a href="{% url 'cart:cart' %}" class="hover:text-fantasy-gold transition-transform hover:scale-110"
+                        aria-label="Cart">
+                        <i data-lucide="shopping-bag" class="w-5 h-5"></i>
                     </a>
-
-                    {% if user.is_authenticated and not user.is_staff %}
-                    <a href="{% url 'profile' %}" class="hover:text-fantasy-gold transition-colors"
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'profile' %}" class="hover:text-fantasy-gold transition-transform hover:scale-110"
                         aria-label="Profile">
-                        <i data-lucide="user" class="w-5 h-5 md:w-6 md:h-6"></i>
+                        <i data-lucide="user" class="w-5 h-5"></i>
                     </a>
                     {% else %}
-                    <a href="{% url 'account_signup' %}"
-                        class="hidden md:inline-block px-4 py-2 bg-fantasy-brown text-white text-xs font-bold rounded-full hover:bg-opacity-90 transition-all uppercase tracking-wider">
-                        Sign up
-                    </a>
+                    <a href="{% url 'account_login' %}"
+                        class="text-sm font-bold hover:text-fantasy-gold transition-colors">Login</a>
                     {% endif %}
 
-
                     <!-- Mobile Menu Button -->
-                    <button id="mobile-menu-btn" class="md:hidden hover:text-fantasy-gold transition-colors p-1">
+                    <button id="mobile-menu-btn" class="md:hidden hover:text-fantasy-gold transition-colors">
                         <i data-lucide="menu" class="w-6 h-6"></i>
                     </button>
                 </div>
             </div>
 
-            <!-- Mobile Menu (Hidden by default) -->
+            <!-- Mobile Menu (Hidden) -->
             <div id="mobile-menu"
-                class="hidden md:hidden bg-fantasy-cream border-t border-fantasy-brown/10 absolute w-full left-0 top-full shadow-lg h-screen bg-opacity-95 backdrop-blur-sm">
-                <div class="flex flex-col p-6 space-y-6 font-medium text-fantasy-brown text-lg text-center">
-                    <a href="{% url 'home' %}"
-                        class="hover:text-fantasy-gold py-2 border-b border-fantasy-brown/10">Home</a>
-                    <a href="{% url 'products' %}"
-                        class="hover:text-fantasy-gold py-2 border-b border-fantasy-brown/10">Products</a>
-                    <a href="{% url 'order' %}"
-                        class="hover:text-fantasy-gold py-2 border-b border-fantasy-brown/10">Track Order</a>
-                    <a href="{% url 'aboutus' %}"
-                        class="hover:text-fantasy-gold py-2 border-b border-fantasy-brown/10">About</a>
-                    <a href="{% url 'contact' %}"
-                        class="hover:text-fantasy-gold py-2 border-b border-fantasy-brown/10">Contact</a>
-                    <a href="{% url 'account_signup' %}" class="hover:text-fantasy-gold py-2">Sign up</a>
+                class="fixed inset-0 bg-fantasy-cream z-40 transform translate-x-full transition-transform duration-500 flex items-center justify-center">
+                <div class="flex flex-col space-y-8 text-center font-serif text-2xl text-fantasy-brown">
+                    <a href="{% url 'home' %}" class="hover:text-fantasy-gold">Home</a>
+                    <a href="{% url 'products' %}" class="hover:text-fantasy-gold">Shop</a>
+                    <a href="{% url 'aboutus' %}" class="hover:text-fantasy-gold">Our Story</a>
+                    <a href="{% url 'contact' %}" class="hover:text-fantasy-gold">Contact</a>
                 </div>
             </div>
         </nav>
+
         {% block content %}
-        <!-- Hero Section -->
-        <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+
+        <!-- Cinematic Hero Section -->
+        <header class="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+            <!-- Background Image with Zoom Effect -->
             <div class="absolute inset-0 z-0">
-                <!-- Placeholder for Hero Image -->
-                <img src="{% static 'images/potati.jpg' %}" alt="Fantasy Bakery Hero"
-                    class="w-full h-full object-cover opacity-40">
-                <div class="absolute inset-0 bg-gradient-to-b from-fantasy-cream/50 to-fantasy-cream"></div>
+                <img src="{% static 'images/potati.jpg' %}" alt="Artisanal Bakes"
+                    class="w-full h-full object-cover animate-zoom-out opacity-90" fetchpriority="high">
+                <div class="absolute inset-0 bg-black/10"></div> <!-- Subtle overlay for text contrast -->
             </div>
 
-            <div class="container mx-auto px-6 relative z-10 text-center">
+            <!-- Content Container -->
+            <div class="relative z-10 container mx-auto px-6 text-center text-white">
+                <div class="max-w-4xl mx-auto">
+                    <!-- Headline -->
+                    <h1 class="text-6xl md:text-8xl font-serif font-bold mb-6 leading-tight opacity-0 animate-fade-in-up"
+                        style="animation-delay: 0.2s;">
+                        Create <span class="italic font-light text-fantasy-gold-light">Moments</span> <br> of Magic.
+                    </h1>
 
-                <h1
-                    class="text-5xl md:text-7xl font-serif font-bold text-fantasy-brown mb-6 leading-tight animate-fade-in-up delay-100">
-                    Where Taste Meets <span class="text-fantasy-gold">Fantasy</span>
-                </h1>
-                <p class="text-lg md:text-xl text-gray-600 mb-10 max-w-2xl mx-auto animate-fade-in-up delay-200">
-                    Handcrafted delights,experience the real taste of our moms bakes,
-                    Experience the sweetness of imagination.
-                </p>
-                <div class="flex flex-col sm:flex-row justify-center gap-4 animate-fade-in-up delay-300">
-                    <a href="{% url 'products' %}"
-                        class="px-8 py-4 bg-fantasy-brown text-white rounded-full font-bold shadow-lg hover:bg-opacity-90 hover:shadow-xl transition-all transform hover:-translate-y-1">
-                        Shop Now
-                    </a>
-                    <a href="#offers"
-                        class="px-8 py-4 bg-white text-fantasy-brown border-2 border-fantasy-brown rounded-full font-bold shadow-md hover:bg-fantasy-pink transition-all transform hover:-translate-y-1">
-                        Browse Offers
-                    </a>
+                    <!-- Sub-headline -->
+                    <p class="text-lg md:text-xl font-light mb-10 max-w-lg mx-auto opacity-0 animate-fade-in-up text-white/90"
+                        style="animation-delay: 0.4s;">
+                        Experience the authentic taste of handcrafted delicacies, baked with passion and premium
+                        ingredients.
+                    </p>
+
+                    <!-- CTA Button -->
+                    <div class="opacity-0 animate-fade-in-up" style="animation-delay: 0.6s;">
+                        <a href="{% url 'products' %}"
+                            class="inline-block px-10 py-4 border border-fantasy-gold/50 bg-fantasy-brown/80 backdrop-blur-sm text-white font-bold uppercase tracking-widest text-sm hover:bg-fantasy-gold hover:border-fantasy-gold transition-all duration-500 hover:shadow-[0_0_30px_rgba(212,175,55,0.4)] rounded-sm">
+                            Shop Collection
+                        </a>
+                    </div>
                 </div>
             </div>
 
-            <!-- Floating Elements (Decorative) -->
-            <div class="absolute top-1/4 left-10 hidden lg:block animate-float">
-                <i class="fa-solid fa-star text-fantasy-gold text-2xl opacity-50"></i>
+            <!-- Scroll Indicator -->
+            <div class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce opacity-70">
+                <i class="fa-solid fa-arrow-down text-white/50 text-xl"></i>
             </div>
-            <div class="absolute bottom-1/4 right-10 hidden lg:block animate-float-delayed">
-                <i class="fa-solid fa-wand-magic-sparkles text-fantasy-pink-dark text-3xl opacity-50"></i>
+        </header>
+
+        <!-- Social Proof / As Seen On -->
+        <section class="py-10 bg-white border-b border-fantasy-brown/5">
+            <div class="container mx-auto px-6 text-center reveal-on-scroll">
+                <p class="text-xs font-bold tracking-[0.2em] text-gray-400 uppercase mb-6">Trusted by Food Lovers Across
+                    Kerala</p>
+                <div
+                    class="flex flex-wrap justify-center gap-12 items-center opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
+                    <span class="font-serif text-xl font-bold text-fantasy-brown">The Hindu</span>
+                    <span class="font-serif text-xl font-bold text-fantasy-brown">EatKochiEat</span>
+                    <span class="font-serif text-xl font-bold text-fantasy-brown">Manorama</span>
+                    <span class="font-serif text-xl font-bold text-fantasy-brown">FoodiePolis</span>
+                </div>
             </div>
         </section>
 
-        <!-- Category Highlights -->
-        <section id="categories" class="py-16 bg-white">
+        <!-- Curated Categories -->
+        <section class="py-24 bg-fantasy-cream">
             <div class="container mx-auto px-6">
-                <div class="mb-12">
-                    <h2 class="text-3xl md:text-4xl font-serif font-bold text-fantasy-brown mb-4">Our Categories</h2>
-                    <div class="w-30 h-1 bg-fantasy-gold ms-3 rounded-full"></div>
+                <div class="text-center mb-16 reveal-on-scroll">
+                    <h2 class="text-4xl md:text-5xl font-serif font-bold text-fantasy-brown mb-4">Curated Selections
+                    </h2>
+                    <div class="w-16 h-0.5 bg-fantasy-gold mx-auto"></div>
                 </div>
 
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-                    <!-- Category Item -->
-                    {% for cat in category %}
-                    <a href="{% url 'products_by_category' cat.slug %}" class="group text-center">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+                    {% for cat in category|slice:":4" %}
+                    <a href="{% url 'products_by_category' cat.slug %}" class="group text-center reveal-on-scroll">
                         <div
-                            class="w-full aspect-square rounded-2xl overflow-hidden mb-4 shadow-md group-hover:shadow-xl transition-all duration-300 relative">
-                            <img src="{{ cat.image.url }}" alt="whaeat flakes"
-                                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                            <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
+                            class="relative w-full aspect-square rounded-full overflow-hidden mb-6 border border-fantasy-brown/5 shadow-sm group-hover:shadow-2xl transition-all duration-500">
+                            <img src="{{ cat.image.url }}" alt="{{ cat.name }}"
+                                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out">
+                            <div
+                                class="absolute inset-0 bg-fantasy-brown/0 group-hover:bg-fantasy-brown/10 transition-colors duration-500">
+                            </div>
                         </div>
                         <h3
-                            class="font-serif font-bold text-lg text-fantasy-brown group-hover:text-fantasy-gold transition-colors">
-                            {{ cat.name }}
-                        </h3>
+                            class="font-serif font-bold text-xl text-fantasy-brown group-hover:text-fantasy-gold transition-colors">
+                            {{ cat.name }}</h3>
+                        <span
+                            class="text-xs text-fantasy-brown/40 font-bold uppercase tracking-wider mt-1 block group-hover:translate-x-1 transition-transform">View
+                            Collection &rarr;</span>
                     </a>
                     {% endfor %}
-
                 </div>
             </div>
         </section>
 
         <!-- Featured Products -->
-        <section id="products" class="py-16 bg-fantasy-cream">
-            <div class="container mx-auto px-6">
-                <div class="flex justify-between items-end mb-12">
-                    <div>
-                        <h2 class="text-3xl md:text-4xl font-serif font-bold text-fantasy-brown mb-2">Latest ones
-                        </h2>
-                        <p class="text-gray-600">Discover our most loved new creations.</p>
-                    </div>
-                    <a href="{% url 'products' %}"
-                        class="hidden md:block text-fantasy-brown font-bold hover:text-fantasy-gold transition-colors">
-                        View All <i class="fa-solid fa-arrow-right ml-2"></i></a>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                    <!-- Product Card 1 -->
-                    {% for pdc in products %}
-                    <a href="{% url 'user_product' pdc.slug %}"
-                        class="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 group overflow-hidden border border-gray-100">
-                        <div class="relative aspect-[4/5] overflow-hidden">
-                            <img src="{{ pdc.main_image.url }}" alt="Product"
-                                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                        </div>
-                        <div class="p-4">
-                            <div class="flex justify-between items-start mb-2">
-                                <h3 class="font-serif font-bold text-lg text-fantasy-brown">{{ pdc.name }}</h3>
-                            </div>
-                            <p class="text-sm text-gray-500 mb-3 line-clamp-2">{{pdc.description}}</p>
-                            <div class="flex items-baseline gap-2">
-                                <span class="text-xl font-bold text-fantasy-brown">{{ pdc.base_price }}</span>
-                            </div>
-                        </div>
-                    </a>
-                    {% endfor %}
-                    <div class="text-center mt-12 md:hidden">
-                        <a href="{% url 'products' %}"
-                            class="inline-block px-8 py-3 border-2 border-fantasy-brown text-fantasy-brown rounded-full font-bold hover:bg-fantasy-brown hover:text-white transition-colors">
-                            View All Products</a>
-                    </div>
-                </div>
-        </section>
-
-        <!-- Offer Highlight -->
-        {% if top_coupon %}
-        <section id="offers" class="py-20 bg-fantasy-pink/30">
-            <div class="container mx-auto px-6">
-                <div
-                    class="bg-white rounded-3xl p-8 md:p-14 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center gap-10 md:gap-16">
-
-                    <!-- Decorative Background -->
-                    <div class="absolute -top-20 -right-20 w-72 h-72 bg-fantasy-pink rounded-full opacity-50 blur-3xl">
-                    </div>
-                    <div
-                        class="absolute -bottom-20 -left-20 w-72 h-72 bg-fantasy-gold-light rounded-full opacity-50 blur-3xl">
-                    </div>
-
-                    <!-- Text Content -->
-                    <div class="w-full md:w-1/2 relative z-10">
-                        <span
-                            class="inline-block mb-3 text-fantasy-brown font-bold tracking-widest uppercase text-xs bg-fantasy-cream px-4 py-1 rounded-full">
-                            🎁 Special Celebration Offer
-                        </span>
-
-                        <h2 class="text-4xl md:text-5xl font-serif font-bold text-fantasy-brown mb-5 leading-tight">
-                            {{ top_coupon.name }}
-                        </h2>
-
-                        <p class="text-gray-700 mb-4 text-lg">
-                            Because every moment deserves a little extra sweetness.
-                            Enjoy exclusive savings on our handcrafted treats, carefully baked to spread joy,
-                            love, and unforgettable memories.
-                        </p>
-
-                        <p class="text-gray-600 mb-6">
-                            Whether it’s a surprise gift, a celebration, or just a well-earned indulgence —
-                            this offer is our way of making your moments even more magical ✨
-                        </p>
-
-                        <!-- Coupon Box -->
-                        <div
-                            class="bg-fantasy-cream border-2 border-dashed border-fantasy-brown p-4 rounded-xl inline-flex items-center gap-4 mb-3">
-                            <span class="font-mono text-2xl font-bold text-fantasy-brown tracking-wider">
-                                {{ top_coupon.code }}
-                            </span>
-                            <button type="button" class="text-sm text-fantasy-gold font-bold hover:underline transition"
-                                onclick="copyCoupon(this, '{{ top_coupon.code }}')">
-                                COPY CODE
-                            </button>
-
-                        </div>
-
-                        <p class="text-sm text-gray-500">
-                            Apply at checkout to unlock instant savings 💖
-                        </p>
-
-                        {% if top_coupon.valid_to %}
-                        <p class="mt-2 text-xs text-red-400 font-semibold flex items-center gap-1">
-                            <i class="fa-regular fa-clock"></i>
-                            Hurry! Offer valid till {{ top_coupon.valid_to|date:"d M Y, h:i A" }}
-                        </p>
-                        {% endif %}
-                    </div>
-
-                    <!-- Image -->
-                    <div class="w-full md:w-1/2 relative z-10">
-                        <img src="{% static 'images/creamy.jpg' %}" alt="Gift Hamper"
-                            class="rounded-2xl shadow-xl transform rotate-2 hover:rotate-0 transition-transform duration-500">
-                    </div>
-
-                </div>
+        <section class="py-24 bg-white relative overflow-hidden">
+            <!-- Decorative Pattern -->
+            <div class="absolute top-0 right-0 w-1/3 h-full bg-fantasy-cream/30 -skew-x-12 transform origin-top-right">
             </div>
-        </section>
-        {% endif %}
-
-
-        <!-- Why Choose Us -->
-        <section class="py-16 bg-white">
-            <div class="container mx-auto px-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    <div class="text-center p-6 rounded-2xl hover:bg-fantasy-cream transition-colors">
-                        <div
-                            class="w-16 h-16 bg-fantasy-pink/50 rounded-full flex items-center justify-center mx-auto mb-4 text-fantasy-brown text-2xl">
-                            <i class="fa-solid fa-bread-slice"></i>
-                        </div>
-                        <h3 class="font-serif font-bold text-lg text-fantasy-brown mb-2">Fresh Daily</h3>
-                        <p class="text-gray-500 text-sm">Baked fresh every morning with premium ingredients.</p>
-                    </div>
-
-                    <div class="text-center p-6 rounded-2xl hover:bg-fantasy-cream transition-colors">
-                        <div
-                            class="w-16 h-16 bg-fantasy-gold-light/50 rounded-full flex items-center justify-center mx-auto mb-4 text-fantasy-brown text-2xl">
-                            <i class="fa-solid fa-truck-fast"></i>
-                        </div>
-                        <h3 class="font-serif font-bold text-lg text-fantasy-brown mb-2">Fast Delivery</h3>
-                        <p class="text-gray-500 text-sm">Magical delivery to your doorstep within three days maximum.
-                        </p>
-                    </div>
-
-                    <div class="text-center p-6 rounded-2xl hover:bg-fantasy-cream transition-colors">
-                        <div
-                            class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-fantasy-brown text-2xl">
-                            <i class="fa-solid fa-leaf"></i>
-                        </div>
-                        <h3 class="font-serif font-bold text-lg text-fantasy-brown mb-2">Eco-Friendly</h3>
-                        <p class="text-gray-500 text-sm">Sustainable packaging that loves the planet.</p>
-                    </div>
-
-                    <div class="text-center p-6 rounded-2xl hover:bg-fantasy-cream transition-colors">
-                        <div
-                            class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 text-fantasy-brown text-2xl">
-                            <i class="fa-solid fa-gift"></i>
-                        </div>
-                        <h3 class="font-serif font-bold text-lg text-fantasy-brown mb-2">Custom Gifting</h3>
-                        <p class="text-gray-500 text-sm">Personalized notes and wrapping for special moments.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-
-        {% endblock %}
-        <footer
-            class="bg-[#1a120b] text-[#e5d0ac] pt-20 pb-10 border-t-[6px] border-[#DAA520] relative overflow-hidden font-sans">
-            <!-- Pattern Overlay -->
-            <div class="absolute inset-0 opacity-[0.03]"
-                style="background-image: url('https://www.transparenttextures.com/patterns/cubes.png');"></div>
 
             <div class="container mx-auto px-6 relative z-10">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-                    <!-- Brand Section -->
-                    <div class="lg:col-span-1">
-                        <a href="{% url 'home' %}"
-                            class="inline-flex items-center gap-3 text-3xl font-serif font-bold text-[#DAA520] mb-6 tracking-wide">
-                            <div
-                                class="w-10 h-10 rounded-full border border-[#DAA520] flex items-center justify-center bg-[#2c1e1a]">
-                                <i class="fa-solid fa-cookie-bite text-sm"></i>
+                <div class="flex flex-col md:flex-row justify-between items-end mb-16 reveal-on-scroll">
+                    <div>
+                        <span class="text-fantasy-gold font-bold tracking-widest uppercase text-xs mb-2 block">Fresh
+                            from Our Kitchen</span>
+                        <h2 class="text-4xl md:text-5xl font-serif font-bold text-fantasy-brown">Latest Creations</h2>
+                    </div>
+                    <a href="{% url 'products' %}"
+                        class="mt-4 md:mt-0 pb-1 border-b border-fantasy-brown text-fantasy-brown font-medium hover:text-fantasy-gold hover:border-fantasy-gold transition-all">
+                        View All Products
+                    </a>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    {% for pdc in products|slice:":4" %}
+                    <div class="group reveal-on-scroll">
+                        <a href="{% url 'user_product' pdc.slug %}" class="block relative overflow-hidden mb-4">
+                            <div class="aspect-[4/5] bg-gray-100 relative overflow-hidden">
+                                <img src="{{ pdc.main_image.url }}" alt="{{ pdc.name }}"
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
+
+                                <!-- Add to Cart Overlay (Quick Action) -->
+                                <button
+                                    class="absolute bottom-4 right-4 bg-white text-fantasy-brown w-10 h-10 flex items-center justify-center rounded-full shadow-lg translate-y-20 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:bg-fantasy-brown hover:text-white">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
                             </div>
-                            Fantasy Bakery
                         </a>
-                        <p class="text-[#e5d0ac]/70 text-sm leading-relaxed mb-6 font-light">
-                            Crafted with love, baked with imagination. Bringing the authentic heritage of Kerala's
-                            homemade delicacies to your daily treats.
-                        </p>
-                        <div class="flex gap-4">
-                            <a href="#"
-                                class="w-9 h-9 rounded-full bg-[#DAA520]/10 flex items-center justify-center text-[#DAA520] hover:bg-[#DAA520] hover:text-[#1a120b] transition-all duration-300">
-                                <i class="fa-brands fa-instagram text-sm"></i>
-                            </a>
-                            <a href="#"
-                                class="w-9 h-9 rounded-full bg-[#DAA520]/10 flex items-center justify-center text-[#DAA520] hover:bg-[#DAA520] hover:text-[#1a120b] transition-all duration-300">
-                                <i class="fa-brands fa-facebook-f text-sm"></i>
-                            </a>
-                            <a href="#"
-                                class="w-9 h-9 rounded-full bg-[#DAA520]/10 flex items-center justify-center text-[#DAA520] hover:bg-[#DAA520] hover:text-[#1a120b] transition-all duration-300">
-                                <i class="fa-brands fa-twitter text-sm"></i>
-                            </a>
+                        <div>
+                            <h3
+                                class="font-serif font-bold text-lg text-fantasy-brown mb-1 group-hover:text-fantasy-gold transition-colors">
+                                <a href="{% url 'user_product' pdc.slug %}">{{ pdc.name }}</a>
+                            </h3>
+                            <p class="text-fantasy-brown/60 font-medium">₹{{ pdc.min_price }}</p>
                         </div>
                     </div>
-
-                    <!-- Company Links -->
-                    <div>
-                        <h4 class="font-serif font-bold text-lg text-white mb-6 relative inline-block">
-                            Quick Links
-                            <span class="absolute -bottom-2 left-0 w-10 h-1 bg-[#DAA520] rounded-full"></span>
-                        </h4>
-                        <ul class="space-y-3 text-sm">
-                            <li>
-                                <a href="{% url 'home' %}"
-                                    class="flex items-center gap-2 text-[#e5d0ac]/80 hover:text-[#DAA520] hover:translate-x-1 transition-all duration-300 group">
-                                    <i
-                                        class="fa-solid fa-angle-right text-[#DAA520] opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                                    Home
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{% url 'products' %}"
-                                    class="flex items-center gap-2 text-[#e5d0ac]/80 hover:text-[#DAA520] hover:translate-x-1 transition-all duration-300 group">
-                                    <i
-                                        class="fa-solid fa-angle-right text-[#DAA520] opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                                    Categories
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{% url 'offers' %}"
-                                    class="flex items-center gap-2 text-[#e5d0ac]/80 hover:text-[#DAA520] hover:translate-x-1 transition-all duration-300 group">
-                                    <i
-                                        class="fa-solid fa-angle-right text-[#DAA520] opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                                    Special Offers
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{% url 'aboutus' %}"
-                                    class="flex items-center gap-2 text-[#e5d0ac]/80 hover:text-[#DAA520] hover:translate-x-1 transition-all duration-300 group">
-                                    <i
-                                        class="fa-solid fa-angle-right text-[#DAA520] opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                                    Our Story
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Customer Service -->
-                    <div>
-                        <h4 class="font-serif font-bold text-lg text-white mb-6 relative inline-block">
-                            Support
-                            <span class="absolute -bottom-2 left-0 w-10 h-1 bg-[#DAA520] rounded-full"></span>
-                        </h4>
-                        <ul class="space-y-3 text-sm">
-                            <li>
-                                <a href="{% url 'order' %}"
-                                    class="flex items-center gap-2 text-[#e5d0ac]/80 hover:text-[#DAA520] hover:translate-x-1 transition-all duration-300 group">
-                                    <i
-                                        class="fa-solid fa-truck-fast text-[#DAA520] opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                                    Track Order
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{% url 'profile' %}"
-                                    class="flex items-center gap-2 text-[#e5d0ac]/80 hover:text-[#DAA520] hover:translate-x-1 transition-all duration-300 group">
-                                    <i
-                                        class="fa-solid fa-wallet text-[#DAA520] opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                                    My Wallet
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{% url 'contact' %}"
-                                    class="flex items-center gap-2 text-[#e5d0ac]/80 hover:text-[#DAA520] hover:translate-x-1 transition-all duration-300 group">
-                                    <i
-                                        class="fa-solid fa-headset text-[#DAA520] opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                                    Contact Us
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Contact Info -->
-                    <div>
-                        <h4 class="font-serif font-bold text-lg text-white mb-6 relative inline-block">
-                            Visit Us
-                            <span class="absolute -bottom-2 left-0 w-10 h-1 bg-[#DAA520] rounded-full"></span>
-                        </h4>
-                        <ul class="space-y-4 text-sm text-[#e5d0ac]/80">
-                            <li class="flex items-start gap-4">
-                                <i class="fa-solid fa-location-dot mt-1 text-[#DAA520]"></i>
-                                <span>{{ contact_details.address }}</span>
-                            </li>
-                            <li class="flex items-center gap-4">
-                                <i class="fa-solid fa-phone text-[#DAA520]"></i>
-                                <span>{{ contact_details.contact_number }}</span>
-                            </li>
-                            <li class="flex items-center gap-4">
-                                <i class="fa-solid fa-envelope text-[#DAA520]"></i>
-                                <span>{{ contact_details.email }}</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Copyright -->
-                <div
-                    class="border-t border-[#DAA520]/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-light tracking-wide text-[#e5d0ac]/50">
-                    <p>&copy; 2025 Fantasy Bakery. Proudly Made in <i class="fa-solid fa-heart text-red-500 mx-1"></i>
-                        Kerala.</p>
-                    <div class="flex gap-6">
-                        <a href="#" class="hover:text-[#DAA520] transition-colors">Privacy Policy</a>
-                        <a href="#" class="hover:text-[#DAA520] transition-colors">Terms of Service</a>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
-        </footer>
+        </section>
 
-        <!-- Overlay for Cart/Mobile Menu -->
-        <div id="overlay" class="fixed inset-0 bg-black/50 hidden z-40 backdrop-blur-sm"></div>
+        {% endblock %}
+
+        <footer class="bg-[#1a120b] text-[#e5d0ac] py-20 border-t border-[#DAA520]/20">
+            <div class="container mx-auto px-6 text-center">
+                <div
+                    class="w-16 h-16 mx-auto mb-8 border border-[#DAA520] rounded-full flex items-center justify-center text-[#DAA520] text-2xl">
+                    <i class="fa-solid fa-cookie-bite"></i>
+                </div>
+                <h2 class="text-3xl font-serif font-bold text-white mb-6">Fantasy Bakery</h2>
+                <div class="flex justify-center gap-8 text-sm tracking-widest uppercase mb-12 text-[#e5d0ac]/70">
+                    <a href="{% url 'home' %}" class="hover:text-[#DAA520]">Home</a>
+                    <a href="{% url 'products' %}" class="hover:text-[#DAA520]">Shop</a>
+                    <a href="{% url 'aboutus' %}" class="hover:text-[#DAA520]">Story</a>
+                    <a href="{% url 'contact' %}" class="hover:text-[#DAA520]">Contact</a>
+                </div>
+                <p class="text-xs text-[#e5d0ac]/30">&copy; 2025 Fantasy Bakery. Crafted with <i
+                        class="fa-solid fa-heart text-[#DAA520] mx-1"></i> in Kerala.</p>
+            </div>
+        </footer>
     </div>
+
     <script src="{% static 'script/script.js' %}"></script>
     <script>
-        // Copy Coupon
-        function copyCoupon(button, code) {
-            navigator.clipboard.writeText(code).then(() => {
-                const originalText = button.innerText;
-                button.innerText = "COPIED ✓";
-                button.classList.add("text-green-600");
-
-                setTimeout(() => {
-                    button.innerText = originalText;
-                    button.classList.remove("text-green-600");
-                }, 2000);
-            });
-        }
-
-        // Initialize Lucide Icons
+        // Lucide Icons
         lucide.createIcons();
 
-        // Artisanal Mobile Menu Logic
+        // Mobile Menu Logic
         const menuBtn = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
-        const menuItems = document.querySelectorAll('.stagger-enter-item');
         let isMenuOpen = false;
 
         menuBtn.addEventListener('click', () => {
             isMenuOpen = !isMenuOpen;
-
             if (isMenuOpen) {
-                // Open Menu
                 mobileMenu.classList.remove('translate-x-full');
-
-                // Stagger Animations for Links
-                menuItems.forEach((item, index) => {
-                    item.style.opacity = '0';
-                    item.style.transform = 'translateY(20px)';
-                    setTimeout(() => {
-                        item.style.transition = 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
-                        item.style.opacity = '1';
-                        item.style.transform = 'translateY(0)';
-                    }, 100 + (index * 100));
-                });
-
-                // Icon Change
-                menuBtn.innerHTML = '<i data-lucide="x" class="w-7 h-7"></i>';
-                lucide.createIcons();
-
+                menuBtn.innerHTML = '<i data-lucide="x" class="w-6 h-6"></i>';
             } else {
-                // Close Menu
                 mobileMenu.classList.add('translate-x-full');
-                menuBtn.innerHTML = '<i data-lucide="menu" class="w-7 h-7"></i>';
-                lucide.createIcons();
+                menuBtn.innerHTML = '<i data-lucide="menu" class="w-6 h-6"></i>';
             }
+            lucide.createIcons();
         });
 
-        // Page Transition Handling
+        // Scroll Reveal Logic (IntersectionObserver)
         document.addEventListener('DOMContentLoaded', () => {
-            // Handle internal links for smooth fade-out
-            const links = document.querySelectorAll('a[href^="/"]');
-            links.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    // Check if it's not a new tab or modifier key
-                    if (link.target !== '_blank' && !e.ctrlKey && !e.metaKey) {
-                        e.preventDefault();
-                        document.body.style.opacity = '0';
-                        setTimeout(() => {
-                            window.location.href = link.href;
-                        }, 300); // Wait for fade out
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('reveal-active');
+                        observer.unobserve(entry.target); // Only animate once
                     }
                 });
-            });
+            }, observerOptions);
+
+            const revealElements = document.querySelectorAll('.reveal-on-scroll');
+            revealElements.forEach(el => observer.observe(el));
         });
-
     </script>
-
 </body>
 
 </html>
