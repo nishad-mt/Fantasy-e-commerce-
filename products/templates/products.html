@@ -119,8 +119,7 @@
 
                         <!-- keep params -->
                         {% if request.GET.q %}<input type="hidden" name="q" value="{{ request.GET.q }}">{% endif %}
-                        {% if request.GET.sort %}<input type="hidden" name="sort" value="{{ request.GET.sort }}">{%
-                        endif %}
+                        {% if request.GET.sort %}<input type="hidden" name="sort" value="{{ request.GET.sort }}">{% endif %}
 
                         <button type="submit"
                             class="w-full bg-fantasy-brown text-white py-3 rounded-xl font-bold text-sm hover:bg-fantasy-gold transition-colors duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
@@ -148,11 +147,11 @@
                         <select name="sort" onchange="this.form.submit()"
                             class="bg-gray-50 border-0 rounded-lg pl-10 pr-8 py-2 text-sm text-gray-600 focus:ring-2 focus:ring-fantasy-gold/20 cursor-pointer hover:bg-gray-100 transition-colors appearance-none font-medium">
                             <option value="" disabled selected>Sort By</option>
-                            <option value="price_low" {% if request.GET.sort=='price_low' %}selected{% endif %}>Price:
+                            <option value="price_low" {% if request.GET.sort == 'price_low' %}selected{% endif %}>Price:
                                 Low to High</option>
-                            <option value="price_high" {% if request.GET.sort=='price_high' %}selected{% endif %}>Price:
+                            <option value="price_high" {% if request.GET.sort == 'price_high' %}selected{% endif %}>Price:
                                 High to Low</option>
-                            <option value="newest" {% if request.GET.sort=='newest' %}selected{% endif %}>Newest First
+                            <option value="newest" {% if request.GET.sort == 'newest' %}selected{% endif %}>Newest First
                             </option>
                         </select>
                     </div>
@@ -194,8 +193,7 @@
 
                         <!-- Content -->
                         <div class="p-4 flex-1 flex flex-col relative z-10 bg-white">
-                            <div class="text-[10px] font-bold tracking-widest text-fantasy-gold uppercase mb-1">{{
-                                pdc.category }}</div>
+                            <div class="text-[10px] font-bold tracking-widest text-fantasy-gold uppercase mb-1">{{ pdc.category }}</div>
 
                             <h3
                                 class="font-serif font-bold text-sm md:text-base text-fantasy-brown mb-1 group-hover:text-fantasy-gold transition-colors leading-tight line-clamp-2">
@@ -211,8 +209,7 @@
                                         {% endif %}
                                         {% endfor %}
                                 </div>
-                                <span class="text-[10px] text-fantasy-brown/40 font-medium">({{
-                                    pdc.review_count|default:0 }})</span>
+                                <span class="text-[10px] text-fantasy-brown/40 font-medium">({{ pdc.review_count|default:0 }})</span>
                             </div>
 
                             <div class="mt-auto flex items-end justify-between">

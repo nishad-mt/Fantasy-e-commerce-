@@ -2,142 +2,202 @@
 {% load static %}
 {% block content %}
 
-<style>
-  body {
-    background: #fffdf8;
-    font-family: 'Poppins', sans-serif;
-  }
+<div class="pt-32 pb-16 min-h-screen bg-white">
 
-  .card-custom {
-    border: 1px solid #d1b89c;
-    border-radius: 14px;
-    transition: 0.3s;
-    background: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 100%;
-  }
-
-  .card-custom:hover {
-    box-shadow: 0 6px 15px rgba(0, 0, 0, .1);
-    transform: translateY(-4px);
-  }
-
-  .product-img {
-    height: 200px;
-    object-fit: cover;
-    width: 100%;
-    border-radius: 12px;
-  }
-
-  .remove-btn:hover {
-    background: #be2b2b !important;
-    color: white !important;
-  }
-</style>
-
-<!-- PAGE WRAPPER (fix navbar overlap) -->
-<div class="pt-32">
-
-  <!-- PAGE TITLE -->
-  <div class="text-center mb-10">
-    <h2 class="text-3xl font-bold text-[#5a3e2b]">Your Wishlist</h2>
-    <p class="text-gray-600 mt-2">
-      Save items to review or buy later.
-    </p>
+  <!-- Hero Header -->
+  <div class="container mx-auto px-6 mb-12">
+    <div class="flex flex-col items-center justify-center text-center">
+      <span class="text-xs font-bold tracking-[0.2em] text-fantasy-gold uppercase mb-3">Your Collection</span>
+      <h1 class="font-serif font-bold text-4xl md:text-5xl text-fantasy-brown mb-4 relative inline-block">
+        Your Favorites
+        {% if items %}
+        <span
+          class="absolute -top-2 -right-6 bg-fantasy-cream text-fantasy-brown text-xs font-bold px-2 py-0.5 rounded-full border border-fantasy-brown/10 shadow-sm">
+          {{ items|length }}</span>
+        {% endif %}
+      </h1>
+      <p class="text-fantasy-brown/60 text-lg font-light max-w-lg">
+        Curated treasures waiting for a home.
+      </p>
+    </div>
   </div>
 
-  <!-- WISHLIST GRID -->
-  <div class="max-w-7xl mx-auto px-6 pb-16">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+  <!-- Wishlist Container -->
+  <div class="container mx-auto px-6">
 
-{% for item in items %}
-  <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition border border-gray-100 flex flex-col">
+    <!-- Empty State (Client-side toggleable) -->
+    <div id="empty-state"
+      class="{% if items %}hidden{% endif %} flex flex-col items-center justify-center py-20 text-center bg-fantasy-cream/30 rounded-3xl border border-dashed border-fantasy-brown/10">
+      <div class="w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-sm mb-6">
+        <i data-lucide="heart" class="w-8 h-8 text-fantasy-gold stroke-1"></i>
+      </div>
+      <h3 class="font-serif font-bold text-2xl text-fantasy-brown mb-2">Your wishlist is empty... for now.</h3>
+      <p class="text-gray-500 max-w-sm mx-auto mb-8">Mark your favorite artisanal finds and they will appear here.</p>
+      <a href="{% url 'products' %}"
+        class="inline-flex items-center gap-2 px-8 py-3 bg-fantasy-brown text-white text-sm font-bold rounded-full hover:bg-fantasy-gold transition-colors duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+        <span>Start Exploring</span>
+        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+      </a>
+    </div>
 
-    <!-- Clickable Product Area -->
-    <a href="{% url 'user_product' item.product.slug %}" class="flex flex-col">
+    {% if items %}
+    <!-- Product Grid -->
+    <div id="wishlist-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {% for item in items %}
+      <div
+        class="group relative bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] flex flex-col wishlist-item"
+        data-id="{{ item.product.pk }}">
 
-        <!-- Image -->
-        <div class="h-48 bg-gray-50 flex items-center justify-center rounded-t-2xl overflow-hidden">
-            <img
-                src="{{ item.product.main_image.url }}"
-                alt="{{ item.product.name }}"
-                class="h-full w-full object-cover"
-            >
-        </div>
-
-        <!-- Content -->
-        <div class="p-4 flex flex-col flex-1">
-            <h4 class="font-semibold text-[#5a3e2b] text-lg leading-tight">
-                {{ item.product.name }}
-            </h4>
-
-            <p class="text-md mt-2 text-gray-600 line-clamp-2">
-                {{ item.product.description }}
-            </p>
-
-            <p class="text-xs text-gray-400 mt-1">
-                Best before: {{ item.product.best_before }}
-            </p>
-        </div>
-
-    </a>
-
-    <!-- Actions (NOT clickable link) -->
-    <div class="p-4 pt-0 flex gap-3">
-
-        <a href="{% url 'user_product' item.product.slug %}"
-           class="flex-1 bg-fantasy-brown text-white py-2 rounded-lg text-sm font-medium
-                  hover:bg-opacity-90 transition flex items-center justify-center gap-2">
-            <i class="fa-solid fa-basket-shopping"></i>
-            Select Size
-        </a>
-
-        <form method="post"
-              action="{% url 'wishlist:toggle_wishlist' item.product.pk %}"
-              class="flex-1">
-            {% csrf_token %}
-            <button
-                class="w-full border border-red-500 text-red-500 py-2 rounded-lg
-                       text-sm font-medium hover:bg-red-50 transition">
-                Remove
-            </button>
+        <!-- Remove Button (Absolute) -->
+        <form method="post" action="{% url 'wishlist:toggle_wishlist' item.product.pk %}"
+          class="absolute top-3 right-3 z-20 remove-wishlist-form">
+          {% csrf_token %}
+          <button type="submit"
+            class="w-8 h-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all duration-300 shadow-sm border border-gray-100"
+            title="Remove">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
         </form>
 
+        <a href="{% url 'user_product' item.product.slug %}" class="flex flex-col h-full">
+          <!-- Image -->
+          <div class="aspect-square w-full bg-fantasy-cream relative overflow-hidden rounded-t-xl">
+            <img src="{{ item.product.main_image.url }}" alt="{{ item.product.name }}"
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
+
+            <!-- Availability Badge -->
+            {% if not item.product.is_out_of_stock and item.product.stock < 10 %} <div
+              class="absolute bottom-3 left-3 bg-fantasy-cream/95 backdrop-blur px-3 py-1 rounded-full border border-fantasy-gold/20 shadow-sm flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-fantasy-gold animate-pulse"></span>
+              <span class="text-[10px] font-bold text-fantasy-brown uppercase tracking-wide">Limited Stock</span>
+          </div>
+          {% endif %}
+      </div>
+
+      <!-- Content -->
+      <div class="p-5 flex flex-col flex-1">
+        <h3
+          class="font-serif font-bold text-lg text-fantasy-brown mb-1 leading-snug group-hover:text-fantasy-gold transition-colors">
+          {{ item.product.name }}</h3>
+
+        <div class="flex items-center justify-between mb-4">
+          <p class="text-sm font-medium text-gray-500">
+            {% if item.product.is_out_of_stock %}
+            <span class="text-red-500">Out of Stock</span>
+            {% else %}
+            ₹{{ item.product.min_price }}
+            {% endif %}
+          </p>
+          <!-- Rating stars could go here -->
+        </div>
+
+        <!-- Primary Action -->
+        <div class="mt-auto">
+          <button
+            class="w-full py-2.5 bg-fantasy-brown text-white rounded-lg font-medium text-sm hover:bg-fantasy-gold transition-colors duration-300 flex items-center justify-center gap-2 shadow-md group-hover:shadow-lg">
+            <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+            Move to Cart
+          </button>
+        </div>
+      </div>
+      </a>
     </div>
-</div>
-
-
- {% empty %}
-  <div class="col-span-full flex flex-col items-center justify-center py-16 text-center">
-  <!-- Background Image -->
-  <img
-      src="{% static 'images/cooking.jpg' %}"
-      alt="Empty Wishlist"
-      class="w-60 opacity-20"
-  />
-      <h3 class="text-2xl font-bold text-gray-800 mb-2">
-          Oops! Your Wishlist is Empty
-      </h3>
-      <p class="text-base text-gray-600">
-          Browse our <a href="{% url 'products' %}"
-           class="text-blue-600 hover:text-blue-800 transition-colors duration-300 font-semibold">
-            products </a>and add your favorites to make your wishlist magical ✨
-      </p>
-</div>
-
-{% endfor %}
-
-</div>
-
+    {% endfor %}
   </div>
-
-  <!-- FOOTER -->
-  <footer class="py-6 text-center text-gray-600 text-sm">
-    © 2025 Fantasy Foods — Crafted with love & magic ✨
-  </footer>
+  {% endif %}
 
 </div>
+</div>
+
+<!-- Toast Notification Container (Shared) -->
+<div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+<!-- Toast Template -->
+<template id="toast-template">
+  <div
+    class="transform translate-y-10 opacity-0 transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.27,1.55)] max-w-sm w-auto bg-fantasy-cream text-fantasy-brown px-6 py-4 rounded-xl shadow-2xl border border-fantasy-gold/20 flex items-center gap-4 pointer-events-auto">
+    <div class="w-8 h-8 rounded-full bg-fantasy-gold/10 flex items-center justify-center shrink-0">
+      <i class="fa-solid fa-heart text-fantasy-gold text-sm"></i>
+    </div>
+    <div>
+      <h4 class="font-serif font-bold text-sm">Wishlist Updated</h4>
+      <p class="text-xs opacity-80 toast-message">Item removed from wishlist</p>
+    </div>
+  </div>
+</template>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    const toastContainer = document.getElementById('toast-container');
+    const toastTemplate = document.getElementById('toast-template');
+    const removeForms = document.querySelectorAll('.remove-wishlist-form');
+    const grid = document.getElementById('wishlist-grid');
+    const emptyState = document.getElementById('empty-state');
+
+    function showToast(message) {
+      const clone = toastTemplate.content.cloneNode(true);
+      const toastEl = clone.querySelector('div');
+      const messageEl = clone.querySelector('.toast-message');
+
+      messageEl.textContent = message;
+
+      toastContainer.appendChild(toastEl);
+
+      requestAnimationFrame(() => {
+        toastEl.classList.remove('translate-y-10', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toastEl.classList.add('translate-y-10', 'opacity-0');
+        setTimeout(() => {
+          if (toastEl.parentNode) toastEl.parentNode.removeChild(toastEl);
+        }, 500);
+      }, 3000);
+    }
+
+    removeForms.forEach(form => {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        // Get the card element
+        const card = this.closest('.wishlist-item');
+        const url = this.action;
+        const csrfToken = this.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': csrfToken
+          },
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (!data.added) { // "added" is false means removed
+              // Fade out animation
+              card.style.transition = 'all 0.5s ease';
+              card.style.opacity = '0';
+              card.style.transform = 'scale(0.9)';
+
+              setTimeout(() => {
+                card.remove();
+                // Check if grid is empty
+                if (grid.children.length === 0) {
+                  grid.remove(); // Remove grid container
+                  emptyState.classList.remove('hidden'); // Show empty state
+                }
+              }, 500);
+
+              showToast("Item removed from your wishlist");
+            }
+          })
+          .catch(error => console.error('Error:', error));
+      });
+    });
+  });
+</script>
 
 {% endblock %}
