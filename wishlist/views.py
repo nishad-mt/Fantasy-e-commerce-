@@ -28,7 +28,10 @@ def toggle_wishlist(request, product_id):
             message = "Added to Wishlist"
         
         # Check for AJAX request
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest' or \
+                  request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+
+        if is_ajax:
              return JsonResponse({'added': added, 'message': message, 'count': wishlist.items.count()})
 
     return redirect(request.META.get('HTTP_REFERER', 'products'))

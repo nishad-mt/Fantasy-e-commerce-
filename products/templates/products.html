@@ -119,7 +119,8 @@
 
                         <!-- keep params -->
                         {% if request.GET.q %}<input type="hidden" name="q" value="{{ request.GET.q }}">{% endif %}
-                        {% if request.GET.sort %}<input type="hidden" name="sort" value="{{ request.GET.sort }}">{% endif %}
+                        {% if request.GET.sort %}<input type="hidden" name="sort" value="{{ request.GET.sort }}">{%
+                        endif %}
 
                         <button type="submit"
                             class="w-full bg-fantasy-brown text-white py-3 rounded-xl font-bold text-sm hover:bg-fantasy-gold transition-colors duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
@@ -147,11 +148,11 @@
                         <select name="sort" onchange="this.form.submit()"
                             class="bg-gray-50 border-0 rounded-lg pl-10 pr-8 py-2 text-sm text-gray-600 focus:ring-2 focus:ring-fantasy-gold/20 cursor-pointer hover:bg-gray-100 transition-colors appearance-none font-medium">
                             <option value="" disabled selected>Sort By</option>
-                            <option value="price_low" {% if request.GET.sort == 'price_low' %}selected{% endif %}>Price:
+                            <option value="price_low" {% if request.GET.sort=='price_low' %}selected{% endif %}>Price:
                                 Low to High</option>
-                            <option value="price_high" {% if request.GET.sort == 'price_high' %}selected{% endif %}>Price:
+                            <option value="price_high" {% if request.GET.sort=='price_high' %}selected{% endif %}>Price:
                                 High to Low</option>
-                            <option value="newest" {% if request.GET.sort == 'newest' %}selected{% endif %}>Newest First
+                            <option value="newest" {% if request.GET.sort=='newest' %}selected{% endif %}>Newest First
                             </option>
                         </select>
                     </div>
@@ -193,7 +194,8 @@
 
                         <!-- Content -->
                         <div class="p-4 flex-1 flex flex-col relative z-10 bg-white">
-                            <div class="text-[10px] font-bold tracking-widest text-fantasy-gold uppercase mb-1">{{ pdc.category }}</div>
+                            <div class="text-[10px] font-bold tracking-widest text-fantasy-gold uppercase mb-1">{{
+                                pdc.category }}</div>
 
                             <h3
                                 class="font-serif font-bold text-sm md:text-base text-fantasy-brown mb-1 group-hover:text-fantasy-gold transition-colors leading-tight line-clamp-2">
@@ -209,7 +211,8 @@
                                         {% endif %}
                                         {% endfor %}
                                 </div>
-                                <span class="text-[10px] text-fantasy-brown/40 font-medium">({{ pdc.review_count|default:0 }})</span>
+                                <span class="text-[10px] text-fantasy-brown/40 font-medium">({{
+                                    pdc.review_count|default:0 }})</span>
                             </div>
 
                             <div class="mt-auto flex items-end justify-between">
@@ -255,4 +258,93 @@
         </main>
     </div>
 </div>
+</div>
+</div>
+
+<!-- Toast Notification Container -->
+<div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none">
+    <!-- Toasts will be injected here -->
+</div>
+
+<!-- Toast Template (Hidden) -->
+<template id="toast-template">
+    <div
+        class="transform translate-y-10 opacity-0 transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.27,1.55)] max-w-sm w-auto bg-fantasy-cream text-fantasy-brown px-6 py-4 rounded-xl shadow-2xl border border-fantasy-gold/20 flex items-center gap-4 pointer-events-auto">
+        <div class="w-8 h-8 rounded-full bg-fantasy-gold/10 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-heart text-fantasy-gold text-sm"></i>
+        </div>
+        <div>
+            <h4 class="font-serif font-bold text-sm">Wishlist Updated</h4>
+            <p class="text-xs opacity-80 toast-message">Item added to your wishlist</p>
+        </div>
+    </div>
+</template>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const toastContainer = document.getElementById('toast-container');
+        const toastTemplate = document.getElementById('toast-template');
+
+        function showToast(message, isAdded) {
+            const clone = toastTemplate.content.cloneNode(true);
+            const toastEl = clone.querySelector('div');
+            const messageEl = clone.querySelector('.toast-message');
+
+            messageEl.textContent = message;
+
+            toastContainer.appendChild(toastEl);
+
+            // Trigger animation
+            requestAnimationFrame(() => {
+                toastEl.classList.remove('translate-y-10', 'opacity-0');
+            });
+
+            // Remove after 3s
+            setTimeout(() => {
+                toastEl.classList.add('translate-y-10', 'opacity-0');
+                setTimeout(() => {
+                    if (toastEl.parentNode) toastEl.parentNode.removeChild(toastEl);
+                }, 500);
+            }, 3000);
+        }
+
+        const wishlistForms = document.querySelectorAll('form[action*="wishlist/toggle"]');
+
+        wishlistForms.forEach(form => {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const url = this.action;
+                const button = this.querySelector('button');
+                const icon = button.querySelector('i');
+                const csrfToken = this.querySelector('[name=csrfmiddlewaretoken]').value;
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': csrfToken
+                    },
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.added) {
+                            icon.classList.remove('fa-regular', 'text-gray-300');
+                            icon.classList.add('fa-solid', 'text-red-500');
+                        } else {
+                            icon.classList.remove('fa-solid', 'text-red-500');
+                            icon.classList.add('fa-regular', 'text-gray-300');
+                        }
+                        showToast(data.message, data.added);
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+        });
+    });
+</script>
 {% endblock %}
