@@ -238,16 +238,15 @@
         {% block content %}
 
         <!-- Cinematic Hero Section with Parallax -->
-        <header
-            class="relative min-h-screen flex items-center justify-center overflow-hidden pt-24 pb-16 bg-fantasy-cream perspective-1000">
+        <header class="relative min-h-screen flex items-center justify-center pt-24 pb-32 bg-fantasy-cream perspective-1000">
             <!-- Background Texture -->
             <div class="absolute inset-0 z-0 opacity-[0.03]"
                 style="background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');"></div>
 
-            <div class="container mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-1 gap-12 items-center">
+            <div class="container mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <!-- Text Content -->
                 <div class="text-center lg:text-left order-2 lg:order-1">
-                    <div class="inline-block mb-4 px-4 py-1 border border-fantasy-brown/20 rounded-full bg-white/50 backdrop-blur-sm opacity-0 animate-fade-in-up"
+                    <div class="inline-block mb-4 px-4 py-1 border border-fantasy-brown/20 rounded-full bg-white/50 backdrop-blur-sm opacity-0 animate-fade-in-up will-change-transform"
                         style="animation-delay: 0.1s;">
                         <span class="text-xs font-bold tracking-[0.2em] text-fantasy-brown uppercase">EST. 2025 •
                             Kerala</span>
@@ -286,7 +285,7 @@
                 </div>
 
                 <!-- Hero Image/Visual Column -->
-                <div class="relative order-1 lg:order-2 opacity-0 animate-zoom-out parallax-layer flex justify-center items-center min-h-[300px] h-full"
+                <div class="relative order-1 lg:order-2 opacity-0 animate-zoom-out parallax-layer flex justify-center items-center min-h-[300px] "
                     style="animation-delay: 0.3s; transform-style: preserve-3d;">
                     <!-- Decorative SVG Warning/Fallback Background -->
                     <div class="absolute inset-0 bg-fantasy-gold/5 rounded-[3rem] transform rotate-3 scale-105 -z-10">
