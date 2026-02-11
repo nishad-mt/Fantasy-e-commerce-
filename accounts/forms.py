@@ -19,53 +19,28 @@ class CustomUserForm(UserCreationForm):
         'placeholder': 'Email Address',
         'required': True,
     }))
-    password1 = forms.CharField(widget=forms.PasswordInput(attrs={
-        'class': 'input-box',
-        'placeholder': 'Create Password',
-        'required': True,
-    }))
-    password2 = forms.CharField(widget=forms.PasswordInput(attrs={
-        'class': 'input-box',
-        'placeholder': 'Confirm Password',
-        'required': True,
-    }))
 
     class Meta:
         model = CustomUser
-        fields = ['email', 'password1', 'password2']
+        fields = ['username','email', 'password1', 'password2']
     
     def clean_email(self):
-            email = self.cleaned_data.get("email")
+        email = self.cleaned_data.get("email")
+        domain = email.split("@")[-1].lower()
 
-            # Block temporary/fake email providers
-            blocked_domains = [
-                "tempmail.com",
-                "mailinator.com",
-                "10minutemail.com",
-            ]
+        blocked_domains = ["tempmail.com", "mailinator.com", "10minutemail.com"]
+        allowed_domains = ["gmail.com", "yahoo.com", "outlook.com", "icloud.com"]
 
-            domain = email.split("@")[-1].lower()
+        if domain in blocked_domains:
+            raise ValidationError("Temporary email addresses are not allowed.")
 
-            if domain in blocked_domains:
-                raise ValidationError("Temporary email addresses are not allowed.")
+        if domain not in allowed_domains:
+            raise ValidationError("Please use a valid email provider.")
 
-            # Optional: allow only popular providers
-            allowed_domains = [
-                "gmail.com",
-                "yahoo.com",
-                "outlook.com",
-                "icloud.com"
-            ]
+        if CustomUser.objects.filter(email=email, is_email_vfd=True).exists():
+            raise ValidationError("An account with this email already exists.")
 
-            if domain not in allowed_domains:
-                raise ValidationError("Please use a valid email provider.")
-
-            # Prevent duplicate signup
-            if CustomUser.objects.filter(email=email).exists():
-                raise ValidationError("An account with this email already exists.")
-
-            return email
-
+        return email
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile

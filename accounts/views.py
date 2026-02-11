@@ -34,11 +34,11 @@ User = get_user_model()
 def signup(request):
     if request.user.is_authenticated:
         return redirect("home")
-
+    
     if request.method == "POST":
         form = CustomUserForm(request.POST)
         if form.is_valid():
-
+            print(form.errors)
             email = form.cleaned_data["email"]
 
             # OTP cooldown
