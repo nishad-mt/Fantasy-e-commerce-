@@ -236,49 +236,23 @@
                     {% if r.is_approved %}
                     <div class="review-item {% if forloop.counter > 2 %}hidden extra-review{% endif %}
                             bg-white p-8 rounded-3xl shadow-sm border border-gray-100 flex gap-6">
+                    <!-- Avatar -->
+                    <div
+                        class="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-fantasy-gold to-fantasy-brown flex items-center justify-center text-white font-bold text-lg shadow-md">
+                        {{ r.user.avatar_letter }}
+                    </div>
 
-                        <!-- Avatar -->
-                        <div
-                            class="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-fantasy-gold to-fantasy-brown flex items-center justify-center text-white font-bold text-lg shadow-md">
-                            {{ r.user.get_full_name|slice:":1"|default:r.user.username|slice:":1"|upper }}
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start mb-2">
+                            <h5 class="font-bold text-fantasy-brown text-lg">
+                                {{ r.user.display_name }}
+                            </h5>
+                            <span class="text-xs text-gray-400">
+                                {{ r.created_at|timesince }} ago
+                            </span>
                         </div>
+                    </div>
 
-                        <div class="flex-1">
-                            <div class="flex justify-between items-start mb-2">
-                                <h5 class="font-bold text-fantasy-brown text-lg">
-                                    {{ r.user.get_full_name|default:r.user.username }}
-                                </h5>
-                                <span class="text-xs text-gray-400">{{ r.created_at|timesince }} ago</span>
-                            </div>
-
-                            <div class="flex items-center gap-2 mb-4">
-                                <div class="text-yellow-400 text-xs flex">
-                                    {% for i in "12345" %}
-                                    {% if forloop.counter <= r.rating %} <i class="fa-solid fa-star"></i>
-                                        {% else %}
-                                        <i class="fa-regular fa-star text-gray-200"></i>
-                                        {% endif %}
-                                        {% endfor %}
-                                </div>
-                                {% if r.is_verified_purchase %}
-                                <span
-                                    class="text-[10px] text-green-600 font-bold uppercase tracking-wide bg-green-50 px-2 py-0.5 rounded-full">Verified</span>
-                                {% endif %}
-                            </div>
-
-                            <p class="text-gray-600 leading-relaxed">{{ r.review }}</p>
-
-                            <!-- Edit Actions -->
-                            {% if r.user == request.user or request.user.is_staff %}
-                            <div class="flex gap-4 text-xs mt-4 pt-4 border-t border-gray-50">
-                                <a href="{% url 'edit_review' r.review_id %}"
-                                    class="text-fantasy-brown font-bold hover:underline">Edit</a>
-                                <a href="{% url 'delete_review' r.review_id %}"
-                                    class="text-red-500 font-bold hover:underline"
-                                    onclick="return confirm('Delete this review?');">Delete</a>
-                            </div>
-                            {% endif %}
-                        </div>
                     </div>
                     {% endif %}
                     {% endfor %}

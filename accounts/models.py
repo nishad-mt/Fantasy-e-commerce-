@@ -26,6 +26,18 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+    
+    @property
+    def display_name(self):
+        if self.get_full_name():
+            return self.get_full_name()
+        if self.username:
+            return self.username
+        return self.email.split("@")[0]
+
+    @property
+    def avatar_letter(self):
+        return self.display_name[0].upper()
 
 class UserProfile(models.Model):
     
