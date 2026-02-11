@@ -71,7 +71,7 @@ def signup(request):
                 send_otp(email, otp)
             except Exception:
                 messages.error(request, "Failed to send OTP. Try again.")
-                return redirect("account_signup")
+                return redirect("signup")
 
             messages.success(request, "OTP sent to your email.")
             return redirect("verify_otp")
@@ -114,61 +114,76 @@ def verify_otp(request):
     if request.method == "POST":
         entered_otp = request.POST.get("otp", "").strip()
 
+        # Validate OTP format
         if not entered_otp.isdigit() or len(entered_otp) != 4:
             messages.error(request, "Invalid OTP format.")
             return redirect("verify_otp")
 
+        # Get session data
         saved_otp = request.session.get("otp")
         email = request.session.get("email")
         otp_time_str = request.session.get("otp_last_sent")
+        signup_data = request.session.get("signup_data")
 
-        if not all([saved_otp, email, otp_time_str]):
+        if not all([saved_otp, email, otp_time_str, signup_data]):
             messages.error(request, "Session expired. Please sign up again.")
-            return redirect("account_signup")
+            return redirect("signup")
 
+        # OTP expiry check (5 minutes)
         otp_time = parse_datetime(otp_time_str)
-        if timezone.now() > otp_time + timedelta(seconds=300):
+        if not otp_time or timezone.now() > otp_time + timedelta(seconds=300):
             messages.error(request, "OTP expired. Please resend.")
             return redirect("verify_otp")
 
+        # Attempt limit
         attempts = request.session.get("otp_attempts", 0)
         if attempts >= 5:
             messages.error(request, "Too many incorrect attempts. Please resend OTP.")
             return redirect("verify_otp")
 
+        # OTP match
         if str(entered_otp) != str(saved_otp):
             request.session["otp_attempts"] = attempts + 1
             messages.error(request, "Invalid OTP.")
             return redirect("verify_otp")
 
+        # OTP correct → reset attempts
         request.session.pop("otp_attempts", None)
 
-        data = request.session.get("signup_data")
-        if not data:
-            messages.error(request, "Session expired. Please sign up again.")
-            return redirect("account_signup")
+        # Create or activate user safely
+        with transaction.atomic():
+            user, created = CustomUser.objects.get_or_create(
+                email=email,
+                defaults={
+                    "username": signup_data.get("username"),
+                }
+            )
 
-        try:
-            with transaction.atomic():
-                user = CustomUser.objects.create_user(
-                    email=data["email"],
-                    username=data.get("username"),
-                    password=data["password"],
-                )
-                user.is_active = True
-                user.is_email_vfd = True
-                user.save()
+            if not created and user.is_email_vfd:
+                messages.error(request, "Account already exists. Please log in.")
+                return redirect("login")
 
-                UserProfile.objects.create(user=user)
+            if created:
+                user.set_password(signup_data["password"])
 
-        except IntegrityError:
-            messages.error(request, "Account already exists. Please log in.")
-            return redirect("account_login")
+            user.is_active = True
+            user.is_email_vfd = True
+            user.save()
 
-        # Clean OTP data safely
-        for key in ["otp", "email", "signup_data", "otp_last_sent", "otp_attempts"]:
+            UserProfile.objects.get_or_create(user=user)
+
+        #Clean OTP session data
+        for key in [
+            "otp",
+            "email",
+            "signup_data",
+            "otp_last_sent",
+            "otp_attempts",
+            "otp_resend_count",
+        ]:
             request.session.pop(key, None)
 
+        #Secure login
         request.session.cycle_key()
         auth_login(request, user)
 
@@ -188,18 +203,18 @@ def resend_otp(request):
 
     if not email or not otp_time_str:
         messages.error(request, "Session expired. Please sign up again.")
-        return redirect("account_signup")
+        return redirect("signup")
 
     last_sent_time = parse_datetime(otp_time_str)
     if not last_sent_time:
         messages.error(request, "Session expired. Please sign up again.")
-        return redirect("account_signup")
+        return redirect("signup")
 
     # OTP lifetime check
     OTP_LIFETIME = 300  # 5 minutes
     if timezone.now() > last_sent_time + timedelta(seconds=OTP_LIFETIME):
         messages.error(request, "OTP session expired. Please sign up again.")
-        return redirect("account_signup")
+        return redirect("signup")
 
     # Cooldown check
     COOLDOWN_SECONDS = 60
@@ -215,7 +230,7 @@ def resend_otp(request):
     resend_count = request.session.get("otp_resend_count", 0)
     if resend_count >= 5:
         messages.error(request, "Maximum OTP resend limit reached.")
-        return redirect("account_signup")
+        return redirect("signup")
 
     # Generate OTP
     otp = secrets.randbelow(9000) + 1000
@@ -415,7 +430,7 @@ def new_password(request, uidb64, token):
 
     if user is None or not default_token_generator.check_token(user, token):
         messages.error(request, "Password reset link is invalid or expired.")
-        return redirect("account_login")
+        return redirect("login")
 
     if request.method == "POST":
         new_password = request.POST.get("new_password", "")
@@ -446,6 +461,6 @@ def new_password(request, uidb64, token):
             request,
             "Password updated successfully. Please log in with your new password."
         )
-        return redirect("account_login")
+        return redirect("login")
 
     return render(request, "new_pass.html")
