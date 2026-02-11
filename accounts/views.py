@@ -185,7 +185,7 @@ def verify_otp(request):
 
         #Secure login
         request.session.cycle_key()
-        auth_login(request, user)
+        auth_login(request, user, backend="django.contrib.auth.backends.ModelBackend")
 
         messages.success(request, "Account verified successfully!")
         return redirect("home")
