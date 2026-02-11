@@ -32,7 +32,7 @@ User = get_user_model()
 
 @never_cache
 def signup(request):
-    if request.user.is_authenticated or request.session.get("is_email_vfd"):
+    if request.user.is_authenticated:
         return redirect("home")
 
     if request.method == "POST":
@@ -41,18 +41,7 @@ def signup(request):
 
             email = form.cleaned_data["email"]
 
-            # Prevent email enumeration
-            if CustomUser.objects.filter(email=email).exists():
-                messages.info(request, "If this email is registered, please log in.")
-                return redirect("account_login")
-            
-            if (
-                request.session.get("otp")
-                and request.session.get("email") == email
-            ):
-                return redirect("verify_otp")
-
-            # Prevent OTP spam
+            # OTP cooldown
             last_sent = request.session.get("otp_last_sent")
             if last_sent:
                 last_sent_time = parse_datetime(last_sent)
@@ -60,17 +49,17 @@ def signup(request):
                     messages.error(request, "Please wait before requesting another OTP.")
                     return redirect("verify_otp")
 
-            # Secure session
-            request.session.flush()
+            # Clear old OTP safely
+            request.session.pop("otp", None)
+            request.session.pop("email", None)
+            request.session.pop("signup_data", None)
 
-            # Store minimal data
             request.session["signup_data"] = {
                 "email": email,
-                "username": form.cleaned_data.get("username"),
+                "username": form.cleaned_data["username"],
                 "password": form.cleaned_data["password1"],
             }
 
-            # Secure OTP
             import secrets
             otp = secrets.randbelow(9000) + 1000
 
