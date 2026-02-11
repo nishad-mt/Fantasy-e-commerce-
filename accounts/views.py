@@ -4,9 +4,11 @@ from django.core.mail import send_mail, BadHeaderError
 from django.conf import settings
 from django.utils import timezone   
 from datetime import timedelta      
-import random
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate, login as auth_login, logout 
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from addresses.models import Address
 from .forms import CustomUserForm, UserProfileForm
 from .models import CustomUser, UserProfile
@@ -18,7 +20,12 @@ from django.contrib.auth import get_user_model
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
 from django.urls import reverse
+from django.utils.dateparse import parse_datetime
 from wallet.models import Wallet
+import secrets
+from django.db import transaction, IntegrityError
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.timezone import now
 
 
 User = get_user_model()
@@ -27,147 +34,284 @@ User = get_user_model()
 def signup(request):
     if request.user.is_authenticated or request.session.get("is_email_vfd"):
         return redirect("home")
-    
-    if request.method == 'POST':
+
+    if request.method == "POST":
         form = CustomUserForm(request.POST)
         if form.is_valid():
-            # Save form data in session temporarily
-            request.session['signup_data'] = form.cleaned_data
 
-            # Generate OTP
-            otp = random.randint(1000, 9999)
-            request.session['otp'] = otp
-            request.session['email'] = form.cleaned_data['email']
-            request.session['otp_last_sent'] = timezone.now().isoformat()#converts datetime to a standard string format that everyone understands.
+            email = form.cleaned_data["email"]
 
-            # Send OTP
-            send_otp(form.cleaned_data['email'], otp)
+            # Prevent email enumeration
+            if CustomUser.objects.filter(email=email).exists():
+                messages.info(request, "If this email is registered, please log in.")
+                return redirect("account_login")
+            
+            if (
+                request.session.get("otp")
+                and request.session.get("email") == email
+            ):
+                return redirect("verify_otp")
+
+            # Prevent OTP spam
+            last_sent = request.session.get("otp_last_sent")
+            if last_sent:
+                last_sent_time = parse_datetime(last_sent)
+                if timezone.now() < last_sent_time + timedelta(seconds=60):
+                    messages.error(request, "Please wait before requesting another OTP.")
+                    return redirect("verify_otp")
+
+            # Secure session
+            request.session.flush()
+
+            # Store minimal data
+            request.session["signup_data"] = {
+                "email": email,
+                "username": form.cleaned_data.get("username"),
+                "password": form.cleaned_data["password1"],
+            }
+
+            # Secure OTP
+            import secrets
+            otp = secrets.randbelow(9000) + 1000
+
+            request.session["otp"] = otp
+            request.session["email"] = email
+            request.session["otp_last_sent"] = timezone.now().isoformat()
+
+            try:
+                send_otp(email, otp)
+            except Exception:
+                messages.error(request, "Failed to send OTP. Try again.")
+                return redirect("account_signup")
 
             messages.success(request, "OTP sent to your email.")
-            return redirect('verify_otp')
+            return redirect("verify_otp")
     else:
         form = CustomUserForm()
 
-    return render(request, 'signup.html', {'form': form})
+    return render(request, "signup.html", {"form": form})
 
 #(who, what)
 def send_otp(email, otp):
-    subject = "Your Verification OTP for Fantasy Food Products"
-    message = f"Your OTP is: {otp}\n Don't share the otp to anyone"
+    if not email or not otp:
+        raise ValueError("Email and OTP are required")
+
+    subject = "Your Verification OTP"
+    message = (
+        f"Your OTP is: {otp}\n\n"
+        "This OTP is valid for a limited time.\n"
+        "Do not share it with anyone."
+    )
+
     try:
-        send_mail(subject, message, settings.EMAIL_HOST_USER, [email])
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[email],
+            fail_silently=False,
+        )
     except BadHeaderError:
-        print("Invalid header found.")
-    except Exception as e:
-        print(f"Error sending email: {e}")
+        raise ValueError("Invalid email header detected")
+    except Exception:
+        # Let caller handle this
+        raise RuntimeError("Failed to send OTP email")
 
 @never_cache
 def verify_otp(request):
     if request.session.get("is_email_vfd"):
         return redirect("home")
-    
-    if request.method == 'POST':
-        entered_otp = request.POST.get('otp')
-        saved_otp = request.session.get('otp')
-        email = request.session.get('email')
-        
-        if not saved_otp or not email:
-            messages.error(request, "Session expired. Please sign up again.")
-            return redirect('account_signup')
 
-        if str(entered_otp) == str(saved_otp):
-            request.session["is_email_vfd"] = True
-            data = request.session.get('signup_data')
-            if not data:
-                messages.error(request, "Session expired. Please sign up again.")
-                return redirect('account_signup')
+    if request.method == "POST":
+        entered_otp = request.POST.get("otp", "").strip()
 
-            # Create user ,store to db if otp is correct
-            user = CustomUser.objects.create_user(
-                email=data['email'],
-                username=data['username'],
-                password=data['password1'],
-            )
-            user.is_active = True
-            user.is_email_vfd = True
-            user.save()
-
-            # Auto-create profile
-            UserProfile.objects.get_or_create(user=user)#first user:The newly created CustomUser object
-                                                        #second user:  The exact same data object passed to UserProfile
-            # Auto-login
-            auth_login(
-                request,
-                user,
-                backend='django.contrib.auth.backends.ModelBackend'
-            )
-
-            # Clear session
-            for key in ['signup_data', 'otp', 'email', 'otp_last_sent']:
-                if key in request.session:
-                    del request.session[key]
-
-            messages.success(request, "Account verified successfully!")
-            return redirect('home')
-        else:
-            messages.error(request, "Invalid OTP.")
-            return redirect('verify_otp') 
-
-    return render(request, 'otp.html')
-
-def resend_otp(request):
-    email = request.session.get('email')
-    if not email:
-        messages.error(request, "Session expired. Please sign up again.")
-        return redirect('account_signup')
-
-    last_sent = request.session.get("otp_last_sent")
-    if last_sent:
-        last_sent_time = timezone.datetime.fromisoformat(last_sent)
-        if timezone.now() < last_sent_time + timedelta(seconds=60):
-            remaining = (last_sent_time + timedelta(seconds=60)) - timezone.now()
-            messages.error(request, f"Please wait {int(remaining.total_seconds())} seconds before resending OTP.")
+        # Validate OTP format
+        if not entered_otp.isdigit() or len(entered_otp) != 4:
+            messages.error(request, "Invalid OTP format.")
             return redirect("verify_otp")
 
-    otp = random.randint(1000, 9999)
+        saved_otp = request.session.get("otp")
+        email = request.session.get("email")
+        otp_time_str = request.session.get("otp_last_sent")
+
+        if not all([saved_otp, email, otp_time_str]):
+            messages.error(request, "Session expired. Please sign up again.")
+            return redirect("account_signup")
+
+        otp_time = parse_datetime(otp_time_str)
+        if not otp_time:
+            messages.error(request, "Session expired. Please resend OTP.")
+            return redirect("verify_otp")
+        
+        OTP_EXPIRY_SECONDS = 300  # 5 minutes
+
+        if timezone.now() > otp_time + timedelta(seconds=OTP_EXPIRY_SECONDS):
+            messages.error(request, "OTP expired. Please resend.")
+            return redirect("verify_otp")
+
+        # OTP attempt limiting
+        attempts = request.session.get("otp_attempts", 0)
+        if attempts >= 5:
+            messages.error(request, "Too many incorrect attempts. Please resend OTP.")
+            return redirect("verify_otp")
+
+        if str(entered_otp) != str(saved_otp):
+            request.session["otp_attempts"] = attempts + 1
+            messages.error(request, "Invalid OTP.")
+            return redirect("verify_otp")
+
+        # OTP is correct → reset attempts
+        request.session.pop("otp_attempts", None)
+
+        data = request.session.get("signup_data")
+        if not data:
+            messages.error(request, "Session expired. Please sign up again.")
+            return redirect("account_signup")
+
+        try:
+            with transaction.atomic():
+                user = CustomUser.objects.create_user(
+                    email=data["email"],
+                    username=data.get("username"),
+                    password=data["password"],
+                )
+                user.is_active = True
+                user.is_email_vfd = True
+                user.save()
+
+                UserProfile.objects.create(user=user)
+
+        except IntegrityError:
+            messages.error(request, "Account already exists. Please log in.")
+            return redirect("account_login")
+
+        # Rotate session after privilege change
+        request.session.flush()
+        auth_login(request, user)
+
+        messages.success(request, "Account verified successfully!")
+        return redirect("home")
+
+    return render(request, "otp.html")
+
+
+@require_POST
+def resend_otp(request):
+    email = request.session.get("email")
+    otp_time_str = request.session.get("otp_last_sent")
+
+    if not email or not otp_time_str:
+        messages.error(request, "Session expired. Please sign up again.")
+        return redirect("account_signup")
+
+    # Cooldown check
+    last_sent_time = parse_datetime(otp_time_str)
+    if not last_sent_time:
+        messages.error(request, "Session expired. Please sign up again.")
+        return redirect("account_signup")
+
+    COOLDOWN_SECONDS = 60
+    if timezone.now() < last_sent_time + timedelta(seconds=COOLDOWN_SECONDS):
+        remaining = int(
+            (last_sent_time + timedelta(seconds=COOLDOWN_SECONDS) - timezone.now())
+            .total_seconds()
+        )
+        messages.error(request, f"Please wait {remaining} seconds before resending OTP.")
+        return redirect("verify_otp")
+
+    # Resend limit
+    resend_count = request.session.get("otp_resend_count", 0)
+    if resend_count >= 5:
+        messages.error(request, "Maximum OTP resend limit reached.")
+        return redirect("account_signup")
+
+    # Generate secure OTP
+    otp = secrets.randbelow(9000) + 1000
+
+    # Update session
     request.session["otp"] = otp
     request.session["otp_last_sent"] = timezone.now().isoformat()
-    send_otp(email, otp)
+    request.session["otp_resend_count"] = resend_count + 1
+
+    # Reset OTP attempts
+    request.session.pop("otp_attempts", None)
+
+    try:
+        send_otp(email, otp)
+    except Exception:
+        messages.error(request, "Unable to send OTP. Please try again later.")
+        return redirect("verify_otp")
+
     messages.success(request, "A new OTP has been sent to your email.")
     return redirect("verify_otp")
+
 @never_cache
 def login(request):
-    # next is used to remember where the user wanted to go before being forced to log in.
+    if request.user.is_authenticated:
+        return redirect("home")
+
     next_url = request.GET.get("next") or request.POST.get("next")
 
-    if request.user.is_authenticated:
-        return redirect('home')
+    if request.method == "POST":
+        email = request.POST.get("email", "").strip()
+        password = request.POST.get("password", "")
 
-    if request.method == 'POST':
-        email = request.POST.get('email')
-        password = request.POST.get('password')
+        if not email or not password:
+            messages.error(request, "Email and password are required.")
+            return render(request, "login.html")
+
+        # Brute-force protection
+        attempts = request.session.get("login_attempts", 0)
+        if attempts >= 5:
+            messages.error(request, "Too many failed attempts. Try again later.")
+            return render(request, "login.html")
 
         user = authenticate(request, email=email, password=password)
 
-        if user is not None:
-            if not user.is_active:
-                messages.error(request, "Please verify your email first.")
-                return redirect("account_login")
-            auth_login(request, user)
+        if user is None:
+            request.session["login_attempts"] = attempts + 1
+            messages.error(request, "Invalid email or password.")
+            return render(request, "login.html")
 
-            if user.is_staff or user.is_superuser:
-                return redirect('/admin/')
+        if not user.is_active:
+            messages.error(request, "Please verify your email first.")
+            return render(request, "login.html")
 
-            return redirect('home')
+        # Successful login
+        auth_login(request, user)
+        request.session.cycle_key()
 
-        messages.error(request, "Invalid email or password.")
+        request.session.pop("login_attempts", None)
 
-    return render(request, 'login.html')
- 
+        if user.is_staff or user.is_superuser:
+            return redirect("admin:index")
+
+        # Safe next redirect
+        if next_url and url_has_allowed_host_and_scheme(
+            next_url,
+            allowed_hosts={request.get_host()},
+            require_https=request.is_secure(),
+        ):
+            return redirect(next_url)
+
+        messages.success(request, "Logged in successfully.")
+        return redirect("home")
+
+    return render(request, "login.html")
+
+
+@require_POST
 @never_cache
 def user_logout(request):
+    # Completely clear session
+    request.session.flush()
+
+    # Logout user
     logout(request)
-    return redirect('home')
+
+    messages.success(request, "You have been logged out successfully.")
+    return redirect("home")
+
 
 @never_cache
 @login_required
@@ -206,40 +350,60 @@ def edit_profile(request):
         "profile_form": profile_form,
     })
 
+
 @never_cache
+@require_POST
 def forgot_password(request):
-    if request.method == 'POST':
-        email = request.POST.get('email')
+    email = request.POST.get("email", "").strip()
 
-        try:
-            user = User.objects.get(email=email)
+    if not email:
+        messages.error(request, "Please enter a valid email address.")
+        return redirect("forgot_password")
 
-            uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
-            token = default_token_generator.make_token(user)
+    # Rate limiting
+    last_request = request.session.get("pwd_reset_last")
+    if last_request:
+        last_time = parse_datetime(last_request)
+        if last_time and now() < last_time + timedelta(seconds=60):
+            messages.error(request, "Please wait before requesting again.")
+            return redirect("forgot_password")
 
-            reset_path = reverse(
-                'new_password',
-                kwargs={'uidb64': uidb64, 'token': token}
-            )
+    request.session["pwd_reset_last"] = now().isoformat()
 
-            reset_link = f"{request.scheme}://{request.get_host()}{reset_path}"
+    try:
+        user = User.objects.get(email=email)
 
-            send_mail(
-                subject="Reset your password",
-                message=f"Click the link to reset your password:\n\n{reset_link}",
-                from_email=settings.EMAIL_HOST_USER,
-                recipient_list=[email],
-                fail_silently=False
-            )
+        uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
 
-            messages.success(request, "Password reset link sent to your email.")
+        reset_link = (
+            f"{request.scheme}://{request.get_host()}"
+            f"{reverse('new_password', kwargs={'uidb64': uidb64, 'token': token})}"
+        )
 
-        except User.DoesNotExist:
-            messages.error(request, "No account found with this email.")
+        send_mail(
+            subject="Reset your password",
+            message=f"Click the link to reset your password:\n\n{reset_link}",
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[email],
+            fail_silently=False,
+        )
 
-        return redirect('forgot_password')
+    except User.DoesNotExist:
+        # DO NOTHING (prevent email enumeration)
+        pass
+    except Exception:
+        messages.error(request, "Unable to send reset email. Please try later.")
+        return redirect("forgot_password")
 
-    return render(request, 'forgot.html')
+    # Always show same message
+    messages.success(
+        request,
+        "If an account exists with this email, a reset link has been sent."
+    )
+    return redirect("forgot_password")
+
+
 
 @never_cache
 def new_password(request, uidb64, token):
@@ -250,30 +414,38 @@ def new_password(request, uidb64, token):
         user = None
 
     if user is None or not default_token_generator.check_token(user, token):
-        messages.error(request, "Password reset link is invalid or expired")
-        return redirect('account_login')
+        messages.error(request, "Password reset link is invalid or expired.")
+        return redirect("account_login")
 
-    if request.method == 'POST':
-        new_password = request.POST.get('new_password')
-        confirm_password = request.POST.get('confirm_password')
+    if request.method == "POST":
+        new_password = request.POST.get("new_password", "")
+        confirm_password = request.POST.get("confirm_password", "")
+
+        if not new_password or not confirm_password:
+            messages.error(request, "Both password fields are required.")
+            return render(request, "new_pass.html")
 
         if new_password != confirm_password:
-            messages.error(request, "Passwords do not match")
-            return render(request, 'new_pass.html')
+            messages.error(request, "Passwords do not match.")
+            return render(request, "new_pass.html")
+
+        try:
+            validate_password(new_password, user)
+        except ValidationError as e:
+            for error in e.messages:
+                messages.error(request, error)
+            return render(request, "new_pass.html")
+
+        # Rotate sessions & invalidate old ones
+        request.session.flush()
 
         user.set_password(new_password)
-        user.save(update_fields=['password'])
+        user.save(update_fields=["password"])
 
-        auth_login(
+        messages.success(
             request,
-            user,
-            backend='django.contrib.auth.backends.ModelBackend'
+            "Password updated successfully. Please log in with your new password."
         )
+        return redirect("account_login")
 
-        messages.success(request, "Password updated successfully")
-
-        if user.is_staff or user.is_superuser:
-            return redirect('admin_log') 
-        return redirect('account_login')
-
-    return render(request, 'new_pass.html')
+    return render(request, "new_pass.html")

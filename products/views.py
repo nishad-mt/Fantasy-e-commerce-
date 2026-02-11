@@ -17,6 +17,8 @@ from django.db.models import Avg, Count
 from decimal import Decimal
 from .utils import sync_category_status
 from django.http import HttpResponseForbidden
+from django.http import HttpResponseBadRequest
+
 
 
 User = get_user_model()
