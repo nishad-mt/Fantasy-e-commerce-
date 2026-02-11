@@ -169,15 +169,26 @@
                     class="group relative bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 ease-out hover:-translate-y-1 border border-black/5 overflow-hidden flex flex-col h-full">
 
                     <!-- Wishlist Toggle -->
+                    {% if user.is_authenticated %}
                     <form method="POST" action="{% url 'wishlist:toggle_wishlist' pdc.product_id %}"
-                        class="absolute top-2 right-2 z-20">
+                        class="absolute top-2 right-2 z-20 wishlist-form">
                         {% csrf_token %}
                         <button type="submit"
                             class="w-8 h-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110 active:scale-95
-                                {% if pdc.product_id in wishlist_product_ids %}text-red-500{% else %}text-gray-300 hover:text-red-500{% endif %}">
+                                {% if pdc.product_id in wishlist_product_ids %}
+                                text-red-500
+                                {% else %}
+                                text-gray-300 hover:text-red-500
+                                {% endif %}">
                             <i class="fa-solid fa-heart text-xs"></i>
                         </button>
                     </form>
+                    {% else %}
+                    <button type="button"
+                        class="w-8 h-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-sm text-gray-300 hover:text-orange-500 wishlist-guest-btn">
+                        <i class="fa-solid fa-heart text-xs"></i>
+                    </button>
+                    {% endif %}
 
                     <a href="{% url 'user_product' pdc.slug %}" class="block h-full flex flex-col">
                         <!-- Image -->
@@ -257,7 +268,27 @@
 </div>
 </div>
 </div>
+<template id="login-toast-template">
+                        <div
+                            class="transform -translate-y-full opacity-0 transition-all duration-500
+                            max-w-sm w-full bg-orange-100 text-orange-800 px-6 py-4 rounded-xl shadow-xl
+                            border border-orange-300 flex items-center gap-4 pointer-events-auto">
 
+                            <div class="w-8 h-8 rounded-full bg-orange-200 flex items-center justify-center">
+                                <i class="fa-solid fa-lock text-orange-600 text-sm"></i>
+                            </div>
+
+                            <div class="flex-1">
+                                <h4 class="font-bold text-sm">Login Required</h4>
+                                <p class="text-xs opacity-80">Please login to add items to your wishlist.</p>
+                            </div>
+
+                            <a href="{% url 'account_login' %}"
+                            class="text-xs font-bold underline hover:text-orange-900">
+                                Login
+                            </a>
+                        </div>
+                    </template>
 <!-- Toast Notification Container -->
 <div id="toast-container"
     class="fixed top-5 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 pointer-events-none w-[90%] md:w-auto items-center">
@@ -279,70 +310,83 @@
 </template>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const toastContainer = document.getElementById('toast-container');
-        const toastTemplate = document.getElementById('toast-template');
+document.addEventListener('DOMContentLoaded', function () {
 
-        function showToast(message, isAdded) {
-            const clone = toastTemplate.content.cloneNode(true);
-            const toastEl = clone.querySelector('div');
-            const messageEl = clone.querySelector('.toast-message');
+    const toastContainer = document.getElementById('toast-container');
+    const toastTemplate = document.getElementById('toast-template');
 
-            messageEl.textContent = message;
+    function showToast(message) {
+        const clone = toastTemplate.content.cloneNode(true);
+        const toastEl = clone.querySelector('div');
+        const messageEl = clone.querySelector('.toast-message');
 
-            toastContainer.appendChild(toastEl);
+        messageEl.textContent = message;
+        toastContainer.appendChild(toastEl);
 
-            // Trigger animation (Slide Down)
-            requestAnimationFrame(() => {
-                toastEl.classList.remove('-translate-y-full', 'opacity-0');
-            });
+        requestAnimationFrame(() => {
+            toastEl.classList.remove('-translate-y-full', 'opacity-0');
+        });
 
-            // Remove after 3s
-            setTimeout(() => {
-                toastEl.classList.add('-translate-y-full', 'opacity-0');
-                setTimeout(() => {
-                    if (toastEl.parentNode) toastEl.parentNode.removeChild(toastEl);
-                }, 500);
-            }, 3000);
-        }
+        setTimeout(() => {
+            toastEl.classList.add('-translate-y-full', 'opacity-0');
+            setTimeout(() => toastEl.remove(), 500);
+        }, 3000);
+    }
 
-        const wishlistForms = document.querySelectorAll('form[action*="wishlist/toggle"]');
+    // ✅ AUTHENTICATED wishlist
+    document.querySelectorAll('form[action*="wishlist/toggle"]').forEach(form => {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
 
-        wishlistForms.forEach(form => {
-            form.addEventListener('submit', function (e) {
-                e.preventDefault();
+            const url = this.action;
+            const icon = this.querySelector('i');
+            const csrfToken = this.querySelector('[name=csrfmiddlewaretoken]').value;
 
-                const url = this.action;
-                const button = this.querySelector('button');
-                const icon = button.querySelector('i');
-                const csrfToken = this.querySelector('[name=csrfmiddlewaretoken]').value;
-
-                fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRFToken': csrfToken
-                    },
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.added) {
-                            icon.classList.remove('fa-regular', 'text-gray-300');
-                            icon.classList.add('fa-solid', 'text-red-500');
-                        } else {
-                            icon.classList.remove('fa-solid', 'text-red-500');
-                            icon.classList.add('fa-regular', 'text-gray-300');
-                        }
-                        showToast(data.message, data.added);
-                    })
-                    .catch(error => console.error('Error:', error));
-            });
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                icon.classList.toggle('text-red-500', data.added);
+                icon.classList.toggle('text-gray-300', !data.added);
+                showToast(data.message);
+            })
+            .catch(err => console.error(err));
         });
     });
+
+    // ✅ GUEST wishlist (FIXED)
+    document.querySelectorAll('.wishlist-guest-btn').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            showLoginToast();
+        });
+    });
+
+});
+
+// Login toast
+function showLoginToast() {
+    const template = document.getElementById('login-toast-template');
+    const toastContainer = document.getElementById('toast-container');
+
+    const clone = template.content.cloneNode(true);
+    const toastEl = clone.querySelector('div');
+
+    toastContainer.appendChild(toastEl);
+
+    requestAnimationFrame(() => {
+        toastEl.classList.remove('-translate-y-full', 'opacity-0');
+    });
+
+    setTimeout(() => {
+        window.location.href = "{% url 'account_login' %}";
+    }, 2000);
+}
 </script>
+
 {% endblock %}
