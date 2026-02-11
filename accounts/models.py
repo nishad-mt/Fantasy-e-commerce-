@@ -26,11 +26,19 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
-    
+
+    def get_full_name(self):
+        if hasattr(self, "profile"):
+            first = self.profile.first_name or ""
+            last = self.profile.last_name or ""
+            return f"{first} {last}".strip()
+        return ""
+
     @property
     def display_name(self):
-        if self.get_full_name():
-            return self.get_full_name()
+        full_name = self.get_full_name()
+        if full_name:
+            return full_name
         if self.username:
             return self.username
         return self.email.split("@")[0]
