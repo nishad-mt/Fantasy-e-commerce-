@@ -34,11 +34,11 @@ User = get_user_model()
 def signup(request):
     if request.user.is_authenticated:
         return redirect("home")
-    
+
     if request.method == "POST":
         form = CustomUserForm(request.POST)
         if form.is_valid():
-            print(form.errors)
+            
             email = form.cleaned_data["email"]
 
             # OTP cooldown
@@ -108,13 +108,12 @@ def send_otp(email, otp):
 
 @never_cache
 def verify_otp(request):
-    if request.session.get("is_email_vfd"):
+    if request.user.is_authenticated:
         return redirect("home")
 
     if request.method == "POST":
         entered_otp = request.POST.get("otp", "").strip()
 
-        # Validate OTP format
         if not entered_otp.isdigit() or len(entered_otp) != 4:
             messages.error(request, "Invalid OTP format.")
             return redirect("verify_otp")
@@ -128,17 +127,10 @@ def verify_otp(request):
             return redirect("account_signup")
 
         otp_time = parse_datetime(otp_time_str)
-        if not otp_time:
-            messages.error(request, "Session expired. Please resend OTP.")
-            return redirect("verify_otp")
-        
-        OTP_EXPIRY_SECONDS = 300  # 5 minutes
-
-        if timezone.now() > otp_time + timedelta(seconds=OTP_EXPIRY_SECONDS):
+        if timezone.now() > otp_time + timedelta(seconds=300):
             messages.error(request, "OTP expired. Please resend.")
             return redirect("verify_otp")
 
-        # OTP attempt limiting
         attempts = request.session.get("otp_attempts", 0)
         if attempts >= 5:
             messages.error(request, "Too many incorrect attempts. Please resend OTP.")
@@ -149,7 +141,6 @@ def verify_otp(request):
             messages.error(request, "Invalid OTP.")
             return redirect("verify_otp")
 
-        # OTP is correct → reset attempts
         request.session.pop("otp_attempts", None)
 
         data = request.session.get("signup_data")
@@ -174,8 +165,11 @@ def verify_otp(request):
             messages.error(request, "Account already exists. Please log in.")
             return redirect("account_login")
 
-        # Rotate session after privilege change
-        request.session.flush()
+        # Clean OTP data safely
+        for key in ["otp", "email", "signup_data", "otp_last_sent", "otp_attempts"]:
+            request.session.pop(key, None)
+
+        request.session.cycle_key()
         auth_login(request, user)
 
         messages.success(request, "Account verified successfully!")
@@ -186,6 +180,9 @@ def verify_otp(request):
 
 @require_POST
 def resend_otp(request):
+    if request.user.is_authenticated:
+        return redirect("home")
+
     email = request.session.get("email")
     otp_time_str = request.session.get("otp_last_sent")
 
@@ -193,12 +190,18 @@ def resend_otp(request):
         messages.error(request, "Session expired. Please sign up again.")
         return redirect("account_signup")
 
-    # Cooldown check
     last_sent_time = parse_datetime(otp_time_str)
     if not last_sent_time:
         messages.error(request, "Session expired. Please sign up again.")
         return redirect("account_signup")
 
+    # OTP lifetime check
+    OTP_LIFETIME = 300  # 5 minutes
+    if timezone.now() > last_sent_time + timedelta(seconds=OTP_LIFETIME):
+        messages.error(request, "OTP session expired. Please sign up again.")
+        return redirect("account_signup")
+
+    # Cooldown check
     COOLDOWN_SECONDS = 60
     if timezone.now() < last_sent_time + timedelta(seconds=COOLDOWN_SECONDS):
         remaining = int(
@@ -214,7 +217,7 @@ def resend_otp(request):
         messages.error(request, "Maximum OTP resend limit reached.")
         return redirect("account_signup")
 
-    # Generate secure OTP
+    # Generate OTP
     otp = secrets.randbelow(9000) + 1000
 
     # Update session
@@ -222,7 +225,7 @@ def resend_otp(request):
     request.session["otp_last_sent"] = timezone.now().isoformat()
     request.session["otp_resend_count"] = resend_count + 1
 
-    # Reset OTP attempts
+    # Reset attempts
     request.session.pop("otp_attempts", None)
 
     try:
@@ -234,12 +237,17 @@ def resend_otp(request):
     messages.success(request, "A new OTP has been sent to your email.")
     return redirect("verify_otp")
 
+
 @never_cache
 def login(request):
     if request.user.is_authenticated:
         return redirect("home")
 
     next_url = request.GET.get("next") or request.POST.get("next")
+
+    # Lockout config
+    MAX_ATTEMPTS = 5
+    LOCKOUT_SECONDS = 300  # 5 minutes
 
     if request.method == "POST":
         email = request.POST.get("email", "").strip()
@@ -251,14 +259,21 @@ def login(request):
 
         # Brute-force protection
         attempts = request.session.get("login_attempts", 0)
-        if attempts >= 5:
-            messages.error(request, "Too many failed attempts. Try again later.")
-            return render(request, "login.html")
+        last_attempt = request.session.get("last_login_attempt")
+
+        if attempts >= MAX_ATTEMPTS and last_attempt:
+            last_time = parse_datetime(last_attempt)
+            if last_time and timezone.now() < last_time + timedelta(seconds=LOCKOUT_SECONDS):
+                messages.error(request, "Too many failed attempts. Try again later.")
+                return render(request, "login.html")
+            else:
+                request.session.pop("login_attempts", None)
 
         user = authenticate(request, email=email, password=password)
 
         if user is None:
             request.session["login_attempts"] = attempts + 1
+            request.session["last_login_attempt"] = timezone.now().isoformat()
             messages.error(request, "Invalid email or password.")
             return render(request, "login.html")
 
@@ -266,16 +281,16 @@ def login(request):
             messages.error(request, "Please verify your email first.")
             return render(request, "login.html")
 
-        # Successful login
-        auth_login(request, user)
+        # Secure login
         request.session.cycle_key()
+        auth_login(request, user)
 
         request.session.pop("login_attempts", None)
+        request.session.pop("last_login_attempt", None)
 
         if user.is_staff or user.is_superuser:
-            return redirect("admin:index")
+            return redirect("/admin/")
 
-        # Safe next redirect
         if next_url and url_has_allowed_host_and_scheme(
             next_url,
             allowed_hosts={request.get_host()},
