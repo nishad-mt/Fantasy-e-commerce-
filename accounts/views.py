@@ -352,57 +352,53 @@ def edit_profile(request):
 
 
 @never_cache
-@require_POST
 def forgot_password(request):
-    email = request.POST.get("email", "").strip()
+    if request.method == "POST":
+        email = request.POST.get("email", "").strip()
 
-    if not email:
-        messages.error(request, "Please enter a valid email address.")
-        return redirect("forgot_password")
-
-    # Rate limiting
-    last_request = request.session.get("pwd_reset_last")
-    if last_request:
-        last_time = parse_datetime(last_request)
-        if last_time and now() < last_time + timedelta(seconds=60):
-            messages.error(request, "Please wait before requesting again.")
+        if not email:
+            messages.error(request, "Please enter a valid email address.")
             return redirect("forgot_password")
 
-    request.session["pwd_reset_last"] = now().isoformat()
+        # rate limiting
+        last_request = request.session.get("pwd_reset_last")
+        if last_request:
+            last_time = parse_datetime(last_request)
+            if last_time and now() < last_time + timedelta(seconds=60):
+                messages.error(request, "Please wait before requesting again.")
+                return redirect("forgot_password")
 
-    try:
-        user = User.objects.get(email=email)
+        request.session["pwd_reset_last"] = now().isoformat()
 
-        uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
-        token = default_token_generator.make_token(user)
+        try:
+            user = User.objects.get(email=email)
 
-        reset_link = (
-            f"{request.scheme}://{request.get_host()}"
-            f"{reverse('new_password', kwargs={'uidb64': uidb64, 'token': token})}"
+            uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+            token = default_token_generator.make_token(user)
+
+            reset_link = (
+                f"{request.scheme}://{request.get_host()}"
+                f"{reverse('new_password', kwargs={'uidb64': uidb64, 'token': token})}"
+            )
+
+            send_mail(
+                subject="Reset your password",
+                message=f"Click the link to reset your password:\n\n{reset_link}",
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[email],
+                fail_silently=False,
+            )
+
+        except User.DoesNotExist:
+            pass
+
+        messages.success(
+            request,
+            "If an account exists with this email, a reset link has been sent."
         )
-
-        send_mail(
-            subject="Reset your password",
-            message=f"Click the link to reset your password:\n\n{reset_link}",
-            from_email=settings.EMAIL_HOST_USER,
-            recipient_list=[email],
-            fail_silently=False,
-        )
-
-    except User.DoesNotExist:
-        # DO NOTHING (prevent email enumeration)
-        pass
-    except Exception:
-        messages.error(request, "Unable to send reset email. Please try later.")
         return redirect("forgot_password")
 
-    # Always show same message
-    messages.success(
-        request,
-        "If an account exists with this email, a reset link has been sent."
-    )
-    return redirect("forgot_password")
-
+    return render(request, "forgot.html")
 
 
 @never_cache
