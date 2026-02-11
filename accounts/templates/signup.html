@@ -78,7 +78,7 @@
           <p class="text-gray-500">Fill in your details to get started.</p>
         </div>
 
-        <form method="POST" action="{% url 'account_signup' %}" class="space-y-5">
+        <form method="POST" action="{% url 'signup' %}" class="space-y-5">
           {% csrf_token %}
 
           <div>
@@ -157,7 +157,7 @@
         </div>
 
         <p class="text-center text-sm mt-8 text-gray-500">
-          Already have an account? <a href="{% url 'account_login' %}"
+          Already have an account? <a href="{% url 'login' %}"
             class="text-[#5a3e2b] font-bold hover:text-[#D4AF37] transition-colors">Log In</a>
         </p>
       </div>

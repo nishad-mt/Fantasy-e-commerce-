@@ -304,7 +304,7 @@
                         Write a Review
                     </button>
                     {% else %}
-                    <a href="{% url 'account_login' %}?next={{ request.path }}"
+                    <a href="{% url 'login' %}?next={{ request.path }}"
                         class="px-8 py-3 border-2 border-fantasy-brown text-fantasy-brown font-bold rounded-full hover:bg-fantasy-brown hover:text-white transition-all inline-block">
                         Login to Review
                     </a>

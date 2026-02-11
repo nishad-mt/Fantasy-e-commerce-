@@ -192,7 +192,6 @@ SOCIALACCOUNT_PROVIDERS = {
 
 
 ACCOUNT_LOGIN_METHODS = {"email"}
-ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
 
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
@@ -203,14 +202,12 @@ SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
 
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
-LOGIN_URL = "/accounts/login/"
+ACCOUNT_ALLOW_REGISTRATION = False
+
+LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 
-
-ACCOUNT_FORMS = {
-    "signup": "accounts.forms_allauth.AllauthSignupForm",
-}
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",

@@ -19,21 +19,32 @@ from django.contrib import admin
 from django.urls import path,include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.shortcuts import redirect
+
+def redirect_allauth_signup(request):
+    return redirect("signup") 
 
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", include('home.urls')), 
+
+    # BLOCK allauth email signup FIRST
+    path("accounts/signup/", redirect_allauth_signup, name="account_signup"),
+
+    # keep allauth for Google ONLY
     path("accounts/", include("allauth.urls")),
-    path("user/", include('accounts.urls')),
-    path("products/", include('products.urls')),
-    path("admin_user/", include('dashboard.urls')),
-    path("cart/", include('cart.urls')),
-    path("order/", include('order.urls')),
-    path("payments/", include('payments.urls')),
-    path("promotions/", include('promotions.urls')),
-    path("wishlist/", include('wishlist.urls')),
-    path("address/", include('addresses.urls')),
-    path("wallet/", include('wallet.urls')),
+
+    path("", include("home.urls")),
+    path("user/", include("accounts.urls")),
+    path("products/", include("products.urls")),
+    path("admin_user/", include("dashboard.urls")),
+    path("cart/", include("cart.urls")),
+    path("order/", include("order.urls")),
+    path("payments/", include("payments.urls")),
+    path("promotions/", include("promotions.urls")),
+    path("wishlist/", include("wishlist.urls")),
+    path("address/", include("addresses.urls")),
+    path("wallet/", include("wallet.urls")),
 ]
+
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

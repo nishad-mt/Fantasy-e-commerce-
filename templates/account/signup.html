@@ -171,7 +171,7 @@
       <div class="signup-area">
         <h3 class="fw-bold text-center mb-4" style="color: #5a3e2b;">Create Your Account</h3>
 
-        <form method="POST" action="{% url 'account_signup' %}">
+        <form method="POST" action="{% url 'signup' %}">
           {%  csrf_token %}
           <div class="input-wrapper">
           <i class="fa fa-user"></i>
@@ -218,7 +218,7 @@
           </div>
 
         <p class="link-text">
-          Already have an account? <a href="{% url 'account_login' %}">Login</a>
+          Already have an account? <a href="{% url 'login' %}">Login</a>
         </p>
       </div>
     </div>
