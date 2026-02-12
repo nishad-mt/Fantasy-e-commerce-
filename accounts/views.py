@@ -38,21 +38,17 @@ def signup(request):
     if request.method == "POST":
         form = CustomUserForm(request.POST)
         if form.is_valid():
-            
             email = form.cleaned_data["email"]
 
-            # OTP cooldown
             last_sent = request.session.get("otp_last_sent")
             if last_sent:
                 last_sent_time = parse_datetime(last_sent)
-                if timezone.now() < last_sent_time + timedelta(seconds=60):
+                if last_sent_time and timezone.now() < last_sent_time + timedelta(seconds=60):
                     messages.error(request, "Please wait before requesting another OTP.")
                     return redirect("verify_otp")
 
-            # Clear old OTP safely
-            request.session.pop("otp", None)
-            request.session.pop("email", None)
-            request.session.pop("signup_data", None)
+            for key in ["otp", "email", "signup_data", "otp_attempts", "otp_resend_count"]:
+                request.session.pop(key, None)
 
             request.session["signup_data"] = {
                 "email": email,
@@ -60,9 +56,7 @@ def signup(request):
                 "password": form.cleaned_data["password1"],
             }
 
-            import secrets
             otp = secrets.randbelow(9000) + 1000
-
             request.session["otp"] = otp
             request.session["email"] = email
             request.session["otp_last_sent"] = timezone.now().isoformat()
@@ -119,7 +113,6 @@ def verify_otp(request):
             messages.error(request, "Invalid OTP format.")
             return redirect("verify_otp")
 
-        # Get session data
         saved_otp = request.session.get("otp")
         email = request.session.get("email")
         otp_time_str = request.session.get("otp_last_sent")
@@ -129,16 +122,19 @@ def verify_otp(request):
             messages.error(request, "Session expired. Please sign up again.")
             return redirect("signup")
 
-        # OTP expiry check (5 minutes)
+        # OTP expiry (5 minutes)
         otp_time = parse_datetime(otp_time_str)
         if not otp_time or timezone.now() > otp_time + timedelta(seconds=300):
+            for key in ["otp", "otp_attempts"]:
+                request.session.pop(key, None)
             messages.error(request, "OTP expired. Please resend.")
             return redirect("verify_otp")
 
         # Attempt limit
         attempts = request.session.get("otp_attempts", 0)
         if attempts >= 5:
-            messages.error(request, "Too many incorrect attempts. Please resend OTP.")
+            request.session.pop("otp", None)
+            messages.error(request, "Too many attempts. OTP invalidated.")
             return redirect("verify_otp")
 
         # OTP match
@@ -147,21 +143,19 @@ def verify_otp(request):
             messages.error(request, "Invalid OTP.")
             return redirect("verify_otp")
 
-        # OTP correct → reset attempts
         request.session.pop("otp_attempts", None)
 
-        # Create or activate user safely
+        # Create / activate user
         with transaction.atomic():
             user, created = CustomUser.objects.get_or_create(
                 email=email,
-                defaults={
-                    "username": signup_data.get("username"),
-                }
+                defaults={"username": signup_data.get("username")},
             )
 
             if not created and user.is_email_vfd:
-                messages.error(request, "Account already exists. Please log in.")
-                return redirect("login")
+                already_verified = True
+            else:
+                already_verified = False
 
             if created:
                 user.set_password(signup_data["password"])
@@ -172,7 +166,11 @@ def verify_otp(request):
 
             UserProfile.objects.get_or_create(user=user)
 
-        #Clean OTP session data
+        if already_verified:
+            messages.error(request, "Account already exists. Please log in.")
+            return redirect("login")
+
+        # Cleanup session
         for key in [
             "otp",
             "email",
@@ -183,7 +181,6 @@ def verify_otp(request):
         ]:
             request.session.pop(key, None)
 
-        #Secure login
         request.session.cycle_key()
         auth_login(request, user, backend="django.contrib.auth.backends.ModelBackend")
 

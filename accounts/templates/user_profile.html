@@ -35,8 +35,11 @@
             </div>
             <div>
               <h4 class="font-bold text-fantasy-brown">
-                {% if profile.first_name %}{{ profile.first_name }} {{ profile.last_name }}{% else %}{{ user.username
-                }}{% endif %}
+                {% if profile.first_name %}
+                {{ profile.first_name }} {{ profile.last_name }}
+                {% else %}
+                {{ user.username }}
+                {% endif %}
               </h4>
               <p class="text-xs text-gray-400">{{ user.email }}</p>
             </div>
