@@ -32,6 +32,7 @@
                         'fade-in-up': 'fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards',
                         'fade-in': 'fadeIn 0.3s ease-in-out forwards',
                         'slide-in-left': 'slideInLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'slide-in-right': 'slideInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
                         'zoom-out': 'zoomOut 1.5s ease-out forwards',
                         'gentle-fade': 'gentleFadeIn 1s ease-out forwards',
                         'float': 'float 6s ease-in-out infinite',
@@ -47,6 +48,10 @@
                         },
                         slideInLeft: {
                             '0%': { transform: 'translateX(-100%)' },
+                            '100%': { transform: 'translateX(0)' },
+                        },
+                        slideInRight: {
+                            '0%': { transform: 'translateX(100%)' },
                             '100%': { transform: 'translateX(0)' },
                         },
                         zoomOut: {
@@ -233,19 +238,37 @@
                 </div>
             </div>
 
-            <!-- Mobile Menu (Hidden) -->
+            <!-- Mobile Menu Sidebar (Hidden) -->
             <div id="mobile-nav-container"
-                class="hidden fixed inset-0 z-[100] bg-white/95 backdrop-blur-xl flex-col justify-center items-start pl-12 animate-slide-in-left">
-                <div class="flex flex-col space-y-8 w-full items-start text-left">
+                class="hidden fixed inset-y-0 right-0 w-[80%] max-w-[300px] z-[100] bg-white shadow-[-10px_0_30px_rgba(0,0,0,0.1)] flex flex-col pt-20 animate-slide-in-right overflow-y-auto">
+
+                <!-- Close Button (Inside Sidebar) -->
+                <button id="sidebar-close-btn"
+                    class="absolute top-6 left-6 text-fantasy-brown hover:text-fantasy-gold transition-colors p-2">
+                    <i data-lucide="x" class="w-8 h-8"></i>
+                </button>
+
+                <!-- Navigation Links (Rows) -->
+                <div class="flex flex-col w-full">
                     <a href="{% url 'home' %}"
-                        class="text-3xl font-serif font-bold text-fantasy-brown hover:text-fantasy-gold transition-all duration-300 border-l-0 border-fantasy-gold hover:border-l-4 hover:pl-4">Home</a>
+                        class="w-full block text-left px-8 py-5 border-b border-fantasy-brown/10 font-serif font-semibold text-fantasy-brown text-lg hover:bg-[#F5E6D3] hover:pl-12 transition-all duration-300">Home</a>
                     <a href="{% url 'products' %}"
-                        class="text-3xl font-serif font-bold text-fantasy-brown hover:text-fantasy-gold transition-all duration-300 border-l-0 border-fantasy-gold hover:border-l-4 hover:pl-4">Shop</a>
+                        class="w-full block text-left px-8 py-5 border-b border-fantasy-brown/10 font-serif font-semibold text-fantasy-brown text-lg hover:bg-[#F5E6D3] hover:pl-12 transition-all duration-300">Shop</a>
                     <a href="{% url 'aboutus' %}"
-                        class="text-3xl font-serif font-bold text-fantasy-brown hover:text-fantasy-gold transition-all duration-300 border-l-0 border-fantasy-gold hover:border-l-4 hover:pl-4">Our
+                        class="w-full block text-left px-8 py-5 border-b border-fantasy-brown/10 font-serif font-semibold text-fantasy-brown text-lg hover:bg-[#F5E6D3] hover:pl-12 transition-all duration-300">Our
                         Story</a>
                     <a href="{% url 'contact' %}"
-                        class="text-3xl font-serif font-bold text-fantasy-brown hover:text-fantasy-gold transition-all duration-300 border-l-0 border-fantasy-gold hover:border-l-4 hover:pl-4">Contact</a>
+                        class="w-full block text-left px-8 py-5 border-b border-fantasy-brown/10 font-serif font-semibold text-fantasy-brown text-lg hover:bg-[#F5E6D3] hover:pl-12 transition-all duration-300">Contact</a>
+
+                    <!-- Account Links (Optional but good for sidebar) -->
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'profile' %}"
+                        class="w-full block text-left px-8 py-5 border-b border-fantasy-brown/10 font-serif font-semibold text-fantasy-brown text-lg hover:bg-[#F5E6D3] hover:pl-12 transition-all duration-300">My
+                        Account</a>
+                    {% else %}
+                    <a href="{% url 'login' %}"
+                        class="w-full block text-left px-8 py-5 border-b border-fantasy-brown/10 font-serif font-semibold text-fantasy-brown text-lg hover:bg-[#F5E6D3] hover:pl-12 transition-all duration-300">Login</a>
+                    {% endif %}
                 </div>
             </div>
         </nav>
@@ -607,50 +630,63 @@
         document.addEventListener('DOMContentLoaded', () => {
             const btn = document.getElementById('mobile-menu-btn');
             const menu = document.getElementById('mobile-nav-container');
+            const sidebarCloseBtn = document.getElementById('sidebar-close-btn');
 
             if (btn && menu) {
-                btn.addEventListener('click', () => {
+                const toggleMenu = () => {
                     menu.classList.toggle('hidden');
-                    menu.classList.toggle('flex');
-                    // Logic to swap Lucide icons if applicable
+                    // Check if menu is expanded (not hidden)
+                    const isExpanded = !menu.classList.contains('hidden');
+
+                    // Logic to swap Navbar Lucide icons
                     const icon = btn.querySelector('i');
                     if (icon && window.lucide) {
-                        // Check if menu is expanded (not hidden)
-                        const isExpanded = !menu.classList.contains('hidden');
-                        // If expanded, show 'x', else show 'menu'
-                        // Note: The previous logic relied on creating icons, so we need to set the attribute and re-run createIcons
-                        // But wait, the previous logic replaced innerHTML. If we use data-lucide attribute update, we rely on lucide to re-render.
-                        // Lucide re-renders based on data-lucide attributes.
-                        // However, simply changing the attribute might not trigger re-render if we don't call createIcons again on that element or globally.
-                        // The user's code says:
-                        // icon.setAttribute('data-lucide', isExpanded ? 'x' : 'menu');
-                        // lucide.createIcons();
-                        // This implies the icon element itself is the <i> tag.
-                        // Let's stick to the user's provided code EXACTLY as requested, but I'll add a small check to ensure it works.
-                        // The user provided:
-                        // icon.setAttribute('data-lucide', isExpanded ? 'x' : 'menu');
-                        // lucide.createIcons();
-
-                        // Wait, the button innerHTML currently is <i data-lucide="menu" ...></i>.
-                        // If I change the attribute and call createIcons, it should work.
-
                         icon.setAttribute('data-lucide', isExpanded ? 'x' : 'menu');
                         lucide.createIcons();
                     }
+                };
+
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleMenu();
                 });
 
-                // Close menu when clicking a link
-                const mobileLinks = menu.querySelectorAll('a');
-                mobileLinks.forEach(link => {
-                    link.addEventListener('click', () => {
+                if (sidebarCloseBtn) {
+                    sidebarCloseBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        // Force close
                         menu.classList.add('hidden');
-                        menu.classList.remove('flex');
                         const icon = btn.querySelector('i');
                         if (icon && window.lucide) {
                             icon.setAttribute('data-lucide', 'menu');
                             lucide.createIcons();
                         }
                     });
+                }
+
+                // Close menu when clicking a link
+                const mobileLinks = menu.querySelectorAll('a');
+                mobileLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        menu.classList.add('hidden');
+                        const icon = btn.querySelector('i');
+                        if (icon && window.lucide) {
+                            icon.setAttribute('data-lucide', 'menu');
+                            lucide.createIcons();
+                        }
+                    });
+                });
+
+                // Close when clicking outside (on the main content)
+                document.addEventListener('click', (e) => {
+                    if (!menu.classList.contains('hidden') && !menu.contains(e.target) && !btn.contains(e.target)) {
+                        menu.classList.add('hidden');
+                        const icon = btn.querySelector('i');
+                        if (icon && window.lucide) {
+                            icon.setAttribute('data-lucide', 'menu');
+                            lucide.createIcons();
+                        }
+                    }
                 });
             }
         });
