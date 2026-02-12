@@ -1,0 +1,136 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>500 - Server Error | Fantasy Bakery</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'fantasy-cream': '#FFF9F0',
+                        'fantasy-brown': '#5a3e2b',
+                        'fantasy-gold': '#D4AF37',
+                        'fantasy-gold-light': '#F4E5B2',
+                        'fantasy-pink': '#FCE7E7',
+                        'fantasy-brown-dark': '#4a332a',
+                    },
+                    fontFamily: {
+                        serif: ['"Playfair Display"', 'serif'],
+                        sans: ['"Inter"', '"Lato"', 'sans-serif'],
+                        script: ['"Great Vibes"', 'cursive'],
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    },
+                    boxShadow: {
+                        'dual': '0 10px 30px -10px rgba(90, 62, 43, 0.3), 0 4px 10px -5px rgba(212, 175, 55, 0.2)',
+                    }
+                }
+            }
+        }
+    </script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Great+Vibes&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        .grain-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            z-index: 40;
+            mix-blend-mode: overlay;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-fantasy-cream text-gray-800 font-sans antialiased selection:bg-fantasy-gold selection:text-white overflow-hidden h-screen flex flex-col">
+    <!-- Grain Texture -->
+    <div class="grain-overlay"></div>
+
+    <!-- Navigation (Simplified) -->
+    <nav class="absolute top-0 w-full z-50 py-6">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <a href="/" class="text-2xl font-serif font-bold text-fantasy-brown flex items-center gap-2 group">
+                <span
+                    class="w-8 h-8 flex items-center justify-center bg-fantasy-brown text-fantasy-gold rounded-full group-hover:bg-fantasy-gold group-hover:text-fantasy-brown transition-colors duration-500 shadow-dual">
+                    <i class="fa-solid fa-cookie-bite text-sm"></i>
+                </span>
+                <span>Fantasy Bakery</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex items-center justify-center relative w-full h-full">
+        <!-- Background Elements -->
+        <div class="absolute inset-0 z-0 opacity-[0.03]"
+            style="background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');"></div>
+        <div class="absolute top-1/4 right-1/4 w-96 h-96 bg-red-100/30 rounded-full blur-3xl animate-pulse-slow"></div>
+
+        <div class="container mx-auto px-6 relative z-10 text-center">
+
+            <div class="relative inline-block mb-8">
+                <h1
+                    class="text-[12rem] md:text-[16rem] font-serif font-bold text-fantasy-brown/10 leading-none select-none animate-pulse">
+                    500</h1>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <span class="text-6xl md:text-8xl animate-bounce-slow text-fantasy-brown">🔥</span>
+                </div>
+            </div>
+
+            <h2 class="text-4xl md:text-5xl font-serif font-bold text-fantasy-brown mb-4">Oven Malfunction!</h2>
+            <p class="text-lg md:text-xl text-fantasy-brown/70 max-w-lg mx-auto mb-10 font-medium">
+                Something smells burnt! Our bakers are fixing the heat. Please try again in a few minutes.
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="window.location.reload();"
+                    class="px-8 py-3 bg-fantasy-brown text-fantasy-gold border-2 border-fantasy-brown rounded-full font-bold hover:bg-fantasy-gold hover:text-fantasy-brown hover:border-fantasy-gold transition-all shadow-dual hover:shadow-lg flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    Try Refreshing
+                </button>
+
+                <a href="{% url 'contact' %}"
+                    class="px-8 py-3 bg-transparent text-fantasy-brown border-2 border-fantasy-brown/30 rounded-full font-bold hover:border-fantasy-brown hover:bg-white transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-envelope"></i>
+                    Report Issue
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Simple Footer -->
+    <footer class="absolute bottom-0 w-full py-6 text-center text-fantasy-brown/40 text-sm">
+        <p>&copy; 2025 Fantasy Bakery. We'll be back shortly.</p>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>

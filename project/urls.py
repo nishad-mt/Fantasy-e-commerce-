@@ -24,6 +24,8 @@ from django.shortcuts import redirect
 def redirect_allauth_signup(request):
     return redirect("signup") 
 
+handler404 = "dashboard.views.custom_404"
+handler500 = "dashboard.views.custom_500"
 
 urlpatterns = [
     path("admin/", admin.site.urls),

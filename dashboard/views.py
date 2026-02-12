@@ -28,6 +28,15 @@ from django.core.paginator import Paginator
 
 User = get_user_model()
 
+from django.shortcuts import render
+
+def custom_404(request, exception):
+    return render(request, "404.html", status=404)
+
+def custom_500(request):
+    return render(request, "500.html", status=500)
+
+
 @never_cache
 def admin_login(request):
     if request.user.is_authenticated:
