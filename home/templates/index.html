@@ -654,6 +654,56 @@
             revealElements.forEach(el => observer.observe(el));
         });
     </script>
+    <!-- Welcome Back Modal (2026 Premium Design) -->
+    <div id="welcomeModal"
+        class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md hidden opacity-0 transition-opacity duration-500">
+        <div class="bg-white/90 backdrop-blur-xl border border-white/40 rounded-[2rem] shadow-2xl p-10 max-w-sm w-full text-center transform scale-90 transition-transform duration-500"
+            id="welcomeCard">
+            <div
+                class="w-20 h-20 bg-fantasy-cream rounded-full flex items-center justify-center mx-auto mb-6 text-fantasy-gold shadow-lg shadow-fantasy-gold/20 animate-bounce-slow">
+                <i data-lucide="sparkles" class="w-10 h-10"></i>
+            </div>
+            <h3 class="text-3xl font-serif font-bold text-fantasy-brown mb-3">Welcome Back!</h3>
+            <p class="text-gray-600 font-sans leading-relaxed text-lg">We're preparing your artisanal experience...</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+
+            // Check for Django Success Messages
+            {% if messages %}
+            {% for message in messages %}
+            {% if 'success' in message.tags %}
+            const modal = document.getElementById('welcomeModal');
+            const card = document.getElementById('welcomeCard');
+
+            // Show Modal
+            if (modal && card) {
+                modal.classList.remove('hidden');
+                // Small delay to trigger transitions
+                setTimeout(() => {
+                    modal.classList.remove('opacity-0');
+                    card.classList.remove('scale-90');
+                    card.classList.add('scale-100');
+                }, 50);
+
+                // Auto-close after 3 seconds
+                setTimeout(() => {
+                    modal.classList.add('opacity-0');
+                    card.classList.remove('scale-100');
+                    card.classList.add('scale-90');
+                    setTimeout(() => {
+                        modal.classList.add('hidden');
+                    }, 500);
+                }, 3000);
+            }
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+        });
+    </script>
 </body>
 
 </html>

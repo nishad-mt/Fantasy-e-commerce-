@@ -235,10 +235,9 @@
 
       {% if messages %}
       {% for message in messages %}
-      {% if 'success' in message.tags %}
-      showModal("Welcome back, {{ user.first_name|default:user.username }}!", "Logging you in...");
-      {% else %}
-      showModal("Notification", "{{ message }}");
+      {% if 'error' in message.tags %}
+      // Optional: You can uncomment this if you want global error modals
+      // showModal("Error", "{{ message }}");
       {% endif %}
       {% endfor %}
       {% endif %}
