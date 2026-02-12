@@ -36,7 +36,7 @@
                     },
                     keyframes: {
                         fadeInUp: {
-                            '0%': { opacity: '0', transform: 'translateY(40px)' },
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
                             '100%': { opacity: '1', transform: 'translateY(0)' },
                         },
                         zoomOut: {
@@ -314,7 +314,7 @@
 
                         <!-- Floating Highlight Card (The 'Feature List') -->
                         <div
-                            class="relative md:absolute mt-8 md:mt-0 md:-bottom-10 md:-left-6 bg-[#F5E6D3] border border-fantasy-brown p-6 rounded-2xl shadow-dual md:animate-float z-20 max-w-xs w-full mx-auto text-center md:text-left">
+                            class="relative md:absolute mt-6 md:mt-0 md:-bottom-10 md:-left-6 bg-[#F5E6D3] border border-fantasy-brown p-6 rounded-2xl shadow-dual md:animate-float z-20 max-w-xs w-full mx-auto text-center md:text-left">
                             <h3
                                 class="font-serif font-bold text-fantasy-brown text-lg mb-4 flex items-center justify-center md:justify-start gap-2">
                                 <i class="fa-solid fa-star text-fantasy-gold"></i> Premium Quality
@@ -599,6 +599,11 @@
             let isMenuOpen = false;
 
             if (menuBtn && mobileMenu) {
+                // Ensure initial icon state is correct
+                if (window.lucide) {
+                    lucide.createIcons();
+                }
+
                 function toggleMenu() {
                     isMenuOpen = !isMenuOpen;
                     if (isMenuOpen) {
@@ -619,7 +624,9 @@
                         menuBtn.classList.remove('z-[110]', 'relative');
                     }
                     // Re-initialize icons for the new content
-                    lucide.createIcons();
+                    if (window.lucide) {
+                        lucide.createIcons();
+                    }
                 }
 
                 menuBtn.addEventListener('click', (e) => {
