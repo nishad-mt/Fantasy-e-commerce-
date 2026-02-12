@@ -590,6 +590,7 @@
                 if (text) text.style.transform = 'translate(0, 0)';
             });
         }
+    document.addEventListener("DOMContentLoaded", function () {
 
         // Mobile Menu Logic
         const menuBtn = document.getElementById('mobile-menu-btn');
@@ -621,7 +622,8 @@
                 if (isMenuOpen) toggleMenu();
             });
         });
-
+    
+    });
         // Scroll Reveal Logic (IntersectionObserver)
         document.addEventListener('DOMContentLoaded', () => {
             const observerOptions = {
