@@ -225,12 +225,12 @@
 
             <!-- Mobile Menu (Hidden) -->
             <div id="mobile-menu"
-                class="fixed inset-0 bg-fantasy-cream z-40 transform translate-x-full transition-transform duration-500 flex items-center justify-center">
+                class="fixed inset-0 bg-fantasy-cream/95 backdrop-blur-lg z-40 opacity-0 pointer-events-none -translate-y-10 transition-all duration-500 flex items-center justify-center">
                 <div class="flex flex-col space-y-8 text-center font-serif text-2xl text-fantasy-brown">
-                    <a href="{% url 'home' %}" class="hover:text-fantasy-gold">Home</a>
-                    <a href="{% url 'products' %}" class="hover:text-fantasy-gold">Shop</a>
-                    <a href="{% url 'aboutus' %}" class="hover:text-fantasy-gold">Our Story</a>
-                    <a href="{% url 'contact' %}" class="hover:text-fantasy-gold">Contact</a>
+                    <a href="{% url 'home' %}" class="hover:text-fantasy-gold transition-colors">Home</a>
+                    <a href="{% url 'products' %}" class="hover:text-fantasy-gold transition-colors">Shop</a>
+                    <a href="{% url 'aboutus' %}" class="hover:text-fantasy-gold transition-colors">Our Story</a>
+                    <a href="{% url 'contact' %}" class="hover:text-fantasy-gold transition-colors">Contact</a>
                 </div>
             </div>
         </nav>
@@ -238,7 +238,8 @@
         {% block content %}
 
         <!-- Cinematic Hero Section with Parallax -->
-        <header class="relative min-h-screen flex items-center justify-center pt-24 pb-32 bg-fantasy-cream perspective-1000">
+        <header
+            class="relative min-h-screen flex items-center justify-center pt-24 pb-32 bg-fantasy-cream perspective-1000">
             <!-- Background Texture -->
             <div class="absolute inset-0 z-0 opacity-[0.03]"
                 style="background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');"></div>
@@ -248,7 +249,7 @@
                 <div class="text-center lg:text-left order-2 lg:order-1">
                     <div class="inline-block mb-4 px-4 py-1 border border-fantasy-brown/20 rounded-full bg-white/50 backdrop-blur-sm opacity-0 animate-fade-in-up will-change-transform"
                         style="animation-delay: 0.1s;">
-                        <span class="text-xs font-bold tracking-[0.2em] text-fantasy-brown uppercase">EST. 2025 •
+                        <span class="text-xs font-bold tracking-[0.2em] text-fantasy-brown uppercase">EST. 2022 •
                             Kerala</span>
                     </div>
 
@@ -288,14 +289,15 @@
                 <div class="relative order-1 lg:order-2 animate-zoom-out parallax-layer flex justify-center items-center min-h-[300px] "
                     style="animation-delay: 0.3s; transform-style: preserve-3d;">
                     <!-- Decorative SVG Warning/Fallback Background -->
-                    <div class="absolute inset-0 bg-fantasy-gold/5 rounded-[3rem] transform rotate-3 scale-105 -z-10">
+                    <div
+                        class="absolute inset-0 bg-fantasy-gold/5 rounded-2xl md:rounded-[3rem] transform rotate-3 scale-105 -z-10">
                     </div>
 
                     <!-- Main Visual Container -->
                     <div class="relative w-full max-w-md mx-auto">
                         <!-- Image Container with Fallback Pattern -->
                         <div
-                            class="relative rounded-[3rem] overflow-hidden shadow-dual border-8 border-white backdrop-blur-sm bg-[#F5E6D3] aspect-[4/5]">
+                            class="relative rounded-2xl md:rounded-[3rem] overflow-hidden shadow-dual border-4 md:border-8 border-white backdrop-blur-sm bg-[#F5E6D3] aspect-square md:aspect-[4/5]">
                             <!-- SVG Pattern for 'No Image' State -->
                             <div class="absolute inset-0 opacity-20"
                                 style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23D4AF37\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');">
@@ -309,26 +311,27 @@
 
                         <!-- Floating Highlight Card (The 'Feature List') -->
                         <div
-                            class="absolute -bottom-10 -left-6 md:-left-12 bg-[#F5E6D3] border border-fantasy-brown p-6 rounded-2xl shadow-dual animate-float z-20 max-w-xs w-[95%] mx-auto">
-                            <h3 class="font-serif font-bold text-fantasy-brown text-lg mb-3 flex items-center gap-2">
+                            class="relative md:absolute mt-8 md:mt-0 md:-bottom-10 md:-left-12 bg-[#F5E6D3] border border-fantasy-brown p-6 rounded-2xl shadow-dual md:animate-float z-20 max-w-xs w-full mx-auto text-center md:text-left">
+                            <h3
+                                class="font-serif font-bold text-fantasy-brown text-lg mb-4 flex items-center justify-center md:justify-start gap-2">
                                 <i class="fa-solid fa-star text-fantasy-gold"></i> Premium Quality
                             </h3>
-                            <ul class="space-y-3">
-                                <li class="flex items-center gap-3">
+                            <ul class="space-y-4">
+                                <li class="flex flex-col md:flex-row items-center gap-3">
                                     <span
                                         class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-fantasy-gold shadow-sm shrink-0"><i
                                             class="fa-solid fa-leaf text-xs"></i></span>
                                     <span class="font-sans font-medium text-fantasy-brown text-sm">100% Natural
                                         Ingredients</span>
                                 </li>
-                                <li class="flex items-center gap-3">
+                                <li class="flex flex-col md:flex-row items-center gap-3">
                                     <span
                                         class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-fantasy-gold shadow-sm shrink-0"><i
                                             class="fa-solid fa-utensils text-xs"></i></span>
                                     <span class="font-sans font-medium text-fantasy-brown text-sm">Traditional Kerala
                                         Recipes</span>
                                 </li>
-                                <li class="flex items-center gap-3">
+                                <li class="flex flex-col md:flex-row items-center gap-3">
                                     <span
                                         class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-fantasy-gold shadow-sm shrink-0"><i
                                             class="fa-solid fa-truck-fast text-xs"></i></span>
@@ -593,10 +596,12 @@
         menuBtn.addEventListener('click', () => {
             isMenuOpen = !isMenuOpen;
             if (isMenuOpen) {
-                mobileMenu.classList.remove('translate-x-full');
+                mobileMenu.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-10');
+                mobileMenu.classList.add('opacity-100', 'pointer-events-auto', 'translate-y-0');
                 menuBtn.innerHTML = '<i data-lucide="x" class="w-6 h-6"></i>';
             } else {
-                mobileMenu.classList.add('translate-x-full');
+                mobileMenu.classList.add('opacity-0', 'pointer-events-none', '-translate-y-10');
+                mobileMenu.classList.remove('opacity-100', 'pointer-events-auto', 'translate-y-0');
                 menuBtn.innerHTML = '<i data-lucide="menu" class="w-6 h-6"></i>';
             }
             lucide.createIcons();
