@@ -27,8 +27,11 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = False
 
 ALLOWED_HOSTS = [
+    "fantasyfoods.online",
+    "www.fantasyfoods.online",
     "43.205.138.187",
 ]
+
 
 CSRF_TRUSTED_ORIGINS = [
     "http://43.205.138.187",
