@@ -153,7 +153,7 @@
     <!-- Grain Texture -->
     <div class="grain-overlay"></div>
 
-    <div id="homepage-content">
+    <div id="homepage-content" class="overflow-x-hidden">
         <!-- Navigation -->
         <nav id="navbar" class="fixed w-full z-50 transition-all duration-300 glass-nav py-4">
             <div class="container mx-auto px-6 flex justify-between items-center">
@@ -224,8 +224,8 @@
             </div>
 
             <!-- Mobile Menu (Hidden) -->
-            <div id="mobile-menu"
-                class="fixed inset-0 bg-fantasy-cream/90 backdrop-blur-md z-[100] opacity-0 pointer-events-none -translate-y-10 transition-all duration-300 flex items-center justify-center">
+            <div id="mobile-nav-container"
+                class="hidden fixed inset-0 z-[100] bg-white/90 backdrop-blur-xl items-center justify-center">
                 <div class="flex flex-col space-y-8 text-center font-serif text-2xl text-fantasy-brown">
                     <a href="{% url 'home' %}" class="mobile-link hover:text-fantasy-gold transition-colors">Home</a>
                     <a href="{% url 'products' %}"
@@ -592,60 +592,53 @@
         }
 
         // Mobile Menu Logic
-        document.addEventListener("DOMContentLoaded", function () {
-            const menuBtn = document.getElementById('mobile-menu-btn');
-            const mobileMenu = document.getElementById('mobile-menu');
-            const mobileLinks = document.querySelectorAll('.mobile-link');
-            let isMenuOpen = false;
+        document.addEventListener('DOMContentLoaded', () => {
+            const btn = document.getElementById('mobile-menu-btn');
+            const menu = document.getElementById('mobile-nav-container');
 
-            if (menuBtn && mobileMenu) {
-                // Ensure initial icon state is correct
-                if (window.lucide) {
-                    lucide.createIcons();
-                }
+            if (btn && menu) {
+                btn.addEventListener('click', () => {
+                    menu.classList.toggle('hidden');
+                    menu.classList.toggle('flex');
+                    // Logic to swap Lucide icons if applicable
+                    const icon = btn.querySelector('i');
+                    if (icon && window.lucide) {
+                        // Check if menu is expanded (not hidden)
+                        const isExpanded = !menu.classList.contains('hidden');
+                        // If expanded, show 'x', else show 'menu'
+                        // Note: The previous logic relied on creating icons, so we need to set the attribute and re-run createIcons
+                        // But wait, the previous logic replaced innerHTML. If we use data-lucide attribute update, we rely on lucide to re-render.
+                        // Lucide re-renders based on data-lucide attributes.
+                        // However, simply changing the attribute might not trigger re-render if we don't call createIcons again on that element or globally.
+                        // The user's code says:
+                        // icon.setAttribute('data-lucide', isExpanded ? 'x' : 'menu');
+                        // lucide.createIcons();
+                        // This implies the icon element itself is the <i> tag.
+                        // Let's stick to the user's provided code EXACTLY as requested, but I'll add a small check to ensure it works.
+                        // The user provided:
+                        // icon.setAttribute('data-lucide', isExpanded ? 'x' : 'menu');
+                        // lucide.createIcons();
 
-                function toggleMenu() {
-                    isMenuOpen = !isMenuOpen;
-                    if (isMenuOpen) {
-                        // Open Menu
-                        mobileMenu.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-10');
-                        mobileMenu.classList.add('opacity-100', 'pointer-events-auto', 'translate-y-0');
+                        // Wait, the button innerHTML currently is <i data-lucide="menu" ...></i>.
+                        // If I change the attribute and call createIcons, it should work.
 
-                        // Change to X icon
-                        menuBtn.innerHTML = '<i data-lucide="x" class="w-6 h-6"></i>';
-                        menuBtn.classList.add('z-[110]', 'relative'); // Ensure button stays above menu
-                    } else {
-                        // Close Menu
-                        mobileMenu.classList.add('opacity-0', 'pointer-events-none', '-translate-y-10');
-                        mobileMenu.classList.remove('opacity-100', 'pointer-events-auto', 'translate-y-0');
-
-                        // Change to Menu icon
-                        menuBtn.innerHTML = '<i data-lucide="menu" class="w-6 h-6"></i>';
-                        menuBtn.classList.remove('z-[110]', 'relative');
-                    }
-                    // Re-initialize icons for the new content
-                    if (window.lucide) {
+                        icon.setAttribute('data-lucide', isExpanded ? 'x' : 'menu');
                         lucide.createIcons();
                     }
-                }
-
-                menuBtn.addEventListener('click', (e) => {
-                    e.stopPropagation(); // Prevent bubbling
-                    toggleMenu();
                 });
 
                 // Close menu when clicking a link
+                const mobileLinks = document.querySelectorAll('.mobile-link');
                 mobileLinks.forEach(link => {
                     link.addEventListener('click', () => {
-                        if (isMenuOpen) toggleMenu();
+                        menu.classList.add('hidden');
+                        menu.classList.remove('flex');
+                        const icon = btn.querySelector('i');
+                        if (icon && window.lucide) {
+                            icon.setAttribute('data-lucide', 'menu');
+                            lucide.createIcons();
+                        }
                     });
-                });
-
-                // Close menu when clicking outside
-                document.addEventListener('click', (e) => {
-                    if (isMenuOpen && !mobileMenu.contains(e.target) && !menuBtn.contains(e.target)) {
-                        toggleMenu();
-                    }
                 });
             }
         });
