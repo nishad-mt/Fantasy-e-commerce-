@@ -279,7 +279,44 @@
                             </tr>
                         </thead>
                         <tbody id="txnTableBody" class="divide-y divide-stone-100 text-sm">
-                            <!-- Populated by JS -->
+                            {% for order in page_obj %}
+                            <tr class="hover:bg-stone-50 transition-colors border-b border-stone-50 last:border-0">
+                                <td class="p-4 font-mono text-xs text-stone-600">{{ order.order_id }}</td>
+                                <td class="p-4 font-mono text-xs text-stone-500">{{ order.order_id }}</td>
+                                <td class="p-4 text-stone-800 font-medium">{{
+                                    order.user.username|default:order.user.email }}</td>
+                                <td class="p-4 text-stone-600">
+                                    <i class="fa-solid 
+                                        {% if order.payment_method == 'ONLINE' %}fa-globe
+                                        {% elif order.payment_method == 'COD' %}fa-money-bill-wave
+                                        {% else %}fa-wallet{% endif %} 
+                                    mr-2 text-stone-400"></i>{{ order.payment_method }}
+                                </td>
+                                <td class="p-4 font-bold text-stone-800">₹{{ order.total_amount|floatformat:2 }}</td>
+                                <td class="p-4">
+                                    <span class="inline-flex px-2 py-0.5 rounded text-xs font-medium border 
+                                        {% if order.status == 'SUCCESS' or order.status == 'DELIVERED' %}bg-emerald-50 text-emerald-700 border-emerald-100
+                                        {% elif order.status == 'PENDING' %}bg-amber-50 text-amber-700 border-amber-100
+                                        {% elif order.status == 'FAILED' %}bg-red-50 text-red-700 border-red-100
+                                        {% else %}bg-stone-100 text-stone-600 border-stone-200{% endif %}">
+                                        {{ order.status }}
+                                    </span>
+                                </td>
+                                <td class="p-4 text-xs text-stone-500">{{ order.delivered_at|date:"Y-m-d h:i A" }}</td>
+                                <td class="p-4 text-right">
+                                    <button onclick="viewTxn('{{ order.order_id }}')"
+                                        class="text-stone-400 hover:text-amber-600">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="8" class="p-8 text-center text-stone-500">
+                                    No transactions found
+                                </td>
+                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
