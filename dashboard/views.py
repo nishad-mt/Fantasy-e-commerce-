@@ -553,6 +553,10 @@ def admin_payments_dashboard(request):
         .order_by("-delivered_at")
     )
 
+    paginator = Paginator(transactions_qs, 10)  
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
     txn_list = []
     for order in transactions_qs:
         user = order.user
@@ -607,6 +611,8 @@ def admin_payments_dashboard(request):
         "revenue_labels": json.dumps(revenue_labels),
         "revenue_data": json.dumps(revenue_data),
         "method_chart": json.dumps(method_chart),
+
+        "page_obj": page_obj, 
     }
 
     return render(request, "payments.html", context)

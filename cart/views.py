@@ -50,7 +50,7 @@ def toggle_cart(request, variant_id):
 def cart(request):
     cart, _ = Cart.objects.get_or_create(user=request.user)  
     items = (CartItem.objects.filter(cart__user=request.user).select_related('variant', 'variant__product')).order_by('-added_at')
-    latest_products = Product.objects.filter(is_active=True).annotate(starting_price=Min('variants__price')).order_by('-created_at')[:10]
+    latest_products = Product.objects.filter(is_active=True).annotate(starting_price=Min('variants__price')).order_by('?')[:10]
 
     
     subtotal = 0
