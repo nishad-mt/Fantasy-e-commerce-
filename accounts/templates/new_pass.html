@@ -1,129 +1,198 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <title>Create New Password</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+  <title>Reset Password | Artisanal Collection</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'fantasy-cream': '#FFF9F0',
+            'fantasy-walnut': '#5a3e2b',
+            'fantasy-gold': '#D4AF37',
+          },
+          fontFamily: {
+            serif: ['"Playfair Display"', 'serif'],
+            sans: ['"Inter"', 'sans-serif'],
+          },
+          animation: {
+            'fade-in': 'fadeIn 1s ease-out forwards',
+            'slide-up': 'slideUp 0.8s ease-out forwards',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            },
+            slideUp: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            }
+          }
+        }
+      }
     }
-
-    .password-card {
-      background: #ffffff;
-      width: 100%;
-      max-width: 400px;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-    }
-
-    .password-card h2 {
-      text-align: center;
-      margin-bottom: 10px;
-      color: #333;
-    }
-
-    .password-card p {
-      text-align: center;
-      font-size: 14px;
-      color: #666;
-      margin-bottom: 25px;
-    }
-
-    .form-group {
-      margin-bottom: 18px;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 14px;
-      margin-bottom: 6px;
-      color: #333;
-    }
-
-    .form-group input {
-      width: 100%;
-      padding: 10px;
-      font-size: 14px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      outline: none;
-    }
-
-    .form-group input:focus {
-      border-color: #985712;
-    }
-
-    .submit-btn {
-      width: 100%;
-      padding: 12px;
-      background: #a25809;
-      border: none;
-      color: #fff;
-      font-size: 15px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .submit-btn:hover {
-      background: #000000;
-    }
-
-    .back-link {
-      margin-top: 15px;
-      text-align: center;
-    }
-
-    .back-link a {
-      font-size: 13px;
-      color: #895714;
-      text-decoration: none;
-    }
-
-    .back-link a:hover {
-      text-decoration: underline;
-    }
-  </style>
+  </script>
 </head>
 
-<body>
+<body
+  class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-fantasy-cream via-[#f8f1e6] to-[#e8dcc5] relative overflow-hidden font-sans">
 
-  <div class="password-card">
-    <h2>Create New Password</h2>
-    <p>Please enter and confirm your new password</p>
+  <!-- Background Texture -->
+  <div class="absolute inset-0 z-0 opacity-30"
+    style="background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');"></div>
 
-    <form method="POST">
+  <!-- Glassmorphism Card -->
+  <div
+    class="w-full max-w-lg bg-white/80 backdrop-blur-lg border border-white/20 rounded-[2rem] shadow-2xl p-8 md:p-12 relative z-10 animate-fade-in text-center">
+
+    <div class="mb-8">
+      <div
+        class="w-20 h-20 bg-fantasy-walnut/5 rounded-full flex items-center justify-center mx-auto mb-6 text-fantasy-walnut shadow-inner">
+        <i data-lucide="key-round" class="w-10 h-10"></i>
+      </div>
+      <h2 class="text-3xl font-serif font-bold text-fantasy-walnut mb-3">Create New Password</h2>
+      <p class="text-gray-500 font-sans leading-relaxed">Secure your account with a strong new password.</p>
+    </div>
+
+    <!-- Form -->
+    <form method="POST" class="space-y-6">
       {% csrf_token %}
-      <!-- CSRF token here if using Django -->
 
-      <div class="form-group">
-        <label for="new_password">New Password</label>
-        <input type="password" id="new_password" name="new_password" required>
+      <!-- New Password Input -->
+      <div class="relative group text-left">
+        <input type="password" name="new_password" id="new_password" placeholder=" " class="peer w-full pl-4 pr-10 pt-6 pb-2 rounded-xl border border-gray-300 bg-white/60 text-fantasy-walnut font-medium
+                        focus:outline-none focus:ring-2 focus:ring-fantasy-gold/50 focus:border-fantasy-gold 
+                        focus:bg-white transition-all duration-300 placeholder-transparent shadow-sm" required>
+        <label for="new_password" class="absolute left-4 top-2 text-xs font-bold text-gray-400 transition-all 
+                        peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 
+                        peer-focus:top-2 peer-focus:text-xs peer-focus:text-fantasy-gold pointer-events-none">New
+          Password</label>
+        <button type="button" onclick="togglePassword('new_password', this)"
+          class="absolute right-3 top-4 text-gray-400 hover:text-fantasy-walnut transition-colors">
+          <i data-lucide="eye-off" class="w-5 h-5"></i>
+        </button>
       </div>
 
-      <div class="form-group">
-        <label for="confirm_password">Confirm Password</label>
-        <input type="password" id="confirm_password" name="confirm_password" required>
+      <!-- Confirm Password Input -->
+      <div class="relative group text-left">
+        <input type="password" name="confirm_password" id="confirm_password" placeholder=" " class="peer w-full pl-4 pr-10 pt-6 pb-2 rounded-xl border border-gray-300 bg-white/60 text-fantasy-walnut font-medium
+                      focus:outline-none focus:ring-2 focus:ring-fantasy-gold/50 focus:border-fantasy-gold 
+                      focus:bg-white transition-all duration-300 placeholder-transparent shadow-sm" required>
+        <label for="confirm_password" class="absolute left-4 top-2 text-xs font-bold text-gray-400 transition-all 
+                      peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 
+                      peer-focus:top-2 peer-focus:text-xs peer-focus:text-fantasy-gold pointer-events-none">Confirm
+          Password</label>
+        <button type="button" onclick="togglePassword('confirm_password', this)"
+          class="absolute right-3 top-4 text-gray-400 hover:text-fantasy-walnut transition-colors">
+          <i data-lucide="eye-off" class="w-5 h-5"></i>
+        </button>
       </div>
 
-      <button type="submit" class="submit-btn">
-        Update Password
-      </button>
+      <div class="pt-4">
+        <button type="submit"
+          class="w-full bg-fantasy-walnut text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-fantasy-walnut/20 
+                      hover:bg-fantasy-gold hover:text-fantasy-walnut hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2 animate-slide-up">
+          Update Password <i data-lucide="shield-check" class="w-5 h-5"></i>
+        </button>
+      </div>
     </form>
 
-    <div class="back-link">
-      <a href="#">Back to Login</a>
+    <div class="mt-8 animate-slide-up" style="animation-delay: 0.1s;">
+      <a href="{% url 'login' %}"
+        class="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-fantasy-walnut transition-colors">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Login
+      </a>
+    </div>
+
+  </div>
+
+  <!-- Status Modal -->
+  <div id="statusModal"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+    <div
+      class="bg-white rounded-[2rem] shadow-2xl p-8 max-w-sm w-full text-center transform scale-95 transition-transform duration-300 border border-white/20">
+      <div
+        class="w-16 h-16 bg-fantasy-cream rounded-full flex items-center justify-center mx-auto mb-4 text-fantasy-gold shadow-sm">
+        <i data-lucide="check-circle-2" class="w-8 h-8"></i>
+      </div>
+      <h3 class="text-2xl font-serif font-bold text-fantasy-walnut mb-2" id="modalTitle">Security Updated</h3>
+      <p class="text-gray-600 mb-8 font-sans leading-relaxed" id="modalMessage">Your new password is ready.</p>
+      <button onclick="closeModal()"
+        class="w-full bg-fantasy-walnut text-white py-3.5 rounded-xl font-bold hover:bg-fantasy-gold hover:text-fantasy-walnut transition-all duration-300 shadow-lg shadow-fantasy-walnut/20">Login
+        Now</button>
     </div>
   </div>
 
+  <script>
+    // Password Toggle
+    function togglePassword(inputId, btn) {
+      const input = document.getElementById(inputId);
+      const icon = btn.querySelector("i");
+      if (input.type === "password") {
+        input.type = "text";
+        icon.setAttribute("data-lucide", "eye");
+      } else {
+        input.type = "password";
+        icon.setAttribute("data-lucide", "eye-off");
+      }
+      lucide.createIcons();
+    }
+
+    // Modal Logic
+    const modal = document.getElementById('statusModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalMessage = document.getElementById('modalMessage');
+
+    function showModal(title, message) {
+      modalTitle.textContent = title;
+      modalMessage.textContent = message;
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        modal.querySelector('div').classList.remove('scale-95');
+        modal.querySelector('div').classList.add('scale-100');
+      }, 10);
+    }
+
+    function closeModal() {
+      // If closing success modal, redirect to login
+      if (modalTitle.textContent === "Security Updated") {
+        window.location.href = "{% url 'login' %}";
+        return;
+      }
+
+      modal.classList.add('opacity-0');
+      modal.querySelector('div').classList.remove('scale-100');
+      modal.querySelector('div').classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 300);
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      lucide.createIcons();
+
+      {% if messages %}
+      {% for message in messages %}
+      {% if 'success' in message.tags %}
+      showModal("Security Updated", "Your new password is ready.");
+      {% else %}
+      showModal("Notification", "{{ message }}");
+      {% endif %}
+      {% endfor %}
+      {% endif %}
+    });
+  </script>
 </body>
+
 </html>

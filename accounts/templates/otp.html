@@ -1,150 +1,135 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OTP Verification | Enchanted Bakery</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
-  <style>
-    body {
-      background: #f9f5f0;
-      font-family: "Poppins", sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+  <title>OTP Verification | Artisanal Collection</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'fantasy-cream': '#FFF9F0',
+            'fantasy-walnut': '#5a3e2b',
+            'fantasy-gold': '#D4AF37',
+          },
+          fontFamily: {
+            serif: ['"Playfair Display"', 'serif'],
+            sans: ['"Inter"', 'sans-serif'],
+          },
+          animation: {
+            'fade-in': 'fadeIn 1s ease-out forwards',
+            'slide-up': 'slideUp 0.8s ease-out forwards',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            },
+            slideUp: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            }
+          }
+        }
+      }
     }
-
-    .otp-container {
-      background: #fff;
-      padding: 40px;
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-      max-width: 400px;
-      width: 100%;
-      text-align: center;
-    }
-
-    .otp-container h2 {
-      color: #5a3e2b;
-      margin-bottom: 20px;
-    }
-
-    .otp-input {
-      width: 50px;
-      height: 50px;
-      font-size: 24px;
-      text-align: center;
-      border: 1px solid #d1b89c;
-      border-radius: 8px;
-      margin: 0 5px;
-    }
-
-    .otp-button {
-      background: #c58950;
-      color: #fff;
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 10px;
-      font-weight: 600;
-      margin-top: 20px;
-      transition: 0.3s;
-    }
-
-    .otp-button:hover {
-      background: #a06c3b;
-      cursor: pointer;
-      transform: scale(1.05);
-    }
-
-    .resend-link {
-      margin-top: 15px;
-      font-size: 14px;
-      display: block;
-      color: #c58950;
-      text-decoration: none;
-    }
-
-    .resend-link:hover {
-      text-decoration: underline;
-    }
-    .resend-btn {
-  background: #fffdf8;
-  border: 1px solid #d1b89c;
-  color: #c58950;
-  font-weight: 600;
-  padding: 10px 18px;
-  border-radius: 10px;
-  width: 100%;
-  transition: 0.3s;
-}
-
-.resend-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.resend-btn:not(:disabled):hover {
-  background: #c58950;
-  color: white;
-  transform: scale(1.03);
-  cursor: pointer;
-}
-
-  </style>
+  </script>
 </head>
-<body>
 
-  <div class="otp-container">
+<body
+  class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-fantasy-cream via-[#f8f1e6] to-[#e8dcc5] relative overflow-hidden font-sans">
 
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert alert-success p-2 mb-3">{{ message }}</div>
-      {% endfor %}
-    {% endif %}
+  <!-- Background Texture -->
+  <div class="absolute inset-0 z-0 opacity-30"
+    style="background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');"></div>
 
-    <h2>OTP Verification</h2>
-    <p>Enter the 4-digit code sent to your email</p>
+  <!-- Glassmorphism Card -->
+  <div
+    class="w-full max-w-lg bg-white/80 backdrop-blur-lg border border-white/20 rounded-[2rem] shadow-2xl p-8 md:p-12 relative z-10 animate-fade-in text-center">
 
-    <form method="POST" action="{% url 'verify_otp' %}" id="otpForm">
+    <div class="mb-8">
+      <div
+        class="w-16 h-16 bg-fantasy-walnut/5 rounded-full flex items-center justify-center mx-auto mb-4 text-fantasy-walnut">
+        <i data-lucide="shield-check" class="w-8 h-8"></i>
+      </div>
+      <h2 class="text-3xl font-serif font-bold text-fantasy-walnut mb-2">OTP Verification</h2>
+      <p class="text-gray-500 font-sans">Enter the 4-digit code sent to your email.</p>
+    </div>
+
+    <!-- OTP Form -->
+    <form method="POST" action="{% url 'verify_otp' %}" id="otpForm" class="space-y-8">
       {% csrf_token %}
 
-      <div class="d-flex justify-content-center mb-3">
-        <input type="text" maxlength="1" class="otp-input" required>
-        <input type="text" maxlength="1" class="otp-input" required>
-        <input type="text" maxlength="1" class="otp-input" required>
-        <input type="text" maxlength="1" class="otp-input" required>
+      <div class="flex justify-center gap-4">
+        <input type="text" maxlength="1"
+          class="otp-input w-16 h-16 text-center text-2xl font-bold rounded-xl border border-gray-300 bg-white/60 text-fantasy-walnut focus:outline-none focus:ring-2 focus:ring-fantasy-gold/50 focus:border-fantasy-gold transition-all duration-300 shadow-sm"
+          required>
+        <input type="text" maxlength="1"
+          class="otp-input w-16 h-16 text-center text-2xl font-bold rounded-xl border border-gray-300 bg-white/60 text-fantasy-walnut focus:outline-none focus:ring-2 focus:ring-fantasy-gold/50 focus:border-fantasy-gold transition-all duration-300 shadow-sm"
+          required>
+        <input type="text" maxlength="1"
+          class="otp-input w-16 h-16 text-center text-2xl font-bold rounded-xl border border-gray-300 bg-white/60 text-fantasy-walnut focus:outline-none focus:ring-2 focus:ring-fantasy-gold/50 focus:border-fantasy-gold transition-all duration-300 shadow-sm"
+          required>
+        <input type="text" maxlength="1"
+          class="otp-input w-16 h-16 text-center text-2xl font-bold rounded-xl border border-gray-300 bg-white/60 text-fantasy-walnut focus:outline-none focus:ring-2 focus:ring-fantasy-gold/50 focus:border-fantasy-gold transition-all duration-300 shadow-sm"
+          required>
       </div>
 
-      <!-- Hidden input where the full OTP will go -->
+      <!-- Hidden input for full OTP -->
       <input type="hidden" name="otp" id="otpValue">
 
-      <button type="submit" class="otp-button">Verify OTP</button>
+      <button type="submit"
+        class="w-full bg-fantasy-walnut text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-fantasy-walnut/20 
+                     hover:bg-fantasy-gold hover:text-fantasy-walnut hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2 animate-slide-up">
+        Verify Identity <i data-lucide="arrow-right" class="w-5 h-5"></i>
+      </button>
     </form>
 
-    <form method="POST" action="{% url 'resend_otp' %}">
-  {% csrf_token %}
-  <button id="resendBtn" class="resend-btn mt-3" disabled>
-      Resend OTP in <span id="timer">60</span>s
-  </button>
-</form>
+    <!-- Resend Timer -->
+    <form method="POST" action="{% url 'resend_otp' %}" class="mt-6 animate-slide-up" style="animation-delay: 0.1s;">
+      {% csrf_token %}
+      <button id="resendBtn"
+        class="text-sm font-bold text-gray-500 hover:text-fantasy-walnut transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled>
+        Resend code in <span id="timer" class="text-fantasy-gold">60</span>s
+      </button>
+    </form>
 
   </div>
 
-  <script>
-    // Auto focus next box
-    const inputs = document.querySelectorAll('.otp-input');
+  <!-- Status Modal -->
+  <div id="statusModal"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+    <div
+      class="bg-white rounded-[2rem] shadow-2xl p-8 max-w-sm w-full text-center transform scale-95 transition-transform duration-300 border border-white/20">
+      <div
+        class="w-16 h-16 bg-fantasy-cream rounded-full flex items-center justify-center mx-auto mb-4 text-fantasy-gold shadow-sm">
+        <i data-lucide="sparkles" class="w-8 h-8"></i>
+      </div>
+      <h3 class="text-2xl font-serif font-bold text-fantasy-walnut mb-2" id="modalTitle">Identity Verified</h3>
+      <p class="text-gray-600 mb-8 font-sans leading-relaxed" id="modalMessage">Welcome to Fantasy Food Products.</p>
+      <button onclick="closeModal()"
+        class="w-full bg-fantasy-walnut text-white py-3.5 rounded-xl font-bold hover:bg-fantasy-gold hover:text-fantasy-walnut transition-all duration-300 shadow-lg shadow-fantasy-walnut/20">Proceed</button>
+    </div>
+  </div>
 
+  <script>
+    // OTP Logic
+    const inputs = document.querySelectorAll('.otp-input');
     inputs.forEach((input, index) => {
       input.addEventListener('input', () => {
         if (input.value.length === 1 && index < inputs.length - 1) {
           inputs[index + 1].focus();
         }
       });
-
-      // Move to previous on backspace
       input.addEventListener('keydown', (e) => {
         if (e.key === "Backspace" && index > 0 && input.value === "") {
           inputs[index - 1].focus();
@@ -152,28 +137,66 @@
       });
     });
 
-    // Combine OTP before submit
-    document.getElementById("otpForm").addEventListener("submit", function(e) {
+    document.getElementById("otpForm").addEventListener("submit", function (e) {
       let otp = "";
       inputs.forEach(input => otp += input.value);
       document.getElementById("otpValue").value = otp;
     });
+
+    // Timer Logic
     let timeLeft = 60;
-const timerDisplay = document.getElementById("timer");
-const resendBtn = document.getElementById("resendBtn");
+    const timerDisplay = document.getElementById("timer");
+    const resendBtn = document.getElementById("resendBtn");
 
-const countdown = setInterval(() => {
-    timeLeft--;
-    timerDisplay.textContent = timeLeft;
-
-    if (timeLeft <= 0) {
+    const countdown = setInterval(() => {
+      timeLeft--;
+      timerDisplay.textContent = timeLeft;
+      if (timeLeft <= 0) {
         clearInterval(countdown);
         resendBtn.disabled = false;
-        resendBtn.textContent = "Resend OTP";
+        resendBtn.innerHTML = "Resend Code";
+      }
+    }, 1000);
+
+    // Modal Logic
+    const modal = document.getElementById('statusModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalMessage = document.getElementById('modalMessage');
+
+    function showModal(title, message) {
+      modalTitle.textContent = title;
+      modalMessage.textContent = message;
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        modal.querySelector('div').classList.remove('scale-95');
+        modal.querySelector('div').classList.add('scale-100');
+      }, 10);
     }
-}, 1000);
 
+    function closeModal() {
+      modal.classList.add('opacity-0');
+      modal.querySelector('div').classList.remove('scale-100');
+      modal.querySelector('div').classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 300);
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      lucide.createIcons();
+
+      {% if messages %}
+      {% for message in messages %}
+      {% if 'success' in message.tags %}
+      showModal("Identity Verified", "Welcome to Fantasy Food Products");
+      {% else %}
+      showModal("Verification Failed", "{{ message }}");
+      {% endif %}
+      {% endfor %}
+      {% endif %}
+    });
   </script>
-
 </body>
+
 </html>
