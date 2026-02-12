@@ -202,6 +202,15 @@
                                                 <i class="fa-solid fa-wallet"></i>
                                             </div>
                                         </div>
+                                        <div class="text-xs text-gray-500 mt-1">
+                                            Balance: ₹{{ user.wallet.balance|default:"0.00" }}
+                                            {% if user.wallet.balance < preview_total %} <span
+                                                class="text-red-500 font-bold ml-1 block mt-1">
+                                                <i class="fa-solid fa-circle-exclamation mr-1"></i>
+                                                Insufficient balance
+                                                </span>
+                                                {% endif %}
+                                        </div>
                                     </div>
                                 </label>
                             </div>
@@ -346,10 +355,8 @@
                     <label
                         class="flex items-start gap-3 p-4 border rounded-lg cursor-pointer hover:border-fantasy-brown">
 
-                        <input type="radio"
-       name="address_id"
-       value="{{ addr.id }}"
-       {% if order.address and order.address.id == addr.id %}checked{% endif %}>
+                        <input type="radio" name="address_id" value="{{ addr.id }}" {% if order.address and
+                            order.address.id==addr.id %}checked{% endif %}>
 
 
                         <div>
@@ -490,35 +497,35 @@
                                 order_id: data.order_id
                             })
                         })
-                        .then(res => {
-                            if (!res.ok) {
-                                throw new Error("Failed to create Razorpay order");
-                            }
-                            return res.json();
-                        })
-                        .then(rzp => {
-                            const options = {
-                                key: rzp.key,
-                                amount: rzp.amount, 
-                                currency: "INR",
-                                name: "Fantasy Bakery",
-                                order_id: rzp.razorpay_order_id,
-                                handler: function () {
-                                    // Payment completed on Razorpay side
-                                    // Webhook will confirm it in backend
-                                    window.location.href = "/order/success/{{ order.order_id }}/";
-                                },
-                                theme: {
-                                    color: "#5a3e2b"
+                            .then(res => {
+                                if (!res.ok) {
+                                    throw new Error("Failed to create Razorpay order");
                                 }
-                            };
+                                return res.json();
+                            })
+                            .then(rzp => {
+                                const options = {
+                                    key: rzp.key,
+                                    amount: rzp.amount,
+                                    currency: "INR",
+                                    name: "Fantasy Bakery",
+                                    order_id: rzp.razorpay_order_id,
+                                    handler: function () {
+                                        // Payment completed on Razorpay side
+                                        // Webhook will confirm it in backend
+                                        window.location.href = "/order/success/{{ order.order_id }}/";
+                                    },
+                                    theme: {
+                                        color: "#5a3e2b"
+                                    }
+                                };
 
-                            new Razorpay(options).open();
-                        })
-                        .catch(err => {
-                            console.error(err);
-                            alert("Unable to start payment. Please try again.");
-                        });
+                                new Razorpay(options).open();
+                            })
+                            .catch(err => {
+                                console.error(err);
+                                alert("Unable to start payment. Please try again.");
+                            });
                     }
 
                     else if (data.message) {
