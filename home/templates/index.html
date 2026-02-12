@@ -31,6 +31,7 @@
                     animation: {
                         'fade-in-up': 'fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards',
                         'fade-in': 'fadeIn 0.3s ease-in-out forwards',
+                        'slide-in-left': 'slideInLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
                         'zoom-out': 'zoomOut 1.5s ease-out forwards',
                         'gentle-fade': 'gentleFadeIn 1s ease-out forwards',
                         'float': 'float 6s ease-in-out infinite',
@@ -43,6 +44,10 @@
                         fadeIn: {
                             '0%': { opacity: '0' },
                             '100%': { opacity: '1' },
+                        },
+                        slideInLeft: {
+                            '0%': { transform: 'translateX(-100%)' },
+                            '100%': { transform: 'translateX(0)' },
                         },
                         zoomOut: {
                             '0%': { transform: 'scale(1.1)' },
@@ -230,17 +235,17 @@
 
             <!-- Mobile Menu (Hidden) -->
             <div id="mobile-nav-container"
-                class="hidden fixed inset-0 z-[100] bg-white/95 backdrop-blur-xl items-center justify-center animate-fade-in">
-                <div class="flex flex-col space-y-0 gap-8 text-center">
+                class="hidden fixed inset-0 z-[100] bg-white/95 backdrop-blur-xl flex-col justify-center items-start pl-12 animate-slide-in-left">
+                <div class="flex flex-col space-y-8 w-full items-start text-left">
                     <a href="{% url 'home' %}"
-                        class="text-2xl font-serif font-bold text-fantasy-brown hover:text-fantasy-gold transition-colors">Home</a>
+                        class="text-3xl font-serif font-bold text-fantasy-brown hover:text-fantasy-gold transition-all duration-300 border-l-0 border-fantasy-gold hover:border-l-4 hover:pl-4">Home</a>
                     <a href="{% url 'products' %}"
-                        class="text-2xl font-serif font-bold text-fantasy-brown hover:text-fantasy-gold transition-colors">Shop</a>
+                        class="text-3xl font-serif font-bold text-fantasy-brown hover:text-fantasy-gold transition-all duration-300 border-l-0 border-fantasy-gold hover:border-l-4 hover:pl-4">Shop</a>
                     <a href="{% url 'aboutus' %}"
-                        class="text-2xl font-serif font-bold text-fantasy-brown hover:text-fantasy-gold transition-colors">Our
+                        class="text-3xl font-serif font-bold text-fantasy-brown hover:text-fantasy-gold transition-all duration-300 border-l-0 border-fantasy-gold hover:border-l-4 hover:pl-4">Our
                         Story</a>
                     <a href="{% url 'contact' %}"
-                        class="text-2xl font-serif font-bold text-fantasy-brown hover:text-fantasy-gold transition-colors">Contact</a>
+                        class="text-3xl font-serif font-bold text-fantasy-brown hover:text-fantasy-gold transition-all duration-300 border-l-0 border-fantasy-gold hover:border-l-4 hover:pl-4">Contact</a>
                 </div>
             </div>
         </nav>
