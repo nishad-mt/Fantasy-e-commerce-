@@ -668,6 +668,20 @@
         </div>
     </div>
 
+    <!-- Toast Notification -->
+    <div id="toastNotification"
+        class="fixed bottom-5 right-5 z-[200] bg-white border-l-4 border-fantasy-walnut shadow-xl rounded-lg p-4 max-w-sm transform translate-y-20 opacity-0 transition-all duration-300 hidden">
+        <div class="flex items-center gap-3">
+            <div class="text-fantasy-walnut">
+                <i data-lucide="info" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h4 class="font-bold text-gray-800 text-sm" id="toastTitle">Notification</h4>
+                <p class="text-gray-600 text-sm" id="toastMessage">Message content</p>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
@@ -676,28 +690,57 @@
             {% if messages %}
             {% for message in messages %}
             {% if 'success' in message.tags %}
-            const modal = document.getElementById('welcomeModal');
-            const card = document.getElementById('welcomeCard');
+            const messageText = "{{ message|escapejs }}";
+            const lowerMsg = messageText.toLowerCase();
+            // Heuristic: If it contains 'welcome' or 'back' it's likely the login message.
+            // If it contains 'out' (as in 'signed out', 'logged out'), it's a toast.
+            const isLoginMessage = (lowerMsg.includes('welcome') || lowerMsg.includes('back')) && !lowerMsg.includes('out');
 
-            // Show Modal
-            if (modal && card) {
-                modal.classList.remove('hidden');
-                // Small delay to trigger transitions
-                setTimeout(() => {
-                    modal.classList.remove('opacity-0');
-                    card.classList.remove('scale-90');
-                    card.classList.add('scale-100');
-                }, 50);
+            if (isLoginMessage) {
+                const modal = document.getElementById('welcomeModal');
+                const card = document.getElementById('welcomeCard');
 
-                // Auto-close after 3 seconds
-                setTimeout(() => {
-                    modal.classList.add('opacity-0');
-                    card.classList.remove('scale-100');
-                    card.classList.add('scale-90');
+                if (modal && card) {
+                    modal.classList.remove('hidden');
                     setTimeout(() => {
-                        modal.classList.add('hidden');
-                    }, 500);
-                }, 3000);
+                        modal.classList.remove('opacity-0');
+                        card.classList.remove('scale-90');
+                        card.classList.add('scale-100');
+                    }, 50);
+
+                    setTimeout(() => {
+                        modal.classList.add('opacity-0');
+                        card.classList.remove('scale-100');
+                        card.classList.add('scale-90');
+                        setTimeout(() => {
+                            modal.classList.add('hidden');
+                        }, 500);
+                    }, 3000);
+                }
+            } else {
+                // Show Toast
+                const toast = document.getElementById('toastNotification');
+                const toastTitle = document.getElementById('toastTitle');
+                const toastMessage = document.getElementById('toastMessage');
+
+                if (toast) {
+                    toastTitle.textContent = lowerMsg.includes('out') ? 'Signed Out' : 'Success';
+                    toastMessage.textContent = messageText;
+
+                    toast.classList.remove('hidden');
+                    setTimeout(() => {
+                        toast.classList.remove('translate-y-20');
+                        toast.classList.remove('opacity-0');
+                    }, 50);
+
+                    setTimeout(() => {
+                        toast.classList.add('translate-y-20');
+                        toast.classList.add('opacity-0');
+                        setTimeout(() => {
+                            toast.classList.add('hidden');
+                        }, 300);
+                    }, 4000);
+                }
             }
             {% endif %}
             {% endfor %}
