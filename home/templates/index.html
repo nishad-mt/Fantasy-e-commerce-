@@ -225,12 +225,15 @@
 
             <!-- Mobile Menu (Hidden) -->
             <div id="mobile-menu"
-                class="fixed inset-0 bg-fantasy-cream/95 backdrop-blur-lg z-40 opacity-0 pointer-events-none -translate-y-10 transition-all duration-500 flex items-center justify-center">
+                class="fixed inset-0 bg-fantasy-cream/90 backdrop-blur-md z-[100] opacity-0 pointer-events-none -translate-y-10 transition-all duration-300 flex items-center justify-center">
                 <div class="flex flex-col space-y-8 text-center font-serif text-2xl text-fantasy-brown">
-                    <a href="{% url 'home' %}" class="hover:text-fantasy-gold transition-colors">Home</a>
-                    <a href="{% url 'products' %}" class="hover:text-fantasy-gold transition-colors">Shop</a>
-                    <a href="{% url 'aboutus' %}" class="hover:text-fantasy-gold transition-colors">Our Story</a>
-                    <a href="{% url 'contact' %}" class="hover:text-fantasy-gold transition-colors">Contact</a>
+                    <a href="{% url 'home' %}" class="mobile-link hover:text-fantasy-gold transition-colors">Home</a>
+                    <a href="{% url 'products' %}"
+                        class="mobile-link hover:text-fantasy-gold transition-colors">Shop</a>
+                    <a href="{% url 'aboutus' %}" class="mobile-link hover:text-fantasy-gold transition-colors">Our
+                        Story</a>
+                    <a href="{% url 'contact' %}"
+                        class="mobile-link hover:text-fantasy-gold transition-colors">Contact</a>
                 </div>
             </div>
         </nav>
@@ -591,20 +594,32 @@
         // Mobile Menu Logic
         const menuBtn = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
         let isMenuOpen = false;
 
-        menuBtn.addEventListener('click', () => {
+        function toggleMenu() {
             isMenuOpen = !isMenuOpen;
             if (isMenuOpen) {
                 mobileMenu.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-10');
                 mobileMenu.classList.add('opacity-100', 'pointer-events-auto', 'translate-y-0');
                 menuBtn.innerHTML = '<i data-lucide="x" class="w-6 h-6"></i>';
+                menuBtn.classList.add('z-[110]', 'relative'); // Ensure button stays above menu
             } else {
                 mobileMenu.classList.add('opacity-0', 'pointer-events-none', '-translate-y-10');
                 mobileMenu.classList.remove('opacity-100', 'pointer-events-auto', 'translate-y-0');
                 menuBtn.innerHTML = '<i data-lucide="menu" class="w-6 h-6"></i>';
+                menuBtn.classList.remove('z-[110]', 'relative');
             }
             lucide.createIcons();
+        }
+
+        menuBtn.addEventListener('click', toggleMenu);
+
+        // Close menu when clicking a link
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (isMenuOpen) toggleMenu();
+            });
         });
 
         // Scroll Reveal Logic (IntersectionObserver)
