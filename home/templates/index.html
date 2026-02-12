@@ -30,6 +30,7 @@
                     },
                     animation: {
                         'fade-in-up': 'fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'fade-in': 'fadeIn 0.3s ease-in-out forwards',
                         'zoom-out': 'zoomOut 1.5s ease-out forwards',
                         'gentle-fade': 'gentleFadeIn 1s ease-out forwards',
                         'float': 'float 6s ease-in-out infinite',
@@ -38,6 +39,10 @@
                         fadeInUp: {
                             '0%': { opacity: '0', transform: 'translateY(20px)' },
                             '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
                         },
                         zoomOut: {
                             '0%': { transform: 'scale(1.1)' },
@@ -225,15 +230,17 @@
 
             <!-- Mobile Menu (Hidden) -->
             <div id="mobile-nav-container"
-                class="hidden fixed inset-0 z-[100] bg-white/90 backdrop-blur-xl items-center justify-center">
-                <div class="flex flex-col space-y-8 text-center font-serif text-2xl text-fantasy-brown">
-                    <a href="{% url 'home' %}" class="mobile-link hover:text-fantasy-gold transition-colors">Home</a>
+                class="hidden fixed inset-0 z-[100] bg-white/95 backdrop-blur-xl items-center justify-center animate-fade-in">
+                <div class="flex flex-col space-y-0 gap-8 text-center">
+                    <a href="{% url 'home' %}"
+                        class="text-2xl font-serif font-bold text-fantasy-brown hover:text-fantasy-gold transition-colors">Home</a>
                     <a href="{% url 'products' %}"
-                        class="mobile-link hover:text-fantasy-gold transition-colors">Shop</a>
-                    <a href="{% url 'aboutus' %}" class="mobile-link hover:text-fantasy-gold transition-colors">Our
+                        class="text-2xl font-serif font-bold text-fantasy-brown hover:text-fantasy-gold transition-colors">Shop</a>
+                    <a href="{% url 'aboutus' %}"
+                        class="text-2xl font-serif font-bold text-fantasy-brown hover:text-fantasy-gold transition-colors">Our
                         Story</a>
                     <a href="{% url 'contact' %}"
-                        class="mobile-link hover:text-fantasy-gold transition-colors">Contact</a>
+                        class="text-2xl font-serif font-bold text-fantasy-brown hover:text-fantasy-gold transition-colors">Contact</a>
                 </div>
             </div>
         </nav>
@@ -628,7 +635,7 @@
                 });
 
                 // Close menu when clicking a link
-                const mobileLinks = document.querySelectorAll('.mobile-link');
+                const mobileLinks = menu.querySelectorAll('a');
                 mobileLinks.forEach(link => {
                     link.addEventListener('click', () => {
                         menu.classList.add('hidden');
