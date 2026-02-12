@@ -300,7 +300,7 @@
                     <div class="relative w-full max-w-md mx-auto">
                         <!-- Image Container with Fallback Pattern -->
                         <div
-                            class="relative rounded-2xl md:rounded-[3rem] overflow-hidden shadow-dual border-4 md:border-8 border-white backdrop-blur-sm bg-[#F5E6D3] aspect-square md:aspect-[4/5]">
+                            class="relative rounded-2xl md:rounded-[3rem] overflow-hidden shadow-dual border-4 md:border-8 border-white backdrop-blur-sm bg-[#F5E6D3] aspect-video md:aspect-[4/5]">
                             <!-- SVG Pattern for 'No Image' State -->
                             <div class="absolute inset-0 opacity-20"
                                 style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23D4AF37\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');">
@@ -314,7 +314,7 @@
 
                         <!-- Floating Highlight Card (The 'Feature List') -->
                         <div
-                            class="relative md:absolute mt-8 md:mt-0 md:-bottom-10 md:-left-12 bg-[#F5E6D3] border border-fantasy-brown p-6 rounded-2xl shadow-dual md:animate-float z-20 max-w-xs w-full mx-auto text-center md:text-left">
+                            class="relative md:absolute mt-8 md:mt-0 md:-bottom-10 md:-left-6 bg-[#F5E6D3] border border-fantasy-brown p-6 rounded-2xl shadow-dual md:animate-float z-20 max-w-xs w-full mx-auto text-center md:text-left">
                             <h3
                                 class="font-serif font-bold text-fantasy-brown text-lg mb-4 flex items-center justify-center md:justify-start gap-2">
                                 <i class="fa-solid fa-star text-fantasy-gold"></i> Premium Quality
@@ -590,40 +590,59 @@
                 if (text) text.style.transform = 'translate(0, 0)';
             });
         }
-    document.addEventListener("DOMContentLoaded", function () {
 
         // Mobile Menu Logic
-        const menuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        const mobileLinks = document.querySelectorAll('.mobile-link');
-        let isMenuOpen = false;
+        document.addEventListener("DOMContentLoaded", function () {
+            const menuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileLinks = document.querySelectorAll('.mobile-link');
+            let isMenuOpen = false;
 
-        function toggleMenu() {
-            isMenuOpen = !isMenuOpen;
-            if (isMenuOpen) {
-                mobileMenu.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-10');
-                mobileMenu.classList.add('opacity-100', 'pointer-events-auto', 'translate-y-0');
-                menuBtn.innerHTML = '<i data-lucide="x" class="w-6 h-6"></i>';
-                menuBtn.classList.add('z-[110]', 'relative'); // Ensure button stays above menu
-            } else {
-                mobileMenu.classList.add('opacity-0', 'pointer-events-none', '-translate-y-10');
-                mobileMenu.classList.remove('opacity-100', 'pointer-events-auto', 'translate-y-0');
-                menuBtn.innerHTML = '<i data-lucide="menu" class="w-6 h-6"></i>';
-                menuBtn.classList.remove('z-[110]', 'relative');
+            if (menuBtn && mobileMenu) {
+                function toggleMenu() {
+                    isMenuOpen = !isMenuOpen;
+                    if (isMenuOpen) {
+                        // Open Menu
+                        mobileMenu.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-10');
+                        mobileMenu.classList.add('opacity-100', 'pointer-events-auto', 'translate-y-0');
+
+                        // Change to X icon
+                        menuBtn.innerHTML = '<i data-lucide="x" class="w-6 h-6"></i>';
+                        menuBtn.classList.add('z-[110]', 'relative'); // Ensure button stays above menu
+                    } else {
+                        // Close Menu
+                        mobileMenu.classList.add('opacity-0', 'pointer-events-none', '-translate-y-10');
+                        mobileMenu.classList.remove('opacity-100', 'pointer-events-auto', 'translate-y-0');
+
+                        // Change to Menu icon
+                        menuBtn.innerHTML = '<i data-lucide="menu" class="w-6 h-6"></i>';
+                        menuBtn.classList.remove('z-[110]', 'relative');
+                    }
+                    // Re-initialize icons for the new content
+                    lucide.createIcons();
+                }
+
+                menuBtn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent bubbling
+                    toggleMenu();
+                });
+
+                // Close menu when clicking a link
+                mobileLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        if (isMenuOpen) toggleMenu();
+                    });
+                });
+
+                // Close menu when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (isMenuOpen && !mobileMenu.contains(e.target) && !menuBtn.contains(e.target)) {
+                        toggleMenu();
+                    }
+                });
             }
-            lucide.createIcons();
-        }
-
-        menuBtn.addEventListener('click', toggleMenu);
-
-        // Close menu when clicking a link
-        mobileLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                if (isMenuOpen) toggleMenu();
-            });
         });
-    
-    });
+
         // Scroll Reveal Logic (IntersectionObserver)
         document.addEventListener('DOMContentLoaded', () => {
             const observerOptions = {
