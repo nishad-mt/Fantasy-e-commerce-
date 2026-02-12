@@ -525,94 +525,87 @@
             document.getElementById('tableSearch')?.addEventListener('input', applyFilters);
             document.getElementById('statusFilter')?.addEventListener('change', applyFilters);
 
-            /* Table */
-            const currentPage = {{ page_obj.number|default: 1
-        }};
-        const itemsPerPage = {{ page_obj.paginator.per_page|default: 10 }};
-        const start = (currentPage - 1) * itemsPerPage;
-        const end = start + itemsPerPage;
-        const paginatedTransactions = transactions.slice(start, end);
+            /* Table - Server Side Rendered */
+            // JavaScript pagination logic removed in favor of Django server-side pagination
 
-        renderTable(paginatedTransactions);
-
-        /* ======================
-           REVENUE LINE CHART
-        ====================== */
-        const revCanvas = document.getElementById('revenueChart');
-        if (revCanvas && typeof Chart !== 'undefined') {
-            new Chart(revCanvas, {
-                type: 'line',
-                data: {
-                    labels: revenueLabels,
-                    datasets: [{
-                        data: revenueData,
-                        borderColor: '#d97706',
-                        borderWidth: 2,
-                        tension: 0.4,
-                        fill: true,
-                        backgroundColor: ctx => {
-                            const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 300);
-                            g.addColorStop(0, 'rgba(217,119,6,0.25)');
-                            g.addColorStop(1, 'rgba(217,119,6,0)');
-                            return g;
+            /* ======================
+               REVENUE LINE CHART
+            ====================== */
+            const revCanvas = document.getElementById('revenueChart');
+            if (revCanvas && typeof Chart !== 'undefined') {
+                new Chart(revCanvas, {
+                    type: 'line',
+                    data: {
+                        labels: revenueLabels,
+                        datasets: [{
+                            data: revenueData,
+                            borderColor: '#d97706',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true,
+                            backgroundColor: ctx => {
+                                const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 300);
+                                g.addColorStop(0, 'rgba(217,119,6,0.25)');
+                                g.addColorStop(1, 'rgba(217,119,6,0)');
+                                return g;
+                            }
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true },
+                            x: { grid: { display: false } }
                         }
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { beginAtZero: true },
-                        x: { grid: { display: false } }
                     }
-                }
-            });
-        }
+                });
+            }
 
-        /* ======================
-           PAYMENT METHOD DOUGHNUT
-        ====================== */
-        const methodCanvas = document.getElementById('methodsChart');
-        if (methodCanvas && typeof Chart !== 'undefined') {
-            new Chart(methodCanvas, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Online', 'Cash on Delivery', 'Wallet'],
-                    datasets: [{
-                        data: [
-                            methodChart.ONLINE || 0,
-                            methodChart.COD || 0,
-                            methodChart.WALLET || 0
-                        ],
-                        backgroundColor: ['#2563EB', '#DC2626', '#9333EA'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '75%',
-                    plugins: { legend: { display: false } }
-                }
-            });
-        }
+            /* ======================
+               PAYMENT METHOD DOUGHNUT
+            ====================== */
+            const methodCanvas = document.getElementById('methodsChart');
+            if (methodCanvas && typeof Chart !== 'undefined') {
+                new Chart(methodCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Online', 'Cash on Delivery', 'Wallet'],
+                        datasets: [{
+                            data: [
+                                methodChart.ONLINE || 0,
+                                methodChart.COD || 0,
+                                methodChart.WALLET || 0
+                            ],
+                            backgroundColor: ['#2563EB', '#DC2626', '#9333EA'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '75%',
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
 
-        /* ======================
-           PERCENTAGES
-        ====================== */
-        const online = methodChart.ONLINE || 0;
-        const cod = methodChart.COD || 0;
-        const wallet = methodChart.WALLET || 0;
+            /* ======================
+               PERCENTAGES
+            ====================== */
+            const online = methodChart.ONLINE || 0;
+            const cod = methodChart.COD || 0;
+            const wallet = methodChart.WALLET || 0;
 
-        const total = online + cod + wallet;
+            const total = online + cod + wallet;
 
-        const percent = v => total ? Math.round((v / total) * 100) + '%' : '0%';
+            const percent = v => total ? Math.round((v / total) * 100) + '%' : '0%';
 
-        setText('onlinePercent', percent(online));
-        setText('codPercent', percent(cod));
-        setText('walletPercent', percent(wallet));
-    });
+            setText('onlinePercent', percent(online));
+            setText('codPercent', percent(cod));
+            setText('walletPercent', percent(wallet));
+        });
     </script>
 
 
