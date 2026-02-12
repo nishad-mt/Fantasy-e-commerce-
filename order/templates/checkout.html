@@ -355,8 +355,10 @@
                     <label
                         class="flex items-start gap-3 p-4 border rounded-lg cursor-pointer hover:border-fantasy-brown">
 
-                        <input type="radio" name="address_id" value="{{ addr.id }}" {% if order.address and
-                            order.address.id==addr.id %}checked{% endif %}>
+                        <input type="radio" name="address_id" value="{{ addr.id }}" 
+                        {% if order.address and order.address.id == addr.id %}
+                        checked
+                        {% endif %}>
 
 
                         <div>
