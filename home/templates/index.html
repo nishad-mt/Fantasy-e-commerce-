@@ -239,9 +239,8 @@
             </div>
 
             <!-- Mobile Menu Sidebar (Hidden) -->
-            <!-- Mobile Menu Sidebar (Hidden) -->
             <div id="mobile-nav-container"
-                class="hidden fixed inset-y-0 right-0 w-[80%] max-w-[300px] z-[100] bg-white shadow-[-10px_0_30px_rgba(0,0,0,0.1)] flex flex-col animate-slide-in-right overflow-y-auto">
+                class="hidden fixed inset-y-0 right-0 w-[80%] max-w-[300px] z-[200] bg-white shadow-[-10px_0_30px_rgba(0,0,0,0.1)] flex flex-col animate-slide-in-right overflow-y-auto">
 
                 <!-- Close Button (Top Right) -->
                 <button id="sidebar-close-btn"
@@ -279,6 +278,8 @@
                     {% endif %}
                 </div>
             </div>
+        <div id="mobile-overlay"
+            class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50"></div>
         </nav>
 
         {% block content %}
@@ -639,64 +640,53 @@
             const btn = document.getElementById('mobile-menu-btn');
             const menu = document.getElementById('mobile-nav-container');
             const sidebarCloseBtn = document.getElementById('sidebar-close-btn');
+            const overlay = document.getElementById('mobile-overlay');
 
-            if (btn && menu) {
-                const toggleMenu = () => {
-                    menu.classList.toggle('hidden');
-                    // Check if menu is expanded (not hidden)
-                    const isExpanded = !menu.classList.contains('hidden');
+            if (!btn || !menu || !overlay) return;
 
-                    // Logic to swap Navbar Lucide icons
-                    const icon = btn.querySelector('i');
-                    if (icon && window.lucide) {
-                        icon.setAttribute('data-lucide', isExpanded ? 'x' : 'menu');
-                        lucide.createIcons();
-                    }
-                };
+            const openMenu = () => {
+                menu.classList.remove('hidden');
+                overlay.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
 
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    toggleMenu();
-                });
-
-                if (sidebarCloseBtn) {
-                    sidebarCloseBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        // Force close
-                        menu.classList.add('hidden');
-                        const icon = btn.querySelector('i');
-                        if (icon && window.lucide) {
-                            icon.setAttribute('data-lucide', 'menu');
-                            lucide.createIcons();
-                        }
-                    });
+                const icon = btn.querySelector('i');
+                if (icon && window.lucide) {
+                    icon.setAttribute('data-lucide', 'x');
+                    lucide.createIcons();
                 }
+            };
 
-                // Close menu when clicking a link
-                const mobileLinks = menu.querySelectorAll('a');
-                mobileLinks.forEach(link => {
-                    link.addEventListener('click', () => {
-                        menu.classList.add('hidden');
-                        const icon = btn.querySelector('i');
-                        if (icon && window.lucide) {
-                            icon.setAttribute('data-lucide', 'menu');
-                            lucide.createIcons();
-                        }
-                    });
-                });
+            const closeMenu = () => {
+                menu.classList.add('hidden');
+                overlay.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
 
-                // Close when clicking outside (on the main content)
-                document.addEventListener('click', (e) => {
-                    if (!menu.classList.contains('hidden') && !menu.contains(e.target) && !btn.contains(e.target)) {
-                        menu.classList.add('hidden');
-                        const icon = btn.querySelector('i');
-                        if (icon && window.lucide) {
-                            icon.setAttribute('data-lucide', 'menu');
-                            lucide.createIcons();
-                        }
-                    }
-                });
+                const icon = btn.querySelector('i');
+                if (icon && window.lucide) {
+                    icon.setAttribute('data-lucide', 'menu');
+                    lucide.createIcons();
+                }
+            };
+
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (menu.classList.contains('hidden')) {
+                    openMenu();
+                } else {
+                    closeMenu();
+                }
+            });
+
+            if (sidebarCloseBtn) {
+                sidebarCloseBtn.addEventListener('click', closeMenu);
             }
+
+            overlay.addEventListener('click', closeMenu);
+
+            const mobileLinks = menu.querySelectorAll('a');
+            mobileLinks.forEach(link => {
+                link.addEventListener('click', closeMenu);
+            });
         });
 
         // Scroll Reveal Logic (IntersectionObserver)
