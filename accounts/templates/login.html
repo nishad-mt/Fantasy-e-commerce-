@@ -132,6 +132,18 @@
               class="text-fantasy-gold font-bold hover:text-fantasy-walnut transition-colors">Forgot Password?</a>
           </div>
 
+          {% if messages %}
+          <div class="space-y-2 text-center animate-fade-in">
+            {% for message in messages %}
+            {% if 'error' in message.tags %}
+            <p class="text-red-500 text-sm font-bold bg-red-50 py-2 px-4 rounded-lg border border-red-100 shadow-sm">
+              <i data-lucide="alert-circle" class="inline w-4 h-4 mb-0.5 mr-1"></i> {{ message }}
+            </p>
+            {% endif %}
+            {% endfor %}
+          </div>
+          {% endif %}
+
           <div class="pt-2 animate-slide-up">
             <button type="submit"
               class="w-full bg-fantasy-walnut text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-fantasy-walnut/20 
