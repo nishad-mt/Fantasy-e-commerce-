@@ -83,7 +83,7 @@ def razorpay_webhook(request):
     if request.method != "POST":
         return HttpResponse(status=400)
 
-    payload = request.body 
+    payload = request.body
     signature = request.META.get("HTTP_X_RAZORPAY_SIGNATURE")
 
     if not signature:
@@ -103,45 +103,79 @@ def razorpay_webhook(request):
         return HttpResponse(status=400)
 
     data = json.loads(payload.decode())
+    event = data.get("event")
 
-    if data.get("event") != "payment.captured":
+    # Only process payment related events
+    if not event or not event.startswith("payment."):
         return HttpResponse(status=200)
 
     entity = data["payload"]["payment"]["entity"]
-    razorpay_order_id = entity["order_id"]
+    razorpay_order_id = entity.get("order_id")
 
     payment = Payment.objects.select_related("order").filter(
         razorpay_order_id=razorpay_order_id
     ).first()
 
-    if not payment or payment.status == "SUCCESS":
+    if not payment:
         return HttpResponse(status=200)
-
-    
-    if entity["amount"] != int(payment.amount * 100):
-        return HttpResponse(status=400)
 
     order = payment.order
 
-    payment.razorpay_payment_id = entity["id"]
-    payment.gateway_method = entity["method"]
-    payment.status = "SUCCESS"
-    payment.save()
+    # HANDLE PAYMENT FAILED
 
-    order.payment_status = "SUCCESS"
-    order.status = "CONFIRMED"
-    order.paid_at = timezone.now()
-    order.save()
+    if event == "payment.failed":
 
-    if order.discount_type == "COUPON" and order.coupon:
-        PromotionUsage.objects.get_or_create(
-            user=order.user,
-            promotion=order.coupon,
-            order=order
-        )
+        # Do not overwrite successful payments
+        if payment.status != "SUCCESS":
+            payment.razorpay_payment_id = entity.get("id")
+            payment.gateway_method = entity.get("method")
+            payment.status = "FAILED"
+            payment.save(update_fields=[
+                "razorpay_payment_id",
+                "gateway_method",
+                "status"
+            ])
 
-    CartItem.objects.filter(cart__user=order.user).delete()
+            order.payment_status = "FAILED"
+            order.save(update_fields=["payment_status"])
 
+        return HttpResponse(status=200)
+
+    # HANDLE PAYMENT SUCCESS
+
+    if event == "payment.captured":
+
+        # Idempotency protection
+        if payment.status == "SUCCESS":
+            return HttpResponse(status=200)
+
+        # Amount verification (security check)
+        if entity["amount"] != int(payment.amount * 100):
+            return HttpResponse(status=400)
+
+        payment.razorpay_payment_id = entity["id"]
+        payment.gateway_method = entity.get("method")
+        payment.status = "SUCCESS"
+        payment.save(update_fields=[
+            "razorpay_payment_id",
+            "gateway_method",
+            "status"
+        ])
+
+        order.payment_status = "SUCCESS"
+        order.status = "CONFIRMED"
+        order.paid_at = timezone.now()
+        order.save(update_fields=[
+            "payment_status",
+            "status",
+            "paid_at"
+        ])
+
+        CartItem.objects.filter(cart__user=order.user).delete()
+
+        return HttpResponse(status=200)
+
+    # Ignore other events safely
     return HttpResponse(status=200)
 
 @never_cache
