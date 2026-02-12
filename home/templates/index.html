@@ -239,35 +239,43 @@
             </div>
 
             <!-- Mobile Menu Sidebar (Hidden) -->
+            <!-- Mobile Menu Sidebar (Hidden) -->
             <div id="mobile-nav-container"
-                class="hidden fixed inset-y-0 right-0 w-[80%] max-w-[300px] z-[100] bg-white shadow-[-10px_0_30px_rgba(0,0,0,0.1)] flex flex-col pt-20 animate-slide-in-right overflow-y-auto">
+                class="hidden fixed inset-y-0 right-0 w-[80%] max-w-[300px] z-[100] bg-white shadow-[-10px_0_30px_rgba(0,0,0,0.1)] flex flex-col animate-slide-in-right overflow-y-auto">
 
-                <!-- Close Button (Inside Sidebar) -->
+                <!-- Close Button (Top Right) -->
                 <button id="sidebar-close-btn"
-                    class="absolute top-6 left-6 text-fantasy-brown hover:text-fantasy-gold transition-colors p-2">
-                    <i data-lucide="x" class="w-8 h-8"></i>
+                    class="absolute top-6 right-6 text-fantasy-brown hover:text-fantasy-gold transition-colors p-2 z-50">
+                    <i data-lucide="x" class="w-6 h-6"></i>
                 </button>
+
+                <!-- Header -->
+                <div class="px-8 pt-8 mb-4">
+                    <span class="tracking-widest uppercase text-xs text-gray-400">Menu</span>
+                </div>
 
                 <!-- Navigation Links (Rows) -->
                 <div class="flex flex-col w-full">
                     <a href="{% url 'home' %}"
-                        class="w-full block text-left px-8 py-5 border-b border-fantasy-brown/10 font-serif font-semibold text-fantasy-brown text-lg hover:bg-[#F5E6D3] hover:pl-12 transition-all duration-300">Home</a>
+                        class="w-full block text-left px-8 py-5 border-b border-gray-100 font-serif font-bold text-lg text-fantasy-brown hover:bg-fantasy-cream transition-all duration-300">Home</a>
                     <a href="{% url 'products' %}"
-                        class="w-full block text-left px-8 py-5 border-b border-fantasy-brown/10 font-serif font-semibold text-fantasy-brown text-lg hover:bg-[#F5E6D3] hover:pl-12 transition-all duration-300">Shop</a>
+                        class="w-full block text-left px-8 py-5 border-b border-gray-100 font-serif font-bold text-lg text-fantasy-brown hover:bg-fantasy-cream transition-all duration-300">Shop</a>
                     <a href="{% url 'aboutus' %}"
-                        class="w-full block text-left px-8 py-5 border-b border-fantasy-brown/10 font-serif font-semibold text-fantasy-brown text-lg hover:bg-[#F5E6D3] hover:pl-12 transition-all duration-300">Our
-                        Story</a>
+                        class="w-full block text-left px-8 py-5 border-b border-gray-100 font-serif font-bold text-lg text-fantasy-brown hover:bg-fantasy-cream transition-all duration-300">About
+                        Us</a>
+                    <a href="{% url 'products' %}"
+                        class="w-full block text-left px-8 py-5 border-b border-gray-100 font-serif font-bold text-lg text-fantasy-brown hover:bg-fantasy-cream transition-all duration-300">Categories</a>
                     <a href="{% url 'contact' %}"
-                        class="w-full block text-left px-8 py-5 border-b border-fantasy-brown/10 font-serif font-semibold text-fantasy-brown text-lg hover:bg-[#F5E6D3] hover:pl-12 transition-all duration-300">Contact</a>
+                        class="w-full block text-left px-8 py-5 border-b border-gray-100 font-serif font-bold text-lg text-fantasy-brown hover:bg-fantasy-cream transition-all duration-300">Contact</a>
 
-                    <!-- Account Links (Optional but good for sidebar) -->
+                    <!-- Account Links -->
                     {% if user.is_authenticated %}
                     <a href="{% url 'profile' %}"
-                        class="w-full block text-left px-8 py-5 border-b border-fantasy-brown/10 font-serif font-semibold text-fantasy-brown text-lg hover:bg-[#F5E6D3] hover:pl-12 transition-all duration-300">My
+                        class="w-full block text-left px-8 py-5 border-b border-gray-100 font-serif font-bold text-lg text-fantasy-brown hover:bg-fantasy-cream transition-all duration-300">My
                         Account</a>
                     {% else %}
                     <a href="{% url 'login' %}"
-                        class="w-full block text-left px-8 py-5 border-b border-fantasy-brown/10 font-serif font-semibold text-fantasy-brown text-lg hover:bg-[#F5E6D3] hover:pl-12 transition-all duration-300">Login</a>
+                        class="w-full block text-left px-8 py-5 border-b border-gray-100 font-serif font-bold text-lg text-fantasy-brown hover:bg-fantasy-cream transition-all duration-300">Login</a>
                     {% endif %}
                 </div>
             </div>
