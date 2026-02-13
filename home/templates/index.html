@@ -213,6 +213,7 @@
 
                 <!-- Icons -->
                 <div class="flex items-center space-x-6 text-fantasy-brown">
+                    {% if user.is_authenticated %}
                     <a href="{% url 'wishlist:wishlist' %}"
                         class="hover:text-fantasy-gold transition-transform hover:scale-110" aria-label="Wishlist">
                         <i data-lucide="heart" class="w-5 h-5"></i>
@@ -221,6 +222,18 @@
                         aria-label="Cart">
                         <i data-lucide="shopping-bag" class="w-5 h-5"></i>
                     </a>
+                    {% else %}
+                    <button
+                        onclick="showToast('Member Exclusive', 'Please <a href=\'{% url 'login' %}?next={{request.path}}\' class=\'underline font-bold text-fantasy-brown\'>login</a> to access your wishlist.', 'info')"
+                        class="hover:text-fantasy-gold transition-transform hover:scale-110" aria-label="Wishlist">
+                        <i data-lucide="heart" class="w-5 h-5"></i>
+                    </button>
+                    <button
+                        onclick="showToast('Member Exclusive', 'Please <a href=\'{% url 'login' %}?next={{request.path}}\' class=\'underline font-bold text-fantasy-brown\'>login</a> to view your cart.', 'info')"
+                        class="hover:text-fantasy-gold transition-transform hover:scale-110" aria-label="Cart">
+                        <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                    </button>
+                    {% endif %}
                     {% if user.is_authenticated %}
                     <a href="{% url 'profile' %}" class="hover:text-fantasy-gold transition-transform hover:scale-110"
                         aria-label="Profile">
@@ -683,6 +696,81 @@
     </div>
 
     <script>
+        // Global Toast Component
+        window.showToast = function (title, message, type = 'info') {
+            const toast = document.getElementById('toastNotification');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIconContainer = toast.querySelector('.text-fantasy-walnut') || toast.querySelector('div:first-child');
+
+            if (toast) {
+                // Reset classes
+                toast.className = "fixed bottom-5 right-5 z-[200] bg-white border-l-4 shadow-xl rounded-lg p-4 max-w-sm transform translate-y-20 opacity-0 transition-all duration-300 hidden";
+                // Reset icon container (remove previous color classes if any, keep base structure)
+                if (toastIconContainer) {
+                    toastIconContainer.className = "text-fantasy-walnut";
+                    toastIconContainer.innerHTML = '<i data-lucide="info" class="w-6 h-6"></i>';
+                }
+
+                // Customize based on Tag/Type
+                if (type.includes('error') || type.includes('danger')) {
+                    toast.classList.add('border-red-500');
+                    if (toastIconContainer) {
+                        toastIconContainer.classList.remove('text-fantasy-walnut');
+                        toastIconContainer.classList.add('text-red-500');
+                        toastIconContainer.innerHTML = '<i data-lucide="alert-circle" class="w-6 h-6"></i>';
+                    }
+                    toastTitle.textContent = title || 'Error';
+                } else if (type.includes('warning')) {
+                    toast.classList.add('border-yellow-500');
+                    if (toastIconContainer) {
+                        toastIconContainer.classList.remove('text-fantasy-walnut');
+                        toastIconContainer.classList.add('text-yellow-500');
+                        toastIconContainer.innerHTML = '<i data-lucide="alert-triangle" class="w-6 h-6"></i>';
+                    }
+                    toastTitle.textContent = title || 'Warning';
+                } else if (type.includes('success')) {
+                    toast.classList.add('border-fantasy-walnut');
+                    if (toastIconContainer) {
+                        toastIconContainer.classList.add('text-fantasy-walnut');
+                        toastIconContainer.innerHTML = '<i data-lucide="check-circle" class="w-6 h-6"></i>';
+                    }
+                    toastTitle.textContent = title || 'Success';
+                } else {
+                    // Info / Default
+                    toast.classList.add('border-blue-500');
+                    if (toastIconContainer) {
+                        toastIconContainer.classList.remove('text-fantasy-walnut');
+                        toastIconContainer.classList.add('text-blue-500');
+                    }
+                    toastTitle.textContent = title || 'Info';
+                }
+
+                // InnerHTML to support links
+                toastMessage.innerHTML = message;
+
+                toast.classList.remove('hidden');
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+
+                // Animation In
+                setTimeout(() => {
+                    toast.classList.remove('translate-y-20');
+                    toast.classList.remove('opacity-0');
+                }, 50);
+
+                // Animation Out
+                setTimeout(() => {
+                    toast.classList.add('translate-y-20');
+                    toast.classList.add('opacity-0');
+                    setTimeout(() => {
+                        toast.classList.add('hidden');
+                    }, 300);
+                }, 4000);
+            }
+        };
+
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
 
@@ -719,58 +807,9 @@
                     }, 3000);
                 }
             } else {
-                // Show Toast (For Success, Error, Info, Warning)
-                const toast = document.getElementById('toastNotification');
-                const toastTitle = document.getElementById('toastTitle');
-                const toastMessage = document.getElementById('toastMessage');
-                const toastIconContainer = toast.querySelector('.text-fantasy-walnut');
-
-                if (toast) {
-                    // Reset classes
-                    toast.className = "fixed bottom-5 right-5 z-[200] bg-white border-l-4 shadow-xl rounded-lg p-4 max-w-sm transform translate-y-20 opacity-0 transition-all duration-300 hidden";
-                    toastIconContainer.className = "text-fantasy-walnut";
-                    toastIconContainer.innerHTML = '<i data-lucide="info" class="w-6 h-6"></i>';
-
-                    // Customize based on Tag
-                    if (messageTag.includes('error') || messageTag.includes('danger')) {
-                        toast.classList.add('border-red-500');
-                        toastIconContainer.classList.add('text-red-500');
-                        toastIconContainer.innerHTML = '<i data-lucide="alert-circle" class="w-6 h-6"></i>';
-                        toastTitle.textContent = 'Error';
-                    } else if (messageTag.includes('warning')) {
-                        toast.classList.add('border-yellow-500');
-                        toastIconContainer.classList.add('text-yellow-500');
-                        toastIconContainer.innerHTML = '<i data-lucide="alert-triangle" class="w-6 h-6"></i>';
-                        toastTitle.textContent = 'Warning';
-                    } else if (messageTag.includes('success')) {
-                        toast.classList.add('border-fantasy-walnut'); // Brown default for success
-                        toastIconContainer.classList.add('text-fantasy-walnut');
-                        toastIconContainer.innerHTML = '<i data-lucide="check-circle" class="w-6 h-6"></i>';
-                        toastTitle.textContent = lowerMsg.includes('out') ? 'Signed Out' : 'Success';
-                    } else {
-                        toast.classList.add('border-blue-500');
-                        toastIconContainer.classList.add('text-blue-500');
-                        toastTitle.textContent = 'Info';
-                    }
-
-                    toastMessage.textContent = messageText;
-
-                    toast.classList.remove('hidden');
-                    lucide.createIcons(); // Re-render icons for dynamic content
-
-                    setTimeout(() => {
-                        toast.classList.remove('translate-y-20');
-                        toast.classList.remove('opacity-0');
-                    }, 50);
-
-                    setTimeout(() => {
-                        toast.classList.add('translate-y-20');
-                        toast.classList.add('opacity-0');
-                        setTimeout(() => {
-                            toast.classList.add('hidden');
-                        }, 300);
-                    }, 4000);
-                }
+                // Use the global toast function
+                const title = lowerMsg.includes('out') ? 'Signed Out' : (messageTag.charAt(0).toUpperCase() + messageTag.slice(1));
+                showToast(title, messageText, messageTag);
             }
             {% endfor %}
             {% endif %}
