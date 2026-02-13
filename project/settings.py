@@ -34,8 +34,11 @@ ALLOWED_HOSTS = [
 
 
 CSRF_TRUSTED_ORIGINS = [
+    "https://fantasyfood.online",
+    "https://www.fantasyfoods.online",
     "http://43.205.138.187",
 ]
+
 
 
 
