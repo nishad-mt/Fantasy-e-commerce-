@@ -698,7 +698,9 @@
     <script>
         // Global Toast Component
         // Global Toast Component
-        let toastTimeout; // Global variable to track timeout
+        // Global Toast Component
+        let toastTimeout; // Global variable to track the display duration timeout
+        let hideTimeout;  // Global variable to track the fade-out animation timeout
 
         window.showToast = function (title, message, type = 'info') {
             const toast = document.getElementById('toastNotification');
@@ -707,12 +709,23 @@
             const toastIconContainer = toast.querySelector('.text-fantasy-walnut') || toast.querySelector('div:first-child');
 
             if (toast) {
-                // Clear any existing timeout to prevent "stuck" state
-                if (toastTimeout) {
-                    clearTimeout(toastTimeout);
-                }
+                // 1. Clear ALL existing timeouts to prevent conflicts
+                if (toastTimeout) clearTimeout(toastTimeout);
+                if (hideTimeout) clearTimeout(hideTimeout);
 
-                // Reset classes (Top Position)
+                // 2. IMMEDIATE RESET: Put element in "hidden/ready" state
+                // We add 'hidden' and the transform classes immediately to reset.
+                // Removing transition temporarily prevents a "flying back" animation if it was halfway out.
+                toast.classList.add('hidden', '-translate-y-20', 'opacity-0', 'transition-none');
+
+                // Force Reflow: This flushes the CSS changes so the browser knows it's hidden/moved.
+                void toast.offsetWidth;
+
+                // 3. Setup Content & Classes
+                // Re-enable transitions
+                toast.classList.remove('transition-none');
+
+                // Base classes
                 toast.className = "fixed top-24 right-5 z-[200] bg-white border-l-4 shadow-xl rounded-lg p-4 max-w-sm transform -translate-y-20 opacity-0 transition-all duration-300 hidden";
 
                 // Reset icon container
@@ -757,25 +770,29 @@
                 // InnerHTML to support links
                 toastMessage.innerHTML = message;
 
-                // Show
+                // 4. SHOW: Remove hidden to display element in its "start" state (-translate-y-20, opacity-0)
                 toast.classList.remove('hidden');
+
                 if (typeof lucide !== 'undefined') {
                     lucide.createIcons();
                 }
 
-                // Animation In (Next Frame)
+                // 5. ANIMATE IN: Request frame to apply "end" state (translate-0, opacity-100)
                 requestAnimationFrame(() => {
                     toast.classList.remove('-translate-y-20');
                     toast.classList.remove('opacity-0');
                 });
 
-                // Auto Hide
+                // 6. SCHEDULE HIDE
                 toastTimeout = setTimeout(() => {
+                    // Start Animate Out
                     toast.classList.add('-translate-y-20');
                     toast.classList.add('opacity-0');
-                    setTimeout(() => {
+
+                    // Actually Hide after animation completes
+                    hideTimeout = setTimeout(() => {
                         toast.classList.add('hidden');
-                    }, 300);
+                    }, 300); // Match CSS duration
                 }, 4000);
             }
         };
