@@ -84,7 +84,8 @@
             <div class="lg:w-1/2 flex flex-col animate-fade-in-up delay-100">
                 <div class="mb-4">
                     <span
-                        class="text-fantasy-gold font-bold uppercase tracking-widest text-xs border border-fantasy-gold/30 px-3 py-1 rounded-full">{{ product.category}}</span>
+                        class="text-fantasy-gold font-bold uppercase tracking-widest text-xs border border-fantasy-gold/30 px-3 py-1 rounded-full">{{
+                        product.category}}</span>
                 </div>
 
                 <h1 class="text-4xl md:text-6xl font-serif font-bold text-fantasy-brown mb-6 leading-tight">
@@ -114,9 +115,11 @@
                 <div class="mb-8">
                     <p class="text-sm text-gray-500 mb-1">Total Price</p>
                     <div class="flex items-baseline gap-4">
-                        <span class="text-5xl font-serif font-bold text-fantasy-brown" id="product-price">₹{{ initial_variant.price }}</span>
+                        <span class="text-5xl font-serif font-bold text-fantasy-brown" id="product-price">₹{{
+                            initial_variant.price }}</span>
                         <span id="product-mrp"
-                            class="text-2xl text-gray-400 line-through decoration-fantasy-gold/50">₹{{ initial_variant.price|add:29 }}</span>
+                            class="text-2xl text-gray-400 line-through decoration-fantasy-gold/50">₹{{
+                            initial_variant.price|add:29 }}</span>
                     </div>
                 </div>
 
@@ -258,13 +261,22 @@
 
                         <div class="flex-1">
                             <div class="flex justify-between items-start mb-2">
-                                <h5 class="font-bold text-fantasy-brown text-lg">
-                                    {{ r.user.display_name }}
-                                </h5>
+                                <div>
+                                    <h5 class="font-bold text-fantasy-brown text-lg">
+                                        {{ r.user.display_name }}
+                                    </h5>
+                                    <div class="flex text-yellow-400 text-xs mt-1">
+                                        {% for i in "12345" %}
+                                        <i
+                                            class="fa-solid fa-star {% if forloop.counter > r.rating %}text-gray-200{% endif %}"></i>
+                                        {% endfor %}
+                                    </div>
+                                </div>
                                 <span class="text-xs text-gray-400">
                                     {{ r.created_at|timesince }} ago
                                 </span>
                             </div>
+                            <p class="text-gray-600 leading-relaxed mt-2">{{ r.review }}</p>
                         </div>
 
                     </div>
@@ -350,7 +362,8 @@
                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                         </div>
                         <div>
-                            <span class="text-[10px] font-bold text-fantasy-gold uppercase tracking-wider">{{ latest.category.name }}</span>
+                            <span class="text-[10px] font-bold text-fantasy-gold uppercase tracking-wider">{{
+                                latest.category.name }}</span>
                             <h4
                                 class="font-bold text-fantasy-brown text-lg leading-tight mb-1 group-hover:text-fantasy-gold transition-colors">
                                 {{ latest.name }}

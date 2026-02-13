@@ -39,8 +39,8 @@
                 <h3 class="text-xl font-bold text-fantasy-brown hover:text-fantasy-gold transition-colors">
                   <a href="{% url 'user_product' cart.variant.product.slug %}">{{ cart.variant.product.name }}</a>
                 </h3>
-                <p class="text-sm text-gray-400 mt-1">Size: <span class="font-bold text-gray-600">{{
-                    cart.variant.size_name }}</span></p>
+                <p class="text-sm text-gray-400 mt-1">Size: <span class="font-bold text-gray-600">
+                  {{ cart.variant.size_name }}</span></p>
               </div>
               <p class="text-xl font-bold text-fantasy-brown">₹{{ cart.total_price }}</p>
             </div>
