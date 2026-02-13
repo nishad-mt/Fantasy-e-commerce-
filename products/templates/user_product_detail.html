@@ -84,7 +84,8 @@
             <div class="lg:w-1/2 flex flex-col animate-fade-in-up delay-100">
                 <div class="mb-4">
                     <span
-                        class="text-fantasy-gold font-bold uppercase tracking-widest text-xs border border-fantasy-gold/30 px-3 py-1 rounded-full">{{ product.category}}</span>
+                        class="text-fantasy-gold font-bold uppercase tracking-widest text-xs border border-fantasy-gold/30 px-3 py-1 rounded-full">{{
+                        product.category}}</span>
                 </div>
 
                 <h1 class="text-4xl md:text-6xl font-serif font-bold text-fantasy-brown mb-6 leading-tight">
@@ -114,9 +115,11 @@
                 <div class="mb-8">
                     <p class="text-sm text-gray-500 mb-1">Total Price</p>
                     <div class="flex items-baseline gap-4">
-                        <span class="text-5xl font-serif font-bold text-fantasy-brown" id="product-price">₹{{ initial_variant.price }}</span>
+                        <span class="text-5xl font-serif font-bold text-fantasy-brown" id="product-price">₹{{
+                            initial_variant.price }}</span>
                         <span id="product-mrp"
-                            class="text-2xl text-gray-400 line-through decoration-fantasy-gold/50">₹{{ initial_variant.price|add:29 }}</span>
+                            class="text-2xl text-gray-400 line-through decoration-fantasy-gold/50">₹{{
+                            initial_variant.price|add:29 }}</span>
                     </div>
                 </div>
 
@@ -146,6 +149,7 @@
                 <!-- Action Bar -->
                 <div
                     class="mt-auto bg-white border-t border-gray-100 pt-8 lg:border-none lg:pt-0 sticky bottom-0 z-20 pb-6 lg:pb-0 lg:static">
+                    {% if user.is_authenticated %}
                     <div class="flex flex-col xl:flex-row gap-4">
                         <!-- Quantity -->
                         <div
@@ -189,6 +193,21 @@
                             </button>
                         </form>
                     </div>
+                    {% else %}
+                    <div
+                        class="w-full p-8 bg-fantasy-cream/30 rounded-2xl border border-fantasy-brown/10 text-center backdrop-blur-sm">
+                        <div class="mb-4">
+                            <i data-lucide="lock" class="w-8 h-8 text-fantasy-brown/40 mx-auto"></i>
+                        </div>
+                        <h3 class="text-fantasy-brown text-xl font-bold mb-2">Member Exclusive</h3>
+                        <p class="text-gray-500 mb-6">Please login to purchase this item and unlock special member
+                            pricing.</p>
+                        <a href="{% url 'login' %}?next={{ request.path }}"
+                            class="inline-flex items-center gap-2 px-8 py-3 bg-fantasy-brown text-white font-bold rounded-full hover:bg-fantasy-gold hover:shadow-lg hover:-translate-y-1 transition-all">
+                            Login to Continue <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                    {% endif %}
                 </div>
 
                 <!-- Guarantee Badges -->
@@ -234,26 +253,26 @@
                     {% if r.is_approved %}
                     <div class="review-item {% if forloop.counter > 2 %}hidden extra-review{% endif %}
                             bg-white p-8 rounded-3xl shadow-sm border border-gray-100 flex gap-6">
-                    <!-- Avatar -->
-                    <div
-                        class="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-fantasy-gold to-fantasy-brown flex items-center justify-center text-white font-bold text-lg shadow-md">
-                        {{ r.user.avatar_letter }}
-                    </div>
-
-                    <div class="flex-1">
-                        <div class="flex justify-between items-start mb-2">
-                            <h5 class="font-bold text-fantasy-brown text-lg">
-                                {{ r.user.display_name }}
-                            </h5>
-                            <span class="text-xs text-gray-400">
-                                {{ r.created_at|timesince }} ago
-                            </span>
+                        <!-- Avatar -->
+                        <div
+                            class="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-fantasy-gold to-fantasy-brown flex items-center justify-center text-white font-bold text-lg shadow-md">
+                            {{ r.user.avatar_letter }}
                         </div>
-                    </div>
+
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-2">
+                                <h5 class="font-bold text-fantasy-brown text-lg">
+                                    {{ r.user.display_name }}
+                                </h5>
+                                <span class="text-xs text-gray-400">
+                                    {{ r.created_at|timesince }} ago
+                                </span>
+                            </div>
+                        </div>
 
                     </div>
                     {% else %}
-                        <p class="text-gray-400 text-sm">No reviews yet.</p>
+                    <p class="text-gray-400 text-sm">No reviews yet.</p>
                     {% endif %}
                     {% endfor %}
                 </div>
@@ -291,8 +310,7 @@
                             <div class="mb-6">
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Rating</label>
 
-                                <div id="star-rating"
-                                    class="flex gap-2 text-3xl text-gray-300 cursor-pointer w-max">
+                                <div id="star-rating" class="flex gap-2 text-3xl text-gray-300 cursor-pointer w-max">
                                     <i class="fa-solid fa-star" data-value="1"></i>
                                     <i class="fa-solid fa-star" data-value="2"></i>
                                     <i class="fa-solid fa-star" data-value="3"></i>
@@ -335,7 +353,8 @@
                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                         </div>
                         <div>
-                            <span class="text-[10px] font-bold text-fantasy-gold uppercase tracking-wider">{{ latest.category.name }}</span>
+                            <span class="text-[10px] font-bold text-fantasy-gold uppercase tracking-wider">{{
+                                latest.category.name }}</span>
                             <h4
                                 class="font-bold text-fantasy-brown text-lg leading-tight mb-1 group-hover:text-fantasy-gold transition-colors">
                                 {{ latest.name }}
@@ -400,11 +419,15 @@
 
         // Update Prices
         selectedPrice = parseFloat(btn.dataset.price);
-        const qty = parseInt(document.getElementById('quantity-input').value, 10);
+        const qtyInput = document.getElementById('quantity-input');
+        const qty = qtyInput ? parseInt(qtyInput.value, 10) : 1;
 
         // Update DOM Price
-        document.getElementById('product-price').innerText = `₹${selectedPrice}`;
-        document.getElementById('product-mrp').innerText = `₹${selectedPrice + 29}`;
+        const priceEl = document.getElementById('product-price');
+        const mrpEl = document.getElementById('product-mrp');
+
+        if (priceEl) priceEl.innerText = `₹${selectedPrice}`;
+        if (mrpEl) mrpEl.innerText = `₹${selectedPrice + 29}`;
 
         // ✅ IMPORTANT: Sync Forms
         const variantId = btn.dataset.variantId;
@@ -412,13 +435,17 @@
         const addToCartForm = document.getElementById('addToCartForm');
         const buyNowForm = document.getElementById('buyNowForm');
 
-        
+        if (addToCartForm) {
+            addToCartForm.action = `${addToCartForm.dataset.baseUrl}${variantId}/`;
+            const vInput = document.getElementById('selectedVariantInput');
+            if (vInput) vInput.value = variantId;
+        }
 
-        addToCartForm.action = `${addToCartForm.dataset.baseUrl}${variantId}/`;
-        buyNowForm.action = `${buyNowForm.dataset.baseUrl}${variantId}/`;
-
-        document.getElementById('selectedVariantInput').value = variantId; // Backup
-        document.getElementById('buyNowVariantInput').value = variantId; // Backup
+        if (buyNowForm) {
+            buyNowForm.action = `${buyNowForm.dataset.baseUrl}${variantId}/`;
+            const bnInput = document.getElementById('buyNowVariantInput');
+            if (bnInput) bnInput.value = variantId;
+        }
 
         updateTotalPrice(qty);
     }
@@ -445,7 +472,7 @@
         document.getElementById('product-price').innerText = `₹${(selectedPrice * qty)}`;
         document.getElementById('product-mrp').innerText = `₹${((selectedPrice + 29) * qty)}`;
     }
-    
+
     document.addEventListener("DOMContentLoaded", () => {
 
         const form = document.querySelector("#review-form form");
@@ -489,11 +516,11 @@
     });
 
     document.getElementById("viewMoreBtn")?.addEventListener("click", function () {
-            document.querySelectorAll(".extra-review").forEach(el => {
-                el.classList.remove("hidden");
-                el.classList.add("animate-fade-in-up");
-            });
-            this.style.display = "none";
+        document.querySelectorAll(".extra-review").forEach(el => {
+            el.classList.remove("hidden");
+            el.classList.add("animate-fade-in-up");
         });
+        this.style.display = "none";
+    });
 </script>
 {% endblock %}

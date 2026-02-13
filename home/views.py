@@ -101,11 +101,11 @@ def reply_contact_message(request):
 
         if msg.email:
             send_mail(
-                subject="Reply from Fantasy Bakery Support",
+                subject="Reply from Fantasy Foods Support",
                 message=f"""
 Hello {msg.name},
 
-Thank you for contacting Fantasy Bakery.
+Thank you for contacting Fantasy Foods.
 
 Here is our reply to your message:
 ----------------------------------
@@ -115,7 +115,7 @@ Here is our reply to your message:
 If you need further assistance, feel free to contact us again.
 
 Regards,
-Fantasy Bakery Support Team
+Fantasy Foods Support Team
 """,
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[msg.email],
