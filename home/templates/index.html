@@ -697,10 +697,8 @@
 
     <script>
         // Global Toast Component
-        // Global Toast Component
-        // Global Toast Component
-        let toastTimeout; // Global variable to track the display duration timeout
-        let hideTimeout;  // Global variable to track the fade-out animation timeout
+        let toastTimeout;
+        let hideTimeout;
 
         window.showToast = function (title, message, type = 'info') {
             const toast = document.getElementById('toastNotification');
@@ -709,50 +707,49 @@
             const toastIconContainer = toast.querySelector('.text-fantasy-walnut') || toast.querySelector('div:first-child');
 
             if (toast) {
-                // 1. Clear ALL existing timeouts to prevent conflicts
-                if (toastTimeout) clearTimeout(toastTimeout);
-                if (hideTimeout) clearTimeout(hideTimeout);
+                // 1. Reset & Clear Timeouts
+                clearTimeout(toastTimeout);
+                clearTimeout(hideTimeout);
 
-                // 2. IMMEDIATE RESET: Put element in "hidden/ready" state
-                // We add 'hidden' and the transform classes immediately to reset.
-                // Removing transition temporarily prevents a "flying back" animation if it was halfway out.
-                toast.classList.add('hidden', '-translate-y-20', 'opacity-0', 'transition-none');
+                // Stop any ongoing transitions immediately
+                toast.style.transition = 'none';
 
-                // Force Reflow: This flushes the CSS changes so the browser knows it's hidden/moved.
-                void toast.offsetWidth;
+                // 2. Set to 'Hidden/Start' State
+                // Ensure it is visible in DOM but transparent and moved up
+                toast.classList.remove('hidden');
+                toast.classList.add('-translate-y-20');
+                toast.classList.add('opacity-0');
 
-                // 3. Setup Content & Classes
-                // Re-enable transitions
-                toast.classList.remove('transition-none');
-
-                // Base classes
-                toast.className = "fixed top-24 right-5 z-[200] bg-white border-l-4 shadow-xl rounded-lg p-4 max-w-sm transform -translate-y-20 opacity-0 transition-all duration-300 hidden";
-
-                // Reset icon container
+                // 3. Reset Icon Container & Colors
                 if (toastIconContainer) {
+                    // Reset validation colors
                     toastIconContainer.className = "text-fantasy-walnut";
                     toastIconContainer.innerHTML = '<i data-lucide="info" class="w-6 h-6"></i>';
                 }
 
-                // Customize based on Tag/Type
+                // Reset Border Colors
+                toast.classList.remove('border-red-500', 'border-yellow-500', 'border-fantasy-walnut', 'border-blue-500');
+
+                // 4. Customize Content
                 if (type.includes('error') || type.includes('danger')) {
                     toast.classList.add('border-red-500');
                     if (toastIconContainer) {
-                        toastIconContainer.classList.remove('text-fantasy-walnut');
                         toastIconContainer.classList.add('text-red-500');
+                        toastIconContainer.classList.remove('text-fantasy-walnut');
                         toastIconContainer.innerHTML = '<i data-lucide="alert-circle" class="w-6 h-6"></i>';
                     }
                     toastTitle.textContent = title || 'Error';
                 } else if (type.includes('warning')) {
                     toast.classList.add('border-yellow-500');
                     if (toastIconContainer) {
-                        toastIconContainer.classList.remove('text-fantasy-walnut');
                         toastIconContainer.classList.add('text-yellow-500');
+                        toastIconContainer.classList.remove('text-fantasy-walnut');
                         toastIconContainer.innerHTML = '<i data-lucide="alert-triangle" class="w-6 h-6"></i>';
                     }
                     toastTitle.textContent = title || 'Warning';
                 } else if (type.includes('success')) {
                     toast.classList.add('border-fantasy-walnut');
+                    // Default icon is already correct for fantasy-walnut base style, but let's ensure:
                     if (toastIconContainer) {
                         toastIconContainer.classList.add('text-fantasy-walnut');
                         toastIconContainer.innerHTML = '<i data-lucide="check-circle" class="w-6 h-6"></i>';
@@ -761,39 +758,37 @@
                 } else {
                     toast.classList.add('border-blue-500');
                     if (toastIconContainer) {
-                        toastIconContainer.classList.remove('text-fantasy-walnut');
                         toastIconContainer.classList.add('text-blue-500');
+                        toastIconContainer.classList.remove('text-fantasy-walnut');
+                        toastIconContainer.innerHTML = '<i data-lucide="info" class="w-6 h-6"></i>';
                     }
                     toastTitle.textContent = title || 'Info';
                 }
 
-                // InnerHTML to support links
                 toastMessage.innerHTML = message;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
 
-                // 4. SHOW: Remove hidden to display element in its "start" state (-translate-y-20, opacity-0)
-                toast.classList.remove('hidden');
+                // 5. Force Reflow (Critical for restart)
+                void toast.offsetWidth;
 
-                if (typeof lucide !== 'undefined') {
-                    lucide.createIcons();
-                }
+                // 6. Animate In
+                // Re-enable transition
+                toast.style.transition = 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+                toast.classList.remove('-translate-y-20');
+                toast.classList.remove('opacity-0');
 
-                // 5. ANIMATE IN: Request frame to apply "end" state (translate-0, opacity-100)
-                requestAnimationFrame(() => {
-                    toast.classList.remove('-translate-y-20');
-                    toast.classList.remove('opacity-0');
-                });
-
-                // 6. SCHEDULE HIDE
+                // 7. Schedule Hide
                 toastTimeout = setTimeout(() => {
-                    // Start Animate Out
+                    // Animate Out
                     toast.classList.add('-translate-y-20');
                     toast.classList.add('opacity-0');
 
-                    // Actually Hide after animation completes
+                    // Hide Display after animation
                     hideTimeout = setTimeout(() => {
                         toast.classList.add('hidden');
-                    }, 300); // Match CSS duration
-                }, 4000);
+                        toast.style.transition = ''; // clear inline style
+                    }, 500);
+                }, 3000);
             }
         };
 
