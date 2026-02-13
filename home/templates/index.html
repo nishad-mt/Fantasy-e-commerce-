@@ -683,7 +683,7 @@
 
     <!-- Toast Notification -->
     <div id="toastNotification"
-        class="fixed bottom-5 right-5 z-[200] bg-white border-l-4 border-fantasy-walnut shadow-xl rounded-lg p-4 max-w-sm transform translate-y-20 opacity-0 transition-all duration-300 hidden">
+        class="fixed top-24 right-5 z-[200] bg-white border-l-4 border-fantasy-walnut shadow-xl rounded-lg p-4 max-w-sm transform -translate-y-20 opacity-0 transition-all duration-300 hidden">
         <div class="flex items-center gap-3">
             <div class="text-fantasy-walnut">
                 <i data-lucide="info" class="w-6 h-6"></i>
@@ -697,6 +697,9 @@
 
     <script>
         // Global Toast Component
+        // Global Toast Component
+        let toastTimeout; // Global variable to track timeout
+
         window.showToast = function (title, message, type = 'info') {
             const toast = document.getElementById('toastNotification');
             const toastTitle = document.getElementById('toastTitle');
@@ -704,9 +707,15 @@
             const toastIconContainer = toast.querySelector('.text-fantasy-walnut') || toast.querySelector('div:first-child');
 
             if (toast) {
-                // Reset classes
-                toast.className = "fixed bottom-5 right-5 z-[200] bg-white border-l-4 shadow-xl rounded-lg p-4 max-w-sm transform translate-y-20 opacity-0 transition-all duration-300 hidden";
-                // Reset icon container (remove previous color classes if any, keep base structure)
+                // Clear any existing timeout to prevent "stuck" state
+                if (toastTimeout) {
+                    clearTimeout(toastTimeout);
+                }
+
+                // Reset classes (Top Position)
+                toast.className = "fixed top-24 right-5 z-[200] bg-white border-l-4 shadow-xl rounded-lg p-4 max-w-sm transform -translate-y-20 opacity-0 transition-all duration-300 hidden";
+
+                // Reset icon container
                 if (toastIconContainer) {
                     toastIconContainer.className = "text-fantasy-walnut";
                     toastIconContainer.innerHTML = '<i data-lucide="info" class="w-6 h-6"></i>';
@@ -737,7 +746,6 @@
                     }
                     toastTitle.textContent = title || 'Success';
                 } else {
-                    // Info / Default
                     toast.classList.add('border-blue-500');
                     if (toastIconContainer) {
                         toastIconContainer.classList.remove('text-fantasy-walnut');
@@ -749,20 +757,21 @@
                 // InnerHTML to support links
                 toastMessage.innerHTML = message;
 
+                // Show
                 toast.classList.remove('hidden');
                 if (typeof lucide !== 'undefined') {
                     lucide.createIcons();
                 }
 
-                // Animation In
-                setTimeout(() => {
-                    toast.classList.remove('translate-y-20');
+                // Animation In (Next Frame)
+                requestAnimationFrame(() => {
+                    toast.classList.remove('-translate-y-20');
                     toast.classList.remove('opacity-0');
-                }, 50);
+                });
 
-                // Animation Out
-                setTimeout(() => {
-                    toast.classList.add('translate-y-20');
+                // Auto Hide
+                toastTimeout = setTimeout(() => {
+                    toast.classList.add('-translate-y-20');
                     toast.classList.add('opacity-0');
                     setTimeout(() => {
                         toast.classList.add('hidden');
