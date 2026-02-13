@@ -685,7 +685,7 @@
     <div id="toastNotification"
         class="fixed top-24 right-5 z-[200] bg-white border-l-4 border-fantasy-walnut shadow-xl rounded-lg p-4 max-w-sm transform -translate-y-20 opacity-0 transition-all duration-300 hidden">
         <div class="flex items-center gap-3">
-            <div class="text-fantasy-walnut">
+            <div id="toastIcon" class="text-fantasy-walnut">
                 <i data-lucide="info" class="w-6 h-6"></i>
             </div>
             <div>
@@ -704,7 +704,7 @@
             const toast = document.getElementById('toastNotification');
             const toastTitle = document.getElementById('toastTitle');
             const toastMessage = document.getElementById('toastMessage');
-            const toastIconContainer = toast.querySelector('.text-fantasy-walnut') || toast.querySelector('div:first-child');
+            const toastIconContainer = document.getElementById('toastIcon');
 
             if (toast) {
                 // 1. Reset & Clear Timeouts
