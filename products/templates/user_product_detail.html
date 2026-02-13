@@ -1,7 +1,7 @@
 {% extends 'index.html' %}
 {% load static %}
 
-{% block title %}{{ product.name|default:"Fantasy_bakery" }} | Artisanal Collection{% endblock %}
+{% block title %}{{ product.name|default:"Fantasy_Foods" }} | Artisanal Collection{% endblock %}
 
 {% block content %}
 
@@ -84,8 +84,8 @@
             <div class="lg:w-1/2 flex flex-col animate-fade-in-up delay-100">
                 <div class="mb-4">
                     <span
-                        class="text-fantasy-gold font-bold uppercase tracking-widest text-xs border border-fantasy-gold/30 px-3 py-1 rounded-full">{{
-                        product.category}}</span>
+                        class="text-fantasy-gold font-bold uppercase tracking-widest text-xs border border-fantasy-gold/30 px-3 py-1 rounded-full">
+                        {{ product.category}}</span>
                 </div>
 
                 <h1 class="text-4xl md:text-6xl font-serif font-bold text-fantasy-brown mb-6 leading-tight">
@@ -115,11 +115,11 @@
                 <div class="mb-8">
                     <p class="text-sm text-gray-500 mb-1">Total Price</p>
                     <div class="flex items-baseline gap-4">
-                        <span class="text-5xl font-serif font-bold text-fantasy-brown" id="product-price">₹{{
-                            initial_variant.price }}</span>
+                        <span class="text-5xl font-serif font-bold text-fantasy-brown" id="product-price">
+                            ₹{{ initial_variant.price }}</span>
                         <span id="product-mrp"
-                            class="text-2xl text-gray-400 line-through decoration-fantasy-gold/50">₹{{
-                            initial_variant.price|add:29 }}</span>
+                            class="text-2xl text-gray-400 line-through decoration-fantasy-gold/50">
+                            ₹{{ initial_variant.price|add:29 }}</span>
                     </div>
                 </div>
 
