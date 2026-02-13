@@ -1,4 +1,5 @@
 from django.shortcuts import render,redirect, get_object_or_404
+from django.contrib import messages
 from .forms import AddressForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
@@ -55,11 +56,18 @@ def edit_address(request, address_id):
 def delete_address(request, address_id):
     address = get_object_or_404(Address, id=address_id, user=request.user)
 
-    # Prevent deleting default if it's the only one
-    if address.is_default and Address.objects.filter(user=request.user).count() > 1:
+    # Check if this is the last address
+    if Address.objects.filter(user=request.user).count() <= 1:
+        messages.error(request, "You cannot delete your last address.")
+        return redirect("profile")
+
+    # If deleting default, reassign default to another address
+    if address.is_default:
         new_default = Address.objects.filter(user=request.user).exclude(id=address.id).first()
-        new_default.is_default = True
-        new_default.save()
+        if new_default:
+            new_default.is_default = True
+            new_default.save()
 
     address.delete()
+    messages.success(request, "Address deleted successfully.")
     return redirect("profile")

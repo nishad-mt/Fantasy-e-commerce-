@@ -689,12 +689,13 @@
             // Check for Django Success Messages
             {% if messages %}
             {% for message in messages %}
-            {% if 'success' in message.tags %}
+
             const messageText = "{{ message|escapejs }}";
+            const messageTag = "{{ message.tags }}".toLowerCase();
             const lowerMsg = messageText.toLowerCase();
-            // Heuristic: If it contains 'welcome' or 'back' it's likely the login message.
-            // If it contains 'out' (as in 'signed out', 'logged out'), it's a toast.
-            const isLoginMessage = (lowerMsg.includes('welcome') || lowerMsg.includes('back')) && !lowerMsg.includes('out');
+
+            // Special logic for Login Welcome Modal (Only for Success)
+            const isLoginMessage = messageTag.includes('success') && (lowerMsg.includes('welcome') || lowerMsg.includes('back')) && !lowerMsg.includes('out');
 
             if (isLoginMessage) {
                 const modal = document.getElementById('welcomeModal');
@@ -718,16 +719,45 @@
                     }, 3000);
                 }
             } else {
-                // Show Toast
+                // Show Toast (For Success, Error, Info, Warning)
                 const toast = document.getElementById('toastNotification');
                 const toastTitle = document.getElementById('toastTitle');
                 const toastMessage = document.getElementById('toastMessage');
+                const toastIconContainer = toast.querySelector('.text-fantasy-walnut');
 
                 if (toast) {
-                    toastTitle.textContent = lowerMsg.includes('out') ? 'Signed Out' : 'Success';
+                    // Reset classes
+                    toast.className = "fixed bottom-5 right-5 z-[200] bg-white border-l-4 shadow-xl rounded-lg p-4 max-w-sm transform translate-y-20 opacity-0 transition-all duration-300 hidden";
+                    toastIconContainer.className = "text-fantasy-walnut";
+                    toastIconContainer.innerHTML = '<i data-lucide="info" class="w-6 h-6"></i>';
+
+                    // Customize based on Tag
+                    if (messageTag.includes('error') || messageTag.includes('danger')) {
+                        toast.classList.add('border-red-500');
+                        toastIconContainer.classList.add('text-red-500');
+                        toastIconContainer.innerHTML = '<i data-lucide="alert-circle" class="w-6 h-6"></i>';
+                        toastTitle.textContent = 'Error';
+                    } else if (messageTag.includes('warning')) {
+                        toast.classList.add('border-yellow-500');
+                        toastIconContainer.classList.add('text-yellow-500');
+                        toastIconContainer.innerHTML = '<i data-lucide="alert-triangle" class="w-6 h-6"></i>';
+                        toastTitle.textContent = 'Warning';
+                    } else if (messageTag.includes('success')) {
+                        toast.classList.add('border-fantasy-walnut'); // Brown default for success
+                        toastIconContainer.classList.add('text-fantasy-walnut');
+                        toastIconContainer.innerHTML = '<i data-lucide="check-circle" class="w-6 h-6"></i>';
+                        toastTitle.textContent = lowerMsg.includes('out') ? 'Signed Out' : 'Success';
+                    } else {
+                        toast.classList.add('border-blue-500');
+                        toastIconContainer.classList.add('text-blue-500');
+                        toastTitle.textContent = 'Info';
+                    }
+
                     toastMessage.textContent = messageText;
 
                     toast.classList.remove('hidden');
+                    lucide.createIcons(); // Re-render icons for dynamic content
+
                     setTimeout(() => {
                         toast.classList.remove('translate-y-20');
                         toast.classList.remove('opacity-0');
@@ -742,7 +772,6 @@
                     }, 4000);
                 }
             }
-            {% endif %}
             {% endfor %}
             {% endif %}
         });
