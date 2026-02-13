@@ -10,7 +10,7 @@ from django.contrib.auth import authenticate, login as auth_login, logout
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from addresses.models import Address
-from .forms import CustomUserForm
+from .forms import CustomUserForm, UserProfileForm
 from .models import CustomUser, UserProfile
 from django.views.decorators.cache import never_cache
 from django.contrib.auth.tokens import default_token_generator

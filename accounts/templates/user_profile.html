@@ -65,8 +65,7 @@
                   {% csrf_token %}
                   <button
                       type="submit"
-                      class="flex items-center gap-2 text-red-600 hover:text-red-800 bg-transparent border-none cursor-pointer"
-                  >
+                      class="flex items-center gap-2 text-red-600 hover:text-red-800 bg-transparent border-none cursor-pointer">
                       <i data-lucide="log-out" class="w-5 h-5"></i>
                       <span>Logout</span>
                   </button>
@@ -97,7 +96,10 @@
             <div>
               <label class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1 block">Full Name</label>
               <p class="text-lg font-medium text-gray-800">
-                {% if profile.first_name %}{{ profile.first_name }} {{ profile.last_name }}{% else %}Not set{% endif %}
+                {% if profile.first_name %}
+                {{ profile.first_name }} {{ profile.last_name }}
+                {% else %}Not set
+                {% endif %}
               </p>
             </div>
             <div>

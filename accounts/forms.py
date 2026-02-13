@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import CustomUser
+from .models import CustomUser, UserProfile
 
 class CustomUserForm(forms.ModelForm):
     password1 = forms.CharField(
@@ -49,3 +49,17 @@ class CustomUserForm(forms.ModelForm):
             raise ValidationError("Passwords do not match.")
 
         return cleaned_data
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['first_name', 'last_name', 'dob', 'gender', 'mobile_number', 'profile_img']
+        widgets = {
+            'dob': forms.DateInput(attrs={'type': 'date'}),
+            'profile_img': forms.FileInput(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(UserProfileForm, self).__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({'class': 'input-box'})
