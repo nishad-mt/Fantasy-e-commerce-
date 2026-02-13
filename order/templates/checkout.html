@@ -552,6 +552,28 @@
                     confirmOrderBtn.innerText = "Yes, Place Order";
                 });
         });
+        handler: function (response) {
+
+            fetch("/payments/verify/", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": csrftoken,
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: new URLSearchParams({
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_signature: response.razorpay_signature,
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = "/success/" + order_id + "/";
+                }
+            });
+        }
+
     </script>
 
 

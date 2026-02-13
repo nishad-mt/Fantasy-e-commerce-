@@ -161,6 +161,7 @@ def delete_promotion(request, promotion_id):
     messages.error(request, "Invalid request.")
     return redirect("promotion_list")
 
+@transaction.atomic
 @login_required
 @never_cache
 def apply_coupon(request):
