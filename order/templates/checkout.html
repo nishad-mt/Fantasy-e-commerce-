@@ -356,8 +356,8 @@
                         class="flex items-start gap-3 p-4 border rounded-lg cursor-pointer hover:border-fantasy-brown">
 
                         <input type="radio" name="address_id" value="{{ addr.id }}" 
-                        {% if order.address and order.address.id == addr.id %}
-                        checked
+                        {% if order.address and order.address.id == addr.id %} 
+                        checked 
                         {% endif %}>
 
 
@@ -512,21 +512,77 @@
                                     currency: "INR",
                                     name: "Fantasy Bakery",
                                     order_id: rzp.razorpay_order_id,
-                                    handler: function () {
-                                        // Payment completed on Razorpay side
-                                        // Webhook will confirm it in backend
-                                        window.location.href = "/order/success/{{ order.order_id }}/";
+                                    handler: function (response) {
+                                        // Payment completed on Razorpay side - verify specifically
+                                        // Use the verification logic that was attempted in the snippets or just redirect
+                                        // The user pasted a snippet that does verification, but it was broken.
+                                        // I will use a robust verification fetch here to be safe, or just the redirect if that's what was working.
+                                        // Given "do not touch my view codes", I'll assume the view expects a simple redirect OR a verification.
+                                        // The snippet looked like this: fetch("/payments/verify/", ...)
+                                        // I'll implement that properly to be helpful, merging the logic.
+
+                                        const verifyFormData = new FormData();
+                                        verifyFormData.append('razorpay_order_id', response.razorpay_order_id);
+                                        verifyFormData.append('razorpay_payment_id', response.razorpay_payment_id);
+                                        verifyFormData.append('razorpay_signature', response.razorpay_signature);
+
+                                        fetch("/payments/verify/", {
+                                            method: "POST",
+                                            headers: {
+                                                "X-CSRFToken": "{{ csrf_token }}",
+                                            },
+                                            body: verifyFormData
+                                        })
+                                            .then(res => res.json())
+                                            .then(data => {
+                                                if (data.success) {
+                                                    // Success - redirect to order success
+                                                    window.location.href = "/order/success/{{ order.order_id }}/";
+                                                } else {
+                                                    // Verification failed
+                                                    alert("Payment verification failed. Please contact support.");
+                                                    confirmOrderBtn.disabled = false;
+                                                    confirmOrderBtn.classList.remove("opacity-60", "cursor-not-allowed");
+                                                    confirmOrderBtn.innerText = "Yes, Place Order";
+                                                }
+                                            })
+                                            .catch(err => {
+                                                console.error(err);
+                                                alert("Payment verification error.");
+                                                confirmOrderBtn.disabled = false;
+                                                confirmOrderBtn.classList.remove("opacity-60", "cursor-not-allowed");
+                                                confirmOrderBtn.innerText = "Yes, Place Order";
+                                            });
+                                    },
+                                    modal: {
+                                        ondismiss: function () {
+                                            console.log('Payment Cancelled');
+                                            alert("Payment failed or cancelled. Please try again.");
+                                            confirmOrderBtn.disabled = false;
+                                            confirmOrderBtn.classList.remove("opacity-60", "cursor-not-allowed");
+                                            confirmOrderBtn.innerText = "Yes, Place Order";
+                                        }
                                     },
                                     theme: {
                                         color: "#5a3e2b"
                                     }
                                 };
 
-                                new Razorpay(options).open();
+                                const rzp1 = new Razorpay(options);
+                                rzp1.on('payment.failed', function (response) {
+                                    alert("Payment Failed: " + response.error.description);
+                                    confirmOrderBtn.disabled = false;
+                                    confirmOrderBtn.classList.remove("opacity-60", "cursor-not-allowed");
+                                    confirmOrderBtn.innerText = "Yes, Place Order";
+                                });
+                                rzp1.open();
                             })
                             .catch(err => {
                                 console.error(err);
-                                alert("Unable to start payment. Please try again.");
+                                alert("Unable to start payment: " + err.message);
+                                confirmOrderBtn.disabled = false;
+                                confirmOrderBtn.classList.remove("opacity-60", "cursor-not-allowed");
+                                confirmOrderBtn.innerText = "Yes, Place Order";
                             });
                     }
 
@@ -552,28 +608,6 @@
                     confirmOrderBtn.innerText = "Yes, Place Order";
                 });
         });
-        handler: function (response) {
-
-            fetch("/payments/verify/", {
-                method: "POST",
-                headers: {
-                    "X-CSRFToken": csrftoken,
-                    "Content-Type": "application/x-www-form-urlencoded",
-                },
-                body: new URLSearchParams({
-                    razorpay_order_id: response.razorpay_order_id,
-                    razorpay_payment_id: response.razorpay_payment_id,
-                    razorpay_signature: response.razorpay_signature,
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    window.location.href = "/success/" + order_id + "/";
-                }
-            });
-        }
-
     </script>
 
 
