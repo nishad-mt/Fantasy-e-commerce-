@@ -46,10 +46,11 @@ def calculate_best_discount(user, subtotal, order=None):
                 ):
                     pass
                 else:
+                    discount = Decimal("0.00")
                     if first_order_promo.discount_percent:
                         discount = subtotal * first_order_promo.discount_percent / 100
                     else:
-                        discount = first_order_promo.discount_amount
+                        discount = first_order_promo.discount_amount or Decimal("0.00")
 
                     if first_order_promo.max_discount_amount:
                         discount = min(discount, first_order_promo.max_discount_amount)
@@ -68,6 +69,9 @@ def calculate_best_discount(user, subtotal, order=None):
     ).order_by("-priority")
 
     for promo in auto_promos:
+        # Initialize discount for this loop iteration
+        discount = Decimal("0.00")
+        
         # validity checks
         if promo.valid_from and now < promo.valid_from:
             continue
@@ -79,7 +83,7 @@ def calculate_best_discount(user, subtotal, order=None):
         if promo.discount_percent:
             discount = subtotal * promo.discount_percent / 100
         else:
-            discount = promo.discount_amount
+            discount = promo.discount_amount or Decimal("0.00")
 
         if promo.max_discount_amount:
             discount = min(discount, promo.max_discount_amount)
@@ -109,10 +113,11 @@ def calculate_best_discount(user, subtotal, order=None):
         ).exists():
             pass
         else:
+            discount = Decimal("0.00")
             if promo.discount_percent:
                 discount = subtotal * promo.discount_percent / 100
             else:
-                discount = promo.discount_amount
+                discount = promo.discount_amount or Decimal("0.00")
 
             if promo.max_discount_amount:
                 discount = min(discount, promo.max_discount_amount)

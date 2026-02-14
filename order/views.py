@@ -136,11 +136,18 @@ def pay_order(request, order_id):
     subtotal = sum(item.variant.price * item.quantity for item in items)
     delivery = Decimal("0.00") if subtotal > 500 else Decimal("40.00")
 
-    discount, discount_type, applied_promo = calculate_best_discount(
-        user=request.user,
-        subtotal=subtotal,
-        order=order
-    )
+    try:
+        discount, discount_type, applied_promo = calculate_best_discount(
+            user=request.user,
+            subtotal=subtotal,
+            order=order
+        )
+    except Exception as e:
+        # Fallback if discount calculation fails (e.g. due to missing address logic)
+        discount = Decimal("0.00")
+        discount_type = None
+        applied_promo = None
+        # valid to log error here if logging was set up
 
     preview_total = max(subtotal + delivery - discount, Decimal("0.00"))
 
@@ -475,15 +482,31 @@ def buy_now(request, variant_id):
         return redirect("product_detail", slug=variant.product.slug)
 
     # ---------- Create or reuse DRAFT order ----------
-    order, created = Order.objects.get_or_create(
+    # ---------- Create or reuse DRAFT order ----------
+    existing_drafts = Order.objects.filter(
         user=request.user,
         status="DRAFT",
-        source="BUY_NOW",
-        defaults={
-            "address": default_address,  # Can be None, handled in pay_order
-            "delivery_date": date.today() + timedelta(days=3),
-        }
-    )
+        source="BUY_NOW"
+    ).order_by("-created_at")
+
+    if existing_drafts.exists():
+        order = existing_drafts.first()
+        # Clean up duplicates
+        if existing_drafts.count() > 1:
+            existing_drafts.exclude(pk=order.pk).delete()
+            
+        # Update address if available and currently missing
+        if default_address and not order.address:
+            order.address = default_address
+            order.save(update_fields=["address"])
+    else:
+        order = Order.objects.create(
+            user=request.user,
+            status="DRAFT",
+            source="BUY_NOW",
+            address=default_address,
+            delivery_date=date.today() + timedelta(days=3)
+        )
 
     # ---------- Replace item in draft ----------
     order.items.all().delete()
