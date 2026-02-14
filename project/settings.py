@@ -34,7 +34,7 @@ ALLOWED_HOSTS = [
 
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://fantasyfood.online",
+    "https://fantasyfoods.online",
     "https://www.fantasyfoods.online",
     "http://43.205.138.187",
 ]
@@ -207,8 +207,6 @@ ACCOUNT_EMAIL_VERIFICATION = "none"
 SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
 
 SOCIALACCOUNT_LOGIN_ON_GET = True
-
-ACCOUNT_ALLOW_REGISTRATION = False
 
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/"
