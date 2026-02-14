@@ -21,17 +21,26 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import redirect
 
+from django.contrib.sitemaps.views import sitemap
+from products.sitemaps import ProductSitemap
+
 def redirect_allauth_signup(request):
     return redirect("signup") 
 
 handler404 = "dashboard.views.custom_404"
 handler500 = "dashboard.views.custom_500"
 
+sitemaps = {
+    'products': ProductSitemap,
+}
+
 urlpatterns = [
     path("admin/", admin.site.urls),
 
     # BLOCK allauth email signup FIRST
     path("accounts/signup/", redirect_allauth_signup, name="account_signup"),
+    
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
 
     # keep allauth for Google ONLY
     path("accounts/", include("allauth.urls")),

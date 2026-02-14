@@ -5,6 +5,7 @@ from django.utils.text import slugify
 User = settings.AUTH_USER_MODEL
 from django.core.validators import MinValueValidator
 from decimal import Decimal
+from django.urls import reverse
 
 
 def product_main_image_path(instance, filename):
@@ -57,6 +58,9 @@ class Product(models.Model):
     @property  
     def is_out_of_stock(self):
         return not self.variants.filter(is_available=True).exists()
+    
+    def get_absolute_url(self):
+        return reverse('product_detail', args=[self.slug])
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="images")
