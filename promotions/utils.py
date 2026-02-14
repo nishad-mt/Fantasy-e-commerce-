@@ -1,7 +1,6 @@
 from decimal import Decimal
 from django.utils import timezone
 from promotions.models import Promotion, PromotionUsage
-from order.models import Order
 
 
 def calculate_best_discount(user, subtotal, order=None):
@@ -12,6 +11,7 @@ def calculate_best_discount(user, subtotal, order=None):
     """
 
     now = timezone.now()
+    from order.models import Order
 
     best_discount = Decimal("0.00")
     best_type = None
