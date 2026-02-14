@@ -307,8 +307,7 @@
                                             {% endif %}
                                         </h5>
                                         <p class="text-muted small mb-3">{{ request.user.email }}</p>
-                                        <p class="upload-label">Allowed *.jpeg, *.jpg, *.png, *.gif <br> Max size of 3
-                                            MB</p>
+                                        <p class="upload-label">Allowed *.jpeg, *.jpg, *.png <br> Max size of 3 MB</p>
                                     </div>
                                 </div>
                             </div>
@@ -385,9 +384,30 @@
         // Image Preview Functionality
         const profileInput = document.getElementById('id_profile_img');
         if (profileInput) {
+            // Check validation on load
+            profileInput.setAttribute('accept', '.jpg, .jpeg, .png, .webp');
+
             profileInput.addEventListener('change', function (event) {
                 const file = event.target.files[0];
                 if (file) {
+                    // Client-side validation for file type
+                    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+                    // Some browsers might report empty type, so we also check extension
+                    const fileName = file.name.toLowerCase();
+                    const isValidExtension = fileName.endsWith('.jpg') || fileName.endsWith('.jpeg') || fileName.endsWith('.png') || fileName.endsWith('.webp');
+
+                    if (fileName.endsWith('.gif')) {
+                        alert("GIF images are not allowed. Please upload a static image (JPG, PNG).");
+                        event.target.value = "";
+                        return;
+                    }
+
+                    if (!allowedTypes.includes(file.type) && !isValidExtension) {
+                        alert("Invalid file type! Please upload a JPG, JPEG, or PNG image.");
+                        event.target.value = "";
+                        return;
+                    }
+
                     const reader = new FileReader();
 
                     reader.onload = function (e) {

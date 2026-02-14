@@ -63,3 +63,28 @@ class UserProfileForm(forms.ModelForm):
         super(UserProfileForm, self).__init__(*args, **kwargs)
         for field in self.fields:
             self.fields[field].widget.attrs.update({'class': 'input-box'})
+
+    def clean_profile_img(self):
+        image = self.cleaned_data.get('profile_img')
+        if not image:
+            return image
+
+        # If it's not a newly uploaded file (string path), skip validation
+        if not hasattr(image, 'content_type'):
+            return image
+
+        # Check content type
+        content_type = image.content_type
+        if content_type == 'image/gif':
+             raise ValidationError("GIF images are not allowed.")
+        if not content_type in ['image/jpeg', 'image/png', 'image/webp', 'image/jpg']:
+             raise ValidationError("Only JPG, JPEG, and PNG images are allowed.")
+             
+        # Check file extension
+        name = image.name.lower()
+        if name.endswith('.gif'):
+             raise ValidationError("GIF images are not allowed.")
+        if not any(name.endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.webp']):
+             raise ValidationError("Only JPG, JPEG, and PNG images are allowed.")
+
+        return image
