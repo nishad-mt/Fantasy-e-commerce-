@@ -1,72 +1,255 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>Edit Profile</title>
-
-    <!-- Bootstrap -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile | Traditional Kerala Snacks</title>
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Manrope:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+        :root {
+            --primary-gold: #C6A87C;
+            --primary-dark: #2C3E50;
+            --secondary-bg: #F9F5F0;
+            --text-main: #333333;
+            --text-light: #777777;
+            --white: #ffffff;
+            --border-color: #E0E0E0;
+        }
+
         body {
-            background-color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--secondary-bg);
+            font-family: 'Manrope', sans-serif;
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5 {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .edit-profile-wrapper {
+            padding: 60px 0;
+        }
+
+        .profile-card {
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            border: 1px solid rgba(198, 168, 124, 0.2);
+        }
+
+        .card-header-custom {
+            padding: 30px 40px;
+            background: var(--white);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .page-title {
-            font-size: 22px;
-            font-weight: 600;
-            padding: 20px 16px;
-            border-bottom: 1px solid #e5e5e5;
+            font-size: 28px;
+            color: var(--primary-dark);
+            margin: 0;
+            font-weight: 700;
         }
 
-        .form-section {
-            padding: 16px;
+        /* Left Side - Image Upload */
+        .profile-section-left {
+            background-color: #FAFAFA;
+            padding: 50px 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-right: 1px solid var(--border-color);
+            height: 100%;
         }
 
-        .form-group {
-            margin-bottom: 22px;
+        .avatar-container {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin-bottom: 25px;
         }
 
-        label {
+        .avatar-preview {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 5px solid white;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            background-color: #eee;
+            position: relative;
+        }
+
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ccc;
+            background: #f0f0f0;
+        }
+
+        .upload-icon-overlay {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: var(--primary-gold);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            border: 3px solid white;
+            color: white;
+            z-index: 2;
+        }
+
+        .upload-icon-overlay:hover {
+            transform: scale(1.1);
+            background: #B08D55;
+        }
+
+        /* Hide the default file input but keep it functional */
+        #id_profile_img {
+            display: none;
+        }
+
+        .upload-label {
             font-size: 13px;
-            font-weight: 500;
-            color: #555;
-            margin-bottom: 6px;
+            color: var(--text-light);
+            margin-top: 10px;
+            text-align: center;
+            line-height: 1.5;
         }
 
-        input, select {
+        /* Right Side - Form Fields */
+        .profile-section-right {
+            padding: 50px 60px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        /* Style the .input-box class coming from forms.py */
+        .input-box {
+            display: block;
             width: 100%;
-            border: none !important;
-            border-bottom: 1px solid #ccc !important;
-            border-radius: 0 !important;
-            padding: 10px 4px;
+            height: 50px;
+            padding: 0.375rem 0.75rem;
+            padding-left: 15px;
             font-size: 15px;
-            box-shadow: none !important;
+            font-weight: 400;
+            line-height: 1.5;
+            color: var(--text-main);
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
         }
 
-        input:focus, select:focus {
-            border-bottom: 2px solid #0d6efd !important;
+        .input-box:focus {
+            border-color: var(--primary-gold);
+            outline: 0;
+            box-shadow: 0 0 0 4px rgba(198, 168, 124, 0.1);
         }
 
-        .save-btn {
-            background: #906219;
+        select.input-box {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 16px 12px;
+            appearance: none;
+        }
+
+        .btn-save {
+            background: var(--primary-gold);
             color: #fff;
-            font-weight: 600;
-            padding: 14px;
-            width: 100%;
             border: none;
+            height: 50px;
+            padding: 0 40px;
+            border-radius: 25px;
+            font-weight: 600;
             font-size: 16px;
+            letter-spacing: 0.5px;
+            transition: all 0.3s;
+            margin-top: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 180px;
+            cursor: pointer;
         }
 
-        .save-btn:hover {
-            background: #010300;
+        .btn-save:hover {
+            background: #B08D55;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(198, 168, 124, 0.3);
+            color: #fff;
         }
 
-        @media (min-width: 768px) {
-            .form-section {
-                padding: 32px 80px;
+        .btn-back {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .btn-back:hover {
+            color: var(--primary-gold);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 991px) {
+            .profile-section-left {
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                padding: 40px 20px;
+            }
+
+            .profile-section-right {
+                padding: 40px 30px;
+            }
+
+            .edit-profile-wrapper {
+                padding: 30px 0;
             }
         }
     </style>
@@ -74,34 +257,166 @@
 
 <body>
 
-<!-- Page Header -->
-<div class="page-title">
-    Edit Profile
-</div>
+    <div class="container edit-profile-wrapper">
+        <div class="row justify-content-center">
+            <div class="col-xl-10 col-lg-11">
+                <div class="profile-card">
 
-<form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
+                    <div class="card-header-custom">
+                        <h1 class="page-title">Edit Profile</h1>
+                        <a href="{% url 'profile' %}" class="btn-back">
+                            <i class="fas fa-arrow-left me-2"></i> Back to Profile
+                        </a>
+                    </div>
 
-    <div class="form-section">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
 
-        {% for field in profile_form %}
-            <div class="form-group">
-                <label>{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                    <small class="text-danger">{{ field.errors|striptags }}</small>
-                {% endif %}
+                        <div class="row g-0">
+                            <!-- Left Column: Image -->
+                            <div class="col-lg-4">
+                                <div class="profile-section-left">
+                                    <div class="avatar-container">
+                                        <div class="avatar-preview">
+                                            {% if profile_form.instance.profile_img %}
+                                            <img src="{{ profile_form.instance.profile_img.url }}" id="imagePreview"
+                                                alt="Profile Image">
+                                            {% else %}
+                                            <div class="avatar-placeholder" id="placeholderIcon">
+                                                <i class="fas fa-user-circle fa-6x"></i>
+                                            </div>
+                                            <img src="" id="imagePreview" alt="Profile Image" style="display: none;">
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Use label to trigger the file input -->
+                                        <label for="id_profile_img" class="upload-icon-overlay" title="Change Photo">
+                                            <i class="fas fa-camera"></i>
+                                        </label>
+
+                                        <!-- File Input -->
+                                        {{ profile_form.profile_img }}
+                                    </div>
+                                    <div class="text-center">
+                                        <h5 class="mb-1"
+                                            style="font-family: 'Playfair Display', serif; font-weight: 700;">
+                                            {% if profile_form.instance.first_name %}
+                                            {{ profile_form.instance.first_name }} {{ profile_form.instance.last_name }}
+                                            {% else %}
+                                            {{ request.user.username }}
+                                            {% endif %}
+                                        </h5>
+                                        <p class="text-muted small mb-3">{{ request.user.email }}</p>
+                                        <p class="upload-label">Allowed *.jpeg, *.jpg, *.png, *.gif <br> Max size of 3
+                                            MB</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right Column: Form Fields -->
+                            <div class="col-lg-8">
+                                <div class="profile-section-right">
+                                    <div class="row g-4">
+                                        <div class="col-md-6">
+                                            <label class="form-label">First Name</label>
+                                            {{ profile_form.first_name }}
+                                            {% if profile_form.first_name.errors %}
+                                            <div class="text-danger small mt-1">{{ profile_form.first_name.errors.0 }}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label class="form-label">Last Name</label>
+                                            {{ profile_form.last_name }}
+                                            {% if profile_form.last_name.errors %}
+                                            <div class="text-danger small mt-1">{{ profile_form.last_name.errors.0 }}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label class="form-label">Date of Birth</label>
+                                            {{ profile_form.dob }}
+                                            {% if profile_form.dob.errors %}
+                                            <div class="text-danger small mt-1">{{ profile_form.dob.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label class="form-label">Gender</label>
+                                            {{ profile_form.gender }}
+                                            {% if profile_form.gender.errors %}
+                                            <div class="text-danger small mt-1">{{ profile_form.gender.errors.0 }}</div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="col-12">
+                                            <label class="form-label">Mobile Number</label>
+                                            {{ profile_form.mobile_number }}
+                                            {% if profile_form.mobile_number.errors %}
+                                            <div class="text-danger small mt-1">{{ profile_form.mobile_number.errors.0
+                                                }}</div>
+                                            {% endif %}
+                                        </div>
+
+                                        {% if profile_form.non_field_errors %}
+                                        <div class="col-12">
+                                            <div class="alert alert-danger">{{ profile_form.non_field_errors }}</div>
+                                        </div>
+                                        {% endif %}
+
+                                        <div class="col-12 pt-3 text-end">
+                                            <button type="submit" class="btn-save">
+                                                Save Changes
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
-        {% endfor %}
-
+        </div>
     </div>
 
-    <!-- Save Button -->
-    <button type="submit" class="save-btn">
-        SAVE CHANGES
-    </button>
+    <script>
+        // Image Preview Functionality
+        const profileInput = document.getElementById('id_profile_img');
+        if (profileInput) {
+            profileInput.addEventListener('change', function (event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
 
-</form>
+                    reader.onload = function (e) {
+                        const img = document.getElementById('imagePreview');
+                        const placeholder = document.getElementById('placeholderIcon');
 
+                        img.src = e.target.result;
+                        img.style.display = 'block';
+                        if (placeholder) placeholder.style.display = 'none';
+                    }
+
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        // Auto-close alerts
+        const alerts = document.querySelectorAll('.alert');
+        if (alerts) {
+            setTimeout(function () {
+                alerts.forEach(alert => {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 3000);
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
