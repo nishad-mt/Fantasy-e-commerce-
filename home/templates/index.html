@@ -268,52 +268,66 @@
                 </div>
 
                 <!-- Navigation -->
-                <nav class="flex-1 overflow-y-auto w-full px-6 py-8 space-y-2">
+                <nav class="flex-1 w-full px-6 py-6 space-y-2 overflow-y-auto">
                     <a href="{% url 'home' %}"
-                        class="flex items-center gap-4 px-4 py-3 text-white text-lg font-bold rounded-lg hover:bg-[#D4AF37] hover:text-[#3e2b1e] transition-colors">
-                        <i data-lucide="home" class="w-6 h-6"></i>
-                        Home
+                        class="block w-full px-4 py-3 text-white text-lg font-bold rounded-lg hover:bg-[#D4AF37] hover:text-[#3e2b1e] transition-colors">
+                        <span class="inline-flex items-center gap-4">
+                            <i data-lucide="home" class="w-6 h-6"></i>
+                            Home
+                        </span>
                     </a>
 
                     <a href="{% url 'products' %}"
-                        class="flex items-center gap-4 px-4 py-3 text-white text-lg font-bold rounded-lg hover:bg-[#D4AF37] hover:text-[#3e2b1e] transition-colors">
-                        <i data-lucide="shopping-bag" class="w-6 h-6"></i>
-                        Shop
+                        class="block w-full px-4 py-3 text-white text-lg font-bold rounded-lg hover:bg-[#D4AF37] hover:text-[#3e2b1e] transition-colors">
+                        <span class="inline-flex items-center gap-4">
+                            <i data-lucide="shopping-bag" class="w-6 h-6"></i>
+                            Shop
+                        </span>
                     </a>
 
                     {% if user.is_authenticated %}
                     <a href="{% url 'order' %}"
-                        class="flex items-center gap-4 px-4 py-3 text-white text-lg font-bold rounded-lg hover:bg-[#D4AF37] hover:text-[#3e2b1e] transition-colors">
-                        <i data-lucide="package" class="w-6 h-6"></i>
-                        My Orders
+                        class="block w-full px-4 py-3 text-white text-lg font-bold rounded-lg hover:bg-[#D4AF37] hover:text-[#3e2b1e] transition-colors">
+                        <span class="inline-flex items-center gap-4">
+                            <i data-lucide="package" class="w-6 h-6"></i>
+                            My Orders
+                        </span>
                     </a>
                     {% endif %}
 
                     <a href="{% url 'aboutus' %}"
-                        class="flex items-center gap-4 px-4 py-3 text-white text-lg font-bold rounded-lg hover:bg-[#D4AF37] hover:text-[#3e2b1e] transition-colors">
-                        <i data-lucide="book-open" class="w-6 h-6"></i>
-                        Our Story
+                        class="block w-full px-4 py-3 text-white text-lg font-bold rounded-lg hover:bg-[#D4AF37] hover:text-[#3e2b1e] transition-colors">
+                        <span class="inline-flex items-center gap-4">
+                            <i data-lucide="book-open" class="w-6 h-6"></i>
+                            Our Story
+                        </span>
                     </a>
 
                     <a href="{% url 'contact' %}"
-                        class="flex items-center gap-4 px-4 py-3 text-white text-lg font-bold rounded-lg hover:bg-[#D4AF37] hover:text-[#3e2b1e] transition-colors">
-                        <i data-lucide="phone" class="w-6 h-6"></i>
-                        Contact
+                        class="block w-full px-4 py-3 text-white text-lg font-bold rounded-lg hover:bg-[#D4AF37] hover:text-[#3e2b1e] transition-colors">
+                        <span class="inline-flex items-center gap-4">
+                            <i data-lucide="phone" class="w-6 h-6"></i>
+                            Contact
+                        </span>
                     </a>
 
                     <div class="h-px bg-white/10 my-4"></div>
 
                     {% if user.is_authenticated %}
                     <a href="{% url 'logout' %}"
-                        class="flex items-center gap-4 px-4 py-3 text-white text-lg font-bold rounded-lg hover:bg-[#D4AF37] hover:text-[#3e2b1e] transition-colors">
-                        <i data-lucide="log-out" class="w-6 h-6"></i>
-                        Logout
+                        class="block w-full px-4 py-3 text-white text-lg font-bold rounded-lg hover:bg-[#D4AF37] hover:text-[#3e2b1e] transition-colors">
+                        <span class="inline-flex items-center gap-4">
+                            <i data-lucide="log-out" class="w-6 h-6"></i>
+                            Logout
+                        </span>
                     </a>
                     {% else %}
                     <a href="{% url 'login' %}"
-                        class="flex items-center gap-4 px-4 py-3 text-white text-lg font-bold rounded-lg hover:bg-[#D4AF37] hover:text-[#3e2b1e] transition-colors">
-                        <i data-lucide="log-in" class="w-6 h-6"></i>
-                        Login
+                        class="block w-full px-4 py-3 text-white text-lg font-bold rounded-lg hover:bg-[#D4AF37] hover:text-[#3e2b1e] transition-colors">
+                        <span class="inline-flex items-center gap-4">
+                            <i data-lucide="log-in" class="w-6 h-6"></i>
+                            Login
+                        </span>
                     </a>
                     {% endif %}
                 </nav>
