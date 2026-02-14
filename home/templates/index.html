@@ -243,8 +243,10 @@
                     {% endif %}
 
                     <!-- Mobile Menu Button -->
-                    <button id="mobile-menu-btn" class="md:hidden hover:text-fantasy-gold transition-colors">
-                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    <button id="mobile-menu-btn"
+                        class="md:hidden p-2 text-fantasy-brown hover:text-fantasy-gold hover:bg-fantasy-brown/5 rounded-full transition-all active:scale-95"
+                        aria-label="Open Menu">
+                        <i data-lucide="menu" class="w-7 h-7"></i>
                     </button>
                 </div>
             </div>
@@ -252,7 +254,7 @@
             <!-- Mobile Menu Sidebar (Hidden) -->
             <!-- Mobile Menu Sidebar (Redesigned) -->
             <div id="mobile-nav-container"
-                class="fixed inset-y-0 right-0 w-80 h-full bg-[#3e2b1e] z-[9999] transform translate-x-full transition-transform duration-500 cubic-bezier(0.16, 1, 0.3, 1) shadow-[-10px_0_40px_rgba(0,0,0,0.5)] border-l border-[#D4AF37]/20 flex flex-col lg:hidden">
+                class="fixed inset-y-0 right-0 w-full max-w-sm h-full bg-[#3e2b1e]/95 backdrop-blur-xl z-[9999] transform translate-x-full transition-transform duration-500 cubic-bezier(0.16, 1, 0.3, 1) shadow-[-10px_0_40px_rgba(0,0,0,0.5)] border-l border-[#D4AF37]/20 flex flex-col lg:hidden">
 
                 <!-- Header -->
                 <div
@@ -698,7 +700,7 @@
             });
         }
 
-        // Mobile Menu Logic
+        // Mobile Menu Logic (Enhanced)
         document.addEventListener('DOMContentLoaded', () => {
             const btn = document.getElementById('mobile-menu-btn');
             const menu = document.getElementById('mobile-nav-container');
@@ -706,20 +708,33 @@
             const closeBtn = document.getElementById('close-menu');
 
             function openMenu() {
+                if (!menu || !overlay) return;
                 menu.classList.remove('translate-x-full');
                 overlay.classList.remove('hidden');
+                // delayed fade in for overlay if we were using opacity, but 'hidden' is abrupt. 
+                // Let's stick to the current CSS for simplicity but ensure body scroll is locked.
                 document.body.classList.add('overflow-hidden');
+                btn.setAttribute('aria-expanded', 'true');
             }
 
             function closeMenu() {
+                if (!menu || !overlay) return;
                 menu.classList.add('translate-x-full');
                 overlay.classList.add('hidden');
                 document.body.classList.remove('overflow-hidden');
+                btn.setAttribute('aria-expanded', 'false');
             }
 
             if (btn) btn.addEventListener('click', openMenu);
             if (closeBtn) closeBtn.addEventListener('click', closeMenu);
             if (overlay) overlay.addEventListener('click', closeMenu);
+
+            // Close on Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !menu.classList.contains('translate-x-full')) {
+                    closeMenu();
+                }
+            });
 
             // Auto-close on resize
             window.addEventListener('resize', () => {
