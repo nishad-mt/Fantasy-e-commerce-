@@ -103,12 +103,13 @@
                                         class="bg-fantasy-brown/10 text-fantasy-brown w-6 h-6 rounded-full flex items-center justify-center text-xs">2</span>
                                     Delivery Details
                                 </h2>
+                                {% if order.address or addresses %}
                                 <button type="button"
                                     onclick="document.getElementById('addressModal').classList.remove('hidden')"
                                     class="text-sm font-bold text-fantasy-brown hover:text-fantasy-gold transition-colors">
                                     Change Address
                                 </button>
-
+                                {% endif %}
                             </div>
 
                             {% if order.address %}
@@ -131,13 +132,19 @@
                                     +91 {{ order.address.phone }}
                                 </p>
                             </div>
-                            {% else %}
-                            <p class="text-red-500">No delivery address selected</p>
-                            {% endif %}
                             <p class="text-sm text-green-600 font-semibold mt-2">
                                 <i class="fa-solid fa-truck-fast mr-1"></i>
                                 Expected delivery: {{ order.delivery_date|date:"D, d M" }}
                             </p>
+                            {% else %}
+                            <div class="pl-8 text-center py-4">
+                                <p class="text-red-500 mb-3">No delivery address selected</p>
+                                <a href="{% url 'create_address' %}?next={{ request.path }}"
+                                    class="inline-block px-6 py-2 bg-fantasy-brown text-white rounded-lg font-bold hover:bg-fantasy-gold transition-colors">
+                                    <i class="fa-solid fa-plus mr-2"></i> Add New Address
+                                </a>
+                            </div>
+                            {% endif %}
                         </div>
                     </section>
 
@@ -355,10 +362,8 @@
                     <label
                         class="flex items-start gap-3 p-4 border rounded-lg cursor-pointer hover:border-fantasy-brown">
 
-                        <input type="radio" name="address_id" value="{{ addr.id }}" 
-                        {% if order.address and order.address.id == addr.id %} 
-                        checked 
-                        {% endif %}>
+                        <input type="radio" name="address_id" value="{{ addr.id }}" {% if order.address and
+                            order.address.id==addr.id %} checked {% endif %}>
 
 
                         <div>
