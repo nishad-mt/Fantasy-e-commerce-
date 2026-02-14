@@ -16,11 +16,34 @@ def create_address(request):
             #The form doesn’t include user, so you must attach it before saving.
             address = form.save(commit=False)
             address.user = request.user
-            address.save()
+            
+            # Prevent duplicate address creation (e.g. back button resubmission)
+            duplicate_exists = Address.objects.filter(
+                user=request.user,
+                name=address.name,
+                phone=address.phone,
+                street=address.street,
+                city=address.city,
+                state=address.state,
+                pincode=address.pincode
+            ).exists()
+            
+            if not duplicate_exists:
+                address.save()
+            
+            # Check for 'next' parameter to redirect back to checkout
+            next_url = request.POST.get("next") or request.GET.get("next")
+            if next_url:
+                return redirect(next_url)
+                
             return redirect("profile")
     else:    
         form = AddressForm()
-    return render(request,"address_form.html",{'form':form})
+        
+    return render(request, "address_form.html", {
+        "form": form,
+        "next": request.GET.get("next")
+    })
 
 @login_required
 def set_default_address(request, address_id):
