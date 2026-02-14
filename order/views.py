@@ -165,6 +165,14 @@ def pay_order(request, order_id):
 
     delivery_date = date.today() + timedelta(days=3)
 
+    # Validate wallet exists or create it safely for display
+    try:
+        from wallet.models import Wallet
+        wallet, _ = Wallet.objects.get_or_create(user=request.user)
+        wallet_balance = wallet.balance
+    except Exception:
+        wallet_balance = Decimal("0.00")
+
     return render(request, "checkout.html", {
         "order": order,
         "items": items,
@@ -176,6 +184,7 @@ def pay_order(request, order_id):
         "preview_discount": discount,
         "preview_discount_type": discount_type,
         "preview_total": preview_total,
+        "wallet_balance": wallet_balance,
     })
 
 

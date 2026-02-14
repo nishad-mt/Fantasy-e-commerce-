@@ -210,8 +210,8 @@
                                             </div>
                                         </div>
                                         <div class="text-xs text-gray-500 mt-1">
-                                            Balance: ₹{{ user.wallet.balance|default:"0.00" }}
-                                            {% if user.wallet.balance < preview_total %} <span
+                                            Balance: ₹{{ wallet_balance|default:"0.00" }}
+                                            {% if wallet_balance < preview_total %} <span
                                                 class="text-red-500 font-bold ml-1 block mt-1">
                                                 <i class="fa-solid fa-circle-exclamation mr-1"></i>
                                                 Insufficient balance
