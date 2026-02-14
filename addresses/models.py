@@ -10,9 +10,10 @@ class Address(models.Model):
     state = models.CharField(max_length=50)
     pincode = models.CharField(max_length=10)
     is_default = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     
     def save(self, *args, **kwargs):
-        if self.is_default:
+        if self.is_default and self.is_active:
             Address.objects.filter(
                 user=self.user,
                 is_default=True

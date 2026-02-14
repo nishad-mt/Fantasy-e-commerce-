@@ -118,7 +118,7 @@ def user(request):
     .prefetch_related(
         Prefetch(
             'address_set',
-            queryset=Address.objects.order_by('-is_default'),
+            queryset=Address.objects.filter(is_active=True).order_by('-is_default'),
             to_attr='prefetched_addresses'
         )
     )

@@ -57,7 +57,8 @@ def create_from_cart(request):
     # Get default address (optional for DRAFT, but good UX)
     default_address = Address.objects.filter(
         user=request.user,
-        is_default=True
+        is_default=True,
+        is_active=True
     ).first()
 
     # If no default address, we proceed with None for now
@@ -152,7 +153,7 @@ def pay_order(request, order_id):
     preview_total = max(subtotal + delivery - discount, Decimal("0.00"))
 
     # ---------- Address ----------
-    addresses = Address.objects.filter(user=request.user)
+    addresses = Address.objects.filter(user=request.user, is_active=True)
     # if not addresses.exists():
     #     messages.warning(request, "Please add a delivery address to continue.")
     #     return redirect("create_address")
@@ -363,7 +364,8 @@ def select_address(request):
     address = get_object_or_404(
         Address,
         id=address_id,
-        user=request.user
+        user=request.user,
+        is_active=True
     )
 
     order.address = address
@@ -466,7 +468,7 @@ def buy_now(request, variant_id):
         return redirect("home")
 
     # ---------- Address check ----------
-    addresses = Address.objects.filter(user=request.user)
+    addresses = Address.objects.filter(user=request.user, is_active=True)
     # if not addresses.exists():
     #     messages.warning(request, "Please add a delivery address.")
     #     return redirect("create_address")

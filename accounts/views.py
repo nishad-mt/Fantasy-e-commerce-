@@ -336,7 +336,7 @@ def profile(request):
         return redirect('/admin_user/')
 
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
-    addresses = Address.objects.filter(user=request.user)
+    addresses = Address.objects.filter(user=request.user, is_active=True)
     default_address = addresses.filter(is_default=True).first()
     wallet, _ = Wallet.objects.get_or_create(user=request.user)
 

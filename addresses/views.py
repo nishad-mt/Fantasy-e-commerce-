@@ -25,7 +25,8 @@ def create_address(request):
                 street=address.street,
                 city=address.city,
                 state=address.state,
-                pincode=address.pincode
+                pincode=address.pincode,
+                is_active=True
             ).exists()
             
             if not duplicate_exists:
@@ -47,7 +48,7 @@ def create_address(request):
 
 @login_required
 def set_default_address(request, address_id):
-    address = get_object_or_404(Address, id=address_id, user=request.user)
+    address = get_object_or_404(Address, id=address_id, user=request.user, is_active=True)
 
     # Remove default from all addresses of this user
     Address.objects.filter(user=request.user, is_default=True).update(is_default=False)
@@ -60,7 +61,7 @@ def set_default_address(request, address_id):
 
 @login_required
 def edit_address(request, address_id):
-    address = get_object_or_404(Address, id=address_id, user=request.user)
+    address = get_object_or_404(Address, id=address_id, user=request.user, is_active=True)
 
     if request.method == "POST":
         form = AddressForm(request.POST, instance=address)
@@ -77,20 +78,21 @@ def edit_address(request, address_id):
     
 @login_required
 def delete_address(request, address_id):
-    address = get_object_or_404(Address, id=address_id, user=request.user)
+    address = get_object_or_404(Address, id=address_id, user=request.user, is_active=True)
 
     # Check if this is the last address
-    if Address.objects.filter(user=request.user).count() <= 1:
+    if Address.objects.filter(user=request.user, is_active=True).count() <= 1:
         messages.error(request, "You cannot delete your last address.")
         return redirect("profile")
 
     # If deleting default, reassign default to another address
     if address.is_default:
-        new_default = Address.objects.filter(user=request.user).exclude(id=address.id).first()
+        new_default = Address.objects.filter(user=request.user, is_active=True).exclude(id=address.id).first()
         if new_default:
             new_default.is_default = True
             new_default.save()
 
-    address.delete()
-    messages.success(request, "Address deleted successfully.")
+    address.is_active = False
+    address.save()
+    messages.success(request, "Address removed successfully.")
     return redirect("profile")
