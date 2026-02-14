@@ -270,13 +270,13 @@
                 </div>
 
                 <!-- Navigation -->
-                <div class="flex-grow overflow-y-auto px-6 py-6">
-                    <ul class="flex flex-col gap-4">
+                <nav class="flex-grow overflow-y-auto px-6 py-6" aria-label="Mobile Navigation">
+                    <ul class="flex flex-col gap-3">
                         <!-- Home -->
                         <li>
                             <a href="{% url 'home' %}"
-                                class="flex items-center gap-4 px-4 py-3 bg-[#3e2b1e] text-white text-lg font-bold rounded-lg border border-white/10 hover:bg-[#D4AF37] hover:text-[#3e2b1e] hover:border-transparent transition-all">
-                                <i data-lucide="home" class="w-5 h-5"></i>
+                                class="group flex items-center gap-4 px-5 py-4 bg-[#3e2b1e] text-white/90 text-lg font-bold rounded-xl border border-white/5 hover:bg-[#D4AF37] hover:text-[#3e2b1e] hover:border-transparent transition-all duration-300 shadow-sm active:scale-[0.98]">
+                                <i data-lucide="home" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
                                 Home
                             </a>
                         </li>
@@ -284,8 +284,9 @@
                         <!-- Shop -->
                         <li>
                             <a href="{% url 'products' %}"
-                                class="flex items-center gap-4 px-4 py-3 bg-[#3e2b1e] text-white text-lg font-bold rounded-lg border border-white/10 hover:bg-[#D4AF37] hover:text-[#3e2b1e] hover:border-transparent transition-all">
-                                <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                                class="group flex items-center gap-4 px-5 py-4 bg-[#3e2b1e] text-white/90 text-lg font-bold rounded-xl border border-white/5 hover:bg-[#D4AF37] hover:text-[#3e2b1e] hover:border-transparent transition-all duration-300 shadow-sm active:scale-[0.98]">
+                                <i data-lucide="shopping-bag"
+                                    class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
                                 Shop
                             </a>
                         </li>
@@ -294,8 +295,8 @@
                         {% if user.is_authenticated %}
                         <li>
                             <a href="{% url 'order' %}"
-                                class="flex items-center gap-4 px-4 py-3 bg-[#3e2b1e] text-white text-lg font-bold rounded-lg border border-white/10 hover:bg-[#D4AF37] hover:text-[#3e2b1e] hover:border-transparent transition-all">
-                                <i data-lucide="package" class="w-5 h-5"></i>
+                                class="group flex items-center gap-4 px-5 py-4 bg-[#3e2b1e] text-white/90 text-lg font-bold rounded-xl border border-white/5 hover:bg-[#D4AF37] hover:text-[#3e2b1e] hover:border-transparent transition-all duration-300 shadow-sm active:scale-[0.98]">
+                                <i data-lucide="package" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
                                 My Orders
                             </a>
                         </li>
@@ -304,8 +305,9 @@
                         <!-- Our Story -->
                         <li>
                             <a href="{% url 'aboutus' %}"
-                                class="flex items-center gap-4 px-4 py-3 bg-[#3e2b1e] text-white text-lg font-bold rounded-lg border border-white/10 hover:bg-[#D4AF37] hover:text-[#3e2b1e] hover:border-transparent transition-all">
-                                <i data-lucide="book-open" class="w-5 h-5"></i>
+                                class="group flex items-center gap-4 px-5 py-4 bg-[#3e2b1e] text-white/90 text-lg font-bold rounded-xl border border-white/5 hover:bg-[#D4AF37] hover:text-[#3e2b1e] hover:border-transparent transition-all duration-300 shadow-sm active:scale-[0.98]">
+                                <i data-lucide="book-open"
+                                    class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
                                 Our Story
                             </a>
                         </li>
@@ -313,356 +315,357 @@
                         <!-- Contact -->
                         <li>
                             <a href="{% url 'contact' %}"
-                                class="flex items-center gap-4 px-4 py-3 bg-[#3e2b1e] text-white text-lg font-bold rounded-lg border border-white/10 hover:bg-[#D4AF37] hover:text-[#3e2b1e] hover:border-transparent transition-all">
-                                <i data-lucide="phone" class="w-5 h-5"></i>
+                                class="group flex items-center gap-4 px-5 py-4 bg-[#3e2b1e] text-white/90 text-lg font-bold rounded-xl border border-white/5 hover:bg-[#D4AF37] hover:text-[#3e2b1e] hover:border-transparent transition-all duration-300 shadow-sm active:scale-[0.98]">
+                                <i data-lucide="phone" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
                                 Contact
                             </a>
                         </li>
 
                         <!-- Divider -->
-                        <li class="h-px bg-white/10 my-2"></li>
+                        <li class="h-px bg-white/10 my-2 mx-2"></li>
 
                         <!-- Auth Links -->
                         {% if user.is_authenticated %}
                         <li>
                             <a href="{% url 'logout' %}"
-                                class="flex items-center gap-4 px-4 py-3 bg-[#3e2b1e] text-white text-lg font-bold rounded-lg border border-white/10 hover:bg-red-500 hover:text-white hover:border-transparent transition-all">
-                                <i data-lucide="log-out" class="w-5 h-5"></i>
+                                class="group flex items-center gap-4 px-5 py-4 bg-[#3e2b1e] text-white/90 text-lg font-bold rounded-xl border border-white/5 hover:bg-red-500 hover:text-white hover:border-transparent transition-all duration-300 shadow-sm active:scale-[0.98]">
+                                <i data-lucide="log-out" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
                                 Logout
                             </a>
                         </li>
                         {% else %}
                         <li>
                             <a href="{% url 'login' %}"
-                                class="flex items-center gap-4 px-4 py-3 bg-[#3e2b1e] text-white text-lg font-bold rounded-lg border border-white/10 hover:bg-[#D4AF37] hover:text-[#3e2b1e] hover:border-transparent transition-all">
-                                <i data-lucide="log-in" class="w-5 h-5"></i>
+                                class="group flex items-center gap-4 px-5 py-4 bg-[#3e2b1e] text-white/90 text-lg font-bold rounded-xl border border-white/5 hover:bg-[#D4AF37] hover:text-[#3e2b1e] hover:border-transparent transition-all duration-300 shadow-sm active:scale-[0.98]">
+                                <i data-lucide="log-in" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
                                 Login
                             </a>
                         </li>
                         {% endif %}
                     </ul>
-                </div>
+                </nav>
             </div>
             <div id="menu-overlay" class="fixed inset-0 bg-black/50 hidden z-[9998] lg:hidden"></div>
-        </nav>
 
-        {% block content %}
+            {% block content %}
 
-        <!-- Cinematic Hero Section with Parallax -->
-        <header
-            class="relative min-h-screen flex items-center justify-center pt-24 pb-32 bg-fantasy-cream perspective-1000">
-            <!-- Background Texture -->
-            <div class="absolute inset-0 z-0 opacity-[0.03]"
-                style="background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');">
-            </div>
-
-            <div class="container mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <!-- Text Content -->
-                <div class="text-center lg:text-left order-2 lg:order-1">
-                    <!-- Headline -->
-                    <h1 class="text-5xl md:text-7xl lg:text-8xl font-serif font-extrabold mb-6 leading-[1.1] text-fantasy-brown opacity-0 animate-fade-in-up"
-                        style="animation-delay: 0.2s;">
-                        Taste the <br> <span class="text-fantasy-gold italic font-serif">Magic.</span>
-                    </h1>
-
-                    <!-- Sub-headline -->
-                    <p class="text-lg md:text-xl font-medium text-fantasy-brown/80 mb-10 max-w-lg mx-auto lg:mx-0 opacity-0 animate-fade-in-up leading-relaxed"
-                        style="animation-delay: 0.4s;">
-                        Handcrafted delicacies baking with love, premium ingredients, and a touch of fantasy.
-                        <span class="block mt-2 font-script text-fantasy-gold text-3xl">~ Pure Artisanal Bliss
-                            ~</span>
-                    </p>
-
-                    <!-- Magnetic CTA Button -->
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start opacity-0 animate-fade-in-up"
-                        style="animation-delay: 0.6s;">
-                        <a href="{% url 'products' %}" id="magnet-btn"
-                            class="relative px-10 py-4 bg-fantasy-brown text-fantasy-gold border-2 border-fantasy-gold rounded-lg font-bold uppercase tracking-widest text-sm hover:bg-fantasy-gold hover:text-fantasy-brown transition-all duration-300 shadow-dual hover:shadow-dual-hover group overflow-hidden">
-                            <span
-                                class="relative z-10 transition-transform duration-300 inline-block pointer-events-none">Shop
-                                Now</span>
-                            <div
-                                class="absolute inset-0 bg-fantasy-gold transform scale-y-0 group-hover:scale-y-100 transition-transform origin-bottom duration-300 pointer-events-none">
-                            </div>
-                        </a>
-                        <a href="{% url 'aboutus' %}"
-                            class="px-10 py-4 bg-white/50 backdrop-blur-sm text-fantasy-brown border-2 border-fantasy-brown/20 rounded-lg font-bold uppercase tracking-widest text-sm hover:border-fantasy-brown hover:bg-fantasy-cream transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-1">
-                            Our Story
-                        </a>
-                    </div>
+            <!-- Cinematic Hero Section with Parallax -->
+            <header
+                class="relative min-h-screen flex items-center justify-center pt-24 pb-32 bg-fantasy-cream perspective-1000">
+                <!-- Background Texture -->
+                <div class="absolute inset-0 z-0 opacity-[0.03]"
+                    style="background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');">
                 </div>
 
-                <!-- Hero Image/Visual Column -->
-                <div class="relative order-1 lg:order-2 animate-zoom-out parallax-layer flex justify-center items-center min-h-[300px] "
-                    style="animation-delay: 0.3s; transform-style: preserve-3d;">
-                    <!-- Decorative SVG Warning/Fallback Background -->
-                    <div
-                        class="absolute inset-0 bg-fantasy-gold/5 rounded-2xl md:rounded-[3rem] transform rotate-3 scale-105 -z-10">
-                    </div>
+                <div class="container mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <!-- Text Content -->
+                    <div class="text-center lg:text-left order-2 lg:order-1">
+                        <!-- Headline -->
+                        <h1 class="text-5xl md:text-7xl lg:text-8xl font-serif font-extrabold mb-6 leading-[1.1] text-fantasy-brown opacity-0 animate-fade-in-up"
+                            style="animation-delay: 0.2s;">
+                            Taste the <br> <span class="text-fantasy-gold italic font-serif">Magic.</span>
+                        </h1>
 
-                    <!-- Main Visual Container -->
-                    <div class="relative w-full max-w-md mx-auto">
-                        <!-- Image Container with Fallback Pattern -->
-                        <div
-                            class="relative rounded-2xl md:rounded-[3rem] overflow-hidden shadow-dual border-4 md:border-8 border-white backdrop-blur-sm bg-[#F5E6D3] aspect-video md:aspect-[4/5]">
-                            <!-- SVG Pattern for 'No Image' State -->
-                            <div class="absolute inset-0 opacity-20"
-                                style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23D4AF37\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');">
-                            </div>
+                        <!-- Sub-headline -->
+                        <p class="text-lg md:text-xl font-medium text-fantasy-brown/80 mb-10 max-w-lg mx-auto lg:mx-0 opacity-0 animate-fade-in-up leading-relaxed"
+                            style="animation-delay: 0.4s;">
+                            Handcrafted delicacies baking with love, premium ingredients, and a touch of fantasy.
+                            <span class="block mt-2 font-script text-fantasy-gold text-3xl">~ Pure Artisanal Bliss
+                                ~</span>
+                        </p>
 
-                            <!-- Product Image -->
-                            <img src="{% static 'images/intro.jpg' %}" alt="Artisanal Bakes"
-                                class="relative z-10 w-full h-full object-cover hover:scale-105 transition-transform duration-[2s]"
-                                onerror="this.src='https://via.placeholder.com/500x500?text=Premium+Bakery'">
-                        </div>
-
-                        <!-- Floating Highlight Card (The 'Feature List') -->
-                        <div
-                            class="relative md:absolute mt-6 md:mt-0 md:-bottom-10 md:-left-6 bg-[#F5E6D3] border border-fantasy-brown p-6 rounded-2xl shadow-dual md:animate-float z-20 max-w-xs w-full mx-auto text-center md:text-left">
-                            <h3
-                                class="font-serif font-bold text-fantasy-brown text-lg mb-4 flex items-center justify-center md:justify-start gap-2">
-                                <i class="fa-solid fa-star text-fantasy-gold"></i> Premium Quality
-                            </h3>
-                            <ul class="space-y-4">
-                                <li class="flex flex-col md:flex-row items-center gap-3">
-                                    <span
-                                        class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-fantasy-gold shadow-sm shrink-0"><i
-                                            class="fa-solid fa-leaf text-xs"></i></span>
-                                    <span class="font-sans font-medium text-fantasy-brown text-sm">100% Natural
-                                        Ingredients</span>
-                                </li>
-                                <li class="flex flex-col md:flex-row items-center gap-3">
-                                    <span
-                                        class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-fantasy-gold shadow-sm shrink-0"><i
-                                            class="fa-solid fa-utensils text-xs"></i></span>
-                                    <span class="font-sans font-medium text-fantasy-brown text-sm">Traditional
-                                        Kerala
-                                        Recipes</span>
-                                </li>
-                                <li class="flex flex-col md:flex-row items-center gap-3">
-                                    <span
-                                        class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-fantasy-gold shadow-sm shrink-0"><i
-                                            class="fa-solid fa-truck-fast text-xs"></i></span>
-                                    <span class="font-sans font-medium text-fantasy-brown text-sm">Direct from our
-                                        Kitchen</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SVG Wave Divider -->
-            <div class="absolute bottom-0 left-0 w-full leading-none overflow-hidden z-20">
-                <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120"
-                    preserveAspectRatio="none" class="relative block w-full h-[60px] fill-white">
-                    <path
-                        d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z">
-                    </path>
-                </svg>
-            </div>
-        </header>
-
-        <!-- Bento Grid Section -->
-        <section class="py-20 bg-white relative reveal-on-scroll">
-            <div class="container mx-auto px-6">
-                <div class="text-center mb-16">
-                    <p class="font-script text-3xl text-fantasy-gold mb-2">Discover More</p>
-                    <div class="reveal-clip">
-                        <h2 class="text-4xl md:text-5xl font-serif font-extrabold text-fantasy-brown">Explore
-                            Fantasy
-                        </h2>
-                    </div>
-                </div>
-
-                <!-- Bento Grid Layout -->
-                <div class="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 md:gap-6 h-auto md:h-[600px]">
-                    <!-- Best Sellers (Large Box) -->
-                    <div
-                        class="md:col-span-2 md:row-span-2 relative group overflow-hidden rounded-3xl shadow-dual hover:shadow-dual-hover transition-all duration-500">
-                        <img src="{% static 'images/potati.jpg' %}" alt="Best Sellers"
-                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
-                        <div
-                            class="absolute inset-0 bg-gradient-to-t from-fantasy-brown/90 via-transparent to-transparent flex flex-col justify-end p-8">
-                            <h3
-                                class="text-3xl font-serif font-bold text-white mb-2 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                                Best Sellers</h3>
-                            <p
-                                class="text-fantasy-gold-light mb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                                Our customers' favorite indulgences.</p>
-                            <a href="{% url 'products' %}?sort=price_high"
-                                class="inline-flex items-center gap-2 text-white font-bold hover:text-fantasy-gold transition-colors w-fit">
-                                Shop Now <i class="fa-solid fa-arrow-right"></i>
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- Categories (Top Right) -->
-                    <div
-                        class="md:col-span-2 md:row-span-1 h-fit bg-fantasy-cream rounded-3xl p-6 md:p-8 relative overflow-hidden shadow-dual hover:-translate-y-1 transition-transform duration-300 group">
-                        <div
-                            class="absolute top-0 right-0 w-32 h-32 bg-fantasy-gold/10 rounded-full blur-2xl -mr-10 -mt-10">
-                        </div>
-                        <h3 class="text-2xl font-serif font-bold text-fantasy-brown mb-4">Curated Categories</h3>
-                        <div
-                            class="flex md:grid md:grid-cols-4 gap-4 overflow-x-auto md:overflow-visible pb-0 hide-scrollbar">
-                            {% for cat in category %}
-                            <a href="{% url 'products_by_category' cat.slug %}"
-                                class="flex flex-col items-center gap-2 min-w-[80px] group/cat hover:scale-110 transition-transform duration-300">
+                        <!-- Magnetic CTA Button -->
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start opacity-0 animate-fade-in-up"
+                            style="animation-delay: 0.6s;">
+                            <a href="{% url 'products' %}" id="magnet-btn"
+                                class="relative px-10 py-4 bg-fantasy-brown text-fantasy-gold border-2 border-fantasy-gold rounded-lg font-bold uppercase tracking-widest text-sm hover:bg-fantasy-gold hover:text-fantasy-brown transition-all duration-300 shadow-dual hover:shadow-dual-hover group overflow-hidden">
+                                <span
+                                    class="relative z-10 transition-transform duration-300 inline-block pointer-events-none">Shop
+                                    Now</span>
                                 <div
-                                    class="w-16 h-16 rounded-full overflow-hidden border-2 border-fantasy-gold shadow-sm group-hover/cat:border-fantasy-brown transition-colors">
-                                    <img src="{{ cat.image.url }}" alt="{{ cat.name }}"
-                                        class="w-full h-full object-cover">
+                                    class="absolute inset-0 bg-fantasy-gold transform scale-y-0 group-hover:scale-y-100 transition-transform origin-bottom duration-300 pointer-events-none">
                                 </div>
-                                <span class="text-xs font-bold text-fantasy-brown uppercase tracking-wide">
-                                    {{ cat.name }}</span>
                             </a>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <!-- Our Story (Bottom Left) -->
-                    <div
-                        class="md:col-span-1 md:row-span-1 bg-fantasy-brown text-white rounded-3xl p-8 relative overflow-hidden shadow-dual group hover:bg-fantasy-brown-dark transition-colors">
-                        <i class="fa-solid fa-quote-left text-fantasy-gold/20 text-6xl absolute top-4 left-4"></i>
-                        <div class="relative z-10 h-full flex flex-col justify-between">
-                            <h3 class="text-xl font-serif font-bold">Our Story</h3>
-                            <p class="text-sm text-white/80 line-clamp-3">From a small kitchen in Kerala to your
-                                table.
-                                Read about our journey.</p>
                             <a href="{% url 'aboutus' %}"
-                                class="text-fantasy-gold text-sm font-bold mt-2 hover:underline">Read More</a>
+                                class="px-10 py-4 bg-white/50 backdrop-blur-sm text-fantasy-brown border-2 border-fantasy-brown/20 rounded-lg font-bold uppercase tracking-widest text-sm hover:border-fantasy-brown hover:bg-fantasy-cream transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-1">
+                                Our Story
+                            </a>
                         </div>
                     </div>
 
-                    <!-- Special Offer (Bottom Right) -->
-                    <div
-                        class="md:col-span-1 md:row-span-1 bg-fantasy-pink/30 rounded-3xl p-8 relative overflow-hidden shadow-dual flex flex-col justify-center items-center text-center group hover:bg-fantasy-pink/50 transition-colors">
+                    <!-- Hero Image/Visual Column -->
+                    <div class="relative order-1 lg:order-2 animate-zoom-out parallax-layer flex justify-center items-center min-h-[300px] "
+                        style="animation-delay: 0.3s; transform-style: preserve-3d;">
+                        <!-- Decorative SVG Warning/Fallback Background -->
                         <div
-                            class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-fantasy-brown mb-3 shadow-sm group-hover:scale-110 transition-transform">
-                            <i class="fa-solid fa-gift"></i>
+                            class="absolute inset-0 bg-fantasy-gold/5 rounded-2xl md:rounded-[3rem] transform rotate-3 scale-105 -z-10">
                         </div>
-                        <h3 class="text-lg font-serif font-bold text-fantasy-brown">Offers</h3>
-                        <p class="text-xs text-fantasy-brown/70 mb-2">Grab deals up to 50% Off</p>
-                        <a href="{% url 'offers' %}"
-                            class="text-xs font-bold text-white bg-fantasy-brown px-4 py-2 rounded-full hover:bg-fantasy-gold transition-colors">View
-                            Deals</a>
-                    </div>
-                </div>
-            </div>
-        </section>
 
-        <!-- Featured Products (Floating Cards with Depth) -->
-        <section class="py-16 md:py-24 bg-fantasy-cream relative overflow-hidden">
-            <!-- Background Texture -->
-            <div class="absolute inset-0 z-0 opacity-[0.03]"
-                style="background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');">
-            </div>
-
-            <!-- Decorative Shape -->
-            <div
-                class="absolute top-0 right-0 w-96 h-96 bg-fantasy-gold/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2">
-            </div>
-            <div
-                class="absolute bottom-0 left-0 w-96 h-96 bg-fantasy-brown/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2">
-            </div>
-
-            <div class="container mx-auto px-6 relative z-10">
-                <div class="flex flex-col md:flex-row justify-between items-end mb-16 reveal-on-scroll">
-                    <div>
-                        <div class="flex items-center gap-3 mb-2">
-                            <p class="font-script text-2xl text-fantasy-gold">Freshly Baked</p>
-                        </div>
-                        <div class="reveal-clip">
-                            <h2 class="text-4xl md:text-6xl font-serif font-extrabold text-fantasy-brown">
-                                Creations</h2>
-                        </div>
-                    </div>
-                    <a href="{% url 'products' %}"
-                        class="group flex items-center gap-2 mt-6 md:mt-0 text-fantasy-brown font-bold hover:text-fantasy-gold transition-colors">
-                        View All Products
-                        <i class="fa-solid fa-arrow-right transform group-hover:translate-x-1 transition-transform"></i>
-                    </a>
-                </div>
-
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-8">
-                    {% for pdc in products|slice:":4" %}
-                    <div class="group reveal-on-scroll relative">
-                        <div
-                            class="bg-white rounded-2xl p-4 shadow-dual hover:shadow-dual-hover transition-all duration-500 ease-out transform group-hover:-translate-y-2 border border-fantasy-brown/5 relative z-10">
-
-                            <a href="{% url 'user_product' pdc.slug %}"
-                                class="block relative overflow-hidden rounded-xl mb-4 bg-fantasy-cream">
-                                <div class="aspect-square relative overflow-hidden">
-                                    <img src="{{ pdc.main_image.url }}" alt="{{ pdc.name }}"
-                                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out mix-blend-multiply">
+                        <!-- Main Visual Container -->
+                        <div class="relative w-full max-w-md mx-auto">
+                            <!-- Image Container with Fallback Pattern -->
+                            <div
+                                class="relative rounded-2xl md:rounded-[3rem] overflow-hidden shadow-dual border-4 md:border-8 border-white backdrop-blur-sm bg-[#F5E6D3] aspect-video md:aspect-[4/5]">
+                                <!-- SVG Pattern for 'No Image' State -->
+                                <div class="absolute inset-0 opacity-20"
+                                    style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23D4AF37\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');">
                                 </div>
 
-                                <!-- Add to Cart (Quick) -->
-                                <button
-                                    class="absolute bottom-3 right-3 w-8 h-8 md:w-10 md:h-10 bg-white text-fantasy-brown rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 hover:bg-fantasy-brown hover:text-white"
-                                    title="Add to Cart">
-                                    <i class="fa-solid fa-plus text-xs md:text-base"></i>
-                                </button>
-                            </a>
+                                <!-- Product Image -->
+                                <img src="{% static 'images/intro.jpg' %}" alt="Artisanal Bakes"
+                                    class="relative z-10 w-full h-full object-cover hover:scale-105 transition-transform duration-[2s]"
+                                    onerror="this.src='https://via.placeholder.com/500x500?text=Premium+Bakery'">
+                            </div>
 
-                            <div class="text-center">
-                                <p class="text-[10px] font-bold tracking-widest text-fantasy-gold uppercase mb-1">
-                                    {{ pdc.category.name|default:"Artisanal" }}</p>
+                            <!-- Floating Highlight Card (The 'Feature List') -->
+                            <div
+                                class="relative md:absolute mt-6 md:mt-0 md:-bottom-10 md:-left-6 bg-[#F5E6D3] border border-fantasy-brown p-6 rounded-2xl shadow-dual md:animate-float z-20 max-w-xs w-full mx-auto text-center md:text-left">
                                 <h3
-                                    class="font-serif font-bold text-xs md:text-xl text-fantasy-brown mb-2 group-hover:text-fantasy-gold transition-colors line-clamp-1">
-                                    <a href="{% url 'user_product' pdc.slug %}">{{ pdc.name }}</a>
+                                    class="font-serif font-bold text-fantasy-brown text-lg mb-4 flex items-center justify-center md:justify-start gap-2">
+                                    <i class="fa-solid fa-star text-fantasy-gold"></i> Premium Quality
                                 </h3>
-                                <div class="h-px w-10 bg-fantasy-brown/10 mx-auto mb-3"></div>
+                                <ul class="space-y-4">
+                                    <li class="flex flex-col md:flex-row items-center gap-3">
+                                        <span
+                                            class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-fantasy-gold shadow-sm shrink-0"><i
+                                                class="fa-solid fa-leaf text-xs"></i></span>
+                                        <span class="font-sans font-medium text-fantasy-brown text-sm">100% Natural
+                                            Ingredients</span>
+                                    </li>
+                                    <li class="flex flex-col md:flex-row items-center gap-3">
+                                        <span
+                                            class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-fantasy-gold shadow-sm shrink-0"><i
+                                                class="fa-solid fa-utensils text-xs"></i></span>
+                                        <span class="font-sans font-medium text-fantasy-brown text-sm">Traditional
+                                            Kerala
+                                            Recipes</span>
+                                    </li>
+                                    <li class="flex flex-col md:flex-row items-center gap-3">
+                                        <span
+                                            class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-fantasy-gold shadow-sm shrink-0"><i
+                                                class="fa-solid fa-truck-fast text-xs"></i></span>
+                                        <span class="font-sans font-medium text-fantasy-brown text-sm">Direct from our
+                                            Kitchen</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SVG Wave Divider -->
+                <div class="absolute bottom-0 left-0 w-full leading-none overflow-hidden z-20">
+                    <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120"
+                        preserveAspectRatio="none" class="relative block w-full h-[60px] fill-white">
+                        <path
+                            d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z">
+                        </path>
+                    </svg>
+                </div>
+            </header>
+
+            <!-- Bento Grid Section -->
+            <section class="py-20 bg-white relative reveal-on-scroll">
+                <div class="container mx-auto px-6">
+                    <div class="text-center mb-16">
+                        <p class="font-script text-3xl text-fantasy-gold mb-2">Discover More</p>
+                        <div class="reveal-clip">
+                            <h2 class="text-4xl md:text-5xl font-serif font-extrabold text-fantasy-brown">Explore
+                                Fantasy
+                            </h2>
+                        </div>
+                    </div>
+
+                    <!-- Bento Grid Layout -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 md:gap-6 h-auto md:h-[600px]">
+                        <!-- Best Sellers (Large Box) -->
+                        <div
+                            class="md:col-span-2 md:row-span-2 relative group overflow-hidden rounded-3xl shadow-dual hover:shadow-dual-hover transition-all duration-500">
+                            <img src="{% static 'images/potati.jpg' %}" alt="Best Sellers"
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-fantasy-brown/90 via-transparent to-transparent flex flex-col justify-end p-8">
+                                <h3
+                                    class="text-3xl font-serif font-bold text-white mb-2 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                                    Best Sellers</h3>
+                                <p
+                                    class="text-fantasy-gold-light mb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                                    Our customers' favorite indulgences.</p>
+                                <a href="{% url 'products' %}?sort=price_high"
+                                    class="inline-flex items-center gap-2 text-white font-bold hover:text-fantasy-gold transition-colors w-fit">
+                                    Shop Now <i class="fa-solid fa-arrow-right"></i>
+                                </a>
                             </div>
                         </div>
 
-                        <!-- Card decoration -->
+                        <!-- Categories (Top Right) -->
                         <div
-                            class="absolute inset-0 bg-fantasy-gold/10 rounded-2xl transform rotate-3 scale-[0.98] -z-10 group-hover:rotate-6 transition-transform duration-500 opacity-0 group-hover:opacity-100">
+                            class="md:col-span-2 md:row-span-1 h-fit bg-fantasy-cream rounded-3xl p-6 md:p-8 relative overflow-hidden shadow-dual hover:-translate-y-1 transition-transform duration-300 group">
+                            <div
+                                class="absolute top-0 right-0 w-32 h-32 bg-fantasy-gold/10 rounded-full blur-2xl -mr-10 -mt-10">
+                            </div>
+                            <h3 class="text-2xl font-serif font-bold text-fantasy-brown mb-4">Curated Categories</h3>
+                            <div
+                                class="flex md:grid md:grid-cols-4 gap-4 overflow-x-auto md:overflow-visible pb-0 hide-scrollbar">
+                                {% for cat in category %}
+                                <a href="{% url 'products_by_category' cat.slug %}"
+                                    class="flex flex-col items-center gap-2 min-w-[80px] group/cat hover:scale-110 transition-transform duration-300">
+                                    <div
+                                        class="w-16 h-16 rounded-full overflow-hidden border-2 border-fantasy-gold shadow-sm group-hover/cat:border-fantasy-brown transition-colors">
+                                        <img src="{{ cat.image.url }}" alt="{{ cat.name }}"
+                                            class="w-full h-full object-cover">
+                                    </div>
+                                    <span class="text-xs font-bold text-fantasy-brown uppercase tracking-wide">
+                                        {{ cat.name }}</span>
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Our Story (Bottom Left) -->
+                        <div
+                            class="md:col-span-1 md:row-span-1 bg-fantasy-brown text-white rounded-3xl p-8 relative overflow-hidden shadow-dual group hover:bg-fantasy-brown-dark transition-colors">
+                            <i class="fa-solid fa-quote-left text-fantasy-gold/20 text-6xl absolute top-4 left-4"></i>
+                            <div class="relative z-10 h-full flex flex-col justify-between">
+                                <h3 class="text-xl font-serif font-bold">Our Story</h3>
+                                <p class="text-sm text-white/80 line-clamp-3">From a small kitchen in Kerala to your
+                                    table.
+                                    Read about our journey.</p>
+                                <a href="{% url 'aboutus' %}"
+                                    class="text-fantasy-gold text-sm font-bold mt-2 hover:underline">Read More</a>
+                            </div>
+                        </div>
+
+                        <!-- Special Offer (Bottom Right) -->
+                        <div
+                            class="md:col-span-1 md:row-span-1 bg-fantasy-pink/30 rounded-3xl p-8 relative overflow-hidden shadow-dual flex flex-col justify-center items-center text-center group hover:bg-fantasy-pink/50 transition-colors">
+                            <div
+                                class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-fantasy-brown mb-3 shadow-sm group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-gift"></i>
+                            </div>
+                            <h3 class="text-lg font-serif font-bold text-fantasy-brown">Offers</h3>
+                            <p class="text-xs text-fantasy-brown/70 mb-2">Grab deals up to 50% Off</p>
+                            <a href="{% url 'offers' %}"
+                                class="text-xs font-bold text-white bg-fantasy-brown px-4 py-2 rounded-full hover:bg-fantasy-gold transition-colors">View
+                                Deals</a>
                         </div>
                     </div>
-                    {% endfor %}
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- Handmade Badge Section -->
-        <section class="py-20 bg-fantasy-brown text-fantasy-cream text-center relative overflow-hidden">
-            <div class="absolute inset-0 opacity-10"
-                style="background-image: url('https://www.transparenttextures.com/patterns/wood-pattern.png');">
-            </div>
-            <div class="container mx-auto px-6 relative z-10 reveal-on-scroll">
+            <!-- Featured Products (Floating Cards with Depth) -->
+            <section class="py-16 md:py-24 bg-fantasy-cream relative overflow-hidden">
+                <!-- Background Texture -->
+                <div class="absolute inset-0 z-0 opacity-[0.03]"
+                    style="background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');">
+                </div>
+
+                <!-- Decorative Shape -->
                 <div
-                    class="w-20 h-20 mx-auto border-2 border-fantasy-gold rounded-full flex items-center justify-center mb-6 text-3xl shadow-lg bg-fantasy-brown">
-                    🍯
+                    class="absolute top-0 right-0 w-96 h-96 bg-fantasy-gold/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2">
                 </div>
-                <h2 class="font-serif text-3xl md:text-5xl italic mb-6">"Handmade with love in Kerala"</h2>
-                <p class="text-fantasy-gold/60 max-w-2xl mx-auto text-sm tracking-[0.2em] leading-relaxed uppercase">
-                    Every batch is a tribute to tradition, baked fresh daily using locally sourced ingredients.
-                </p>
-            </div>
-        </section>
-
-        {% endblock %}
-
-        <footer class="bg-[#1a120b] text-[#e5d0ac] py-20 border-t border-[#DAA520]/20 font-sans">
-            <div class="container mx-auto px-6 text-center">
                 <div
-                    class="w-16 h-16 mx-auto mb-8 border border-[#DAA520] rounded-full flex items-center justify-center text-[#DAA520] text-2xl">
-                    <i class="fa-solid fa-cookie-bite"></i>
+                    class="absolute bottom-0 left-0 w-96 h-96 bg-fantasy-brown/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2">
                 </div>
-                <h2 class="text-3xl font-serif font-bold text-white mb-6">Fantasy Foods</h2>
-                <div class="flex justify-center gap-8 text-sm tracking-widest uppercase mb-12 text-[#e5d0ac]/70">
-                    <a href="{% url 'home' %}" class="hover:text-[#DAA520]">Home</a>
-                    <a href="{% url 'products' %}" class="hover:text-[#DAA520]">Shop</a>
-                    <a href="{% url 'aboutus' %}" class="hover:text-[#DAA520]">Story</a>
-                    <a href="{% url 'contact' %}" class="hover:text-[#DAA520]">Contact</a>
+
+                <div class="container mx-auto px-6 relative z-10">
+                    <div class="flex flex-col md:flex-row justify-between items-end mb-16 reveal-on-scroll">
+                        <div>
+                            <div class="flex items-center gap-3 mb-2">
+                                <p class="font-script text-2xl text-fantasy-gold">Freshly Baked</p>
+                            </div>
+                            <div class="reveal-clip">
+                                <h2 class="text-4xl md:text-6xl font-serif font-extrabold text-fantasy-brown">
+                                    Creations</h2>
+                            </div>
+                        </div>
+                        <a href="{% url 'products' %}"
+                            class="group flex items-center gap-2 mt-6 md:mt-0 text-fantasy-brown font-bold hover:text-fantasy-gold transition-colors">
+                            View All Products
+                            <i
+                                class="fa-solid fa-arrow-right transform group-hover:translate-x-1 transition-transform"></i>
+                        </a>
+                    </div>
+
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-8">
+                        {% for pdc in products|slice:":4" %}
+                        <div class="group reveal-on-scroll relative">
+                            <div
+                                class="bg-white rounded-2xl p-4 shadow-dual hover:shadow-dual-hover transition-all duration-500 ease-out transform group-hover:-translate-y-2 border border-fantasy-brown/5 relative z-10">
+
+                                <a href="{% url 'user_product' pdc.slug %}"
+                                    class="block relative overflow-hidden rounded-xl mb-4 bg-fantasy-cream">
+                                    <div class="aspect-square relative overflow-hidden">
+                                        <img src="{{ pdc.main_image.url }}" alt="{{ pdc.name }}"
+                                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out mix-blend-multiply">
+                                    </div>
+
+                                    <!-- Add to Cart (Quick) -->
+                                    <button
+                                        class="absolute bottom-3 right-3 w-8 h-8 md:w-10 md:h-10 bg-white text-fantasy-brown rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 hover:bg-fantasy-brown hover:text-white"
+                                        title="Add to Cart">
+                                        <i class="fa-solid fa-plus text-xs md:text-base"></i>
+                                    </button>
+                                </a>
+
+                                <div class="text-center">
+                                    <p class="text-[10px] font-bold tracking-widest text-fantasy-gold uppercase mb-1">
+                                        {{ pdc.category.name|default:"Artisanal" }}</p>
+                                    <h3
+                                        class="font-serif font-bold text-xs md:text-xl text-fantasy-brown mb-2 group-hover:text-fantasy-gold transition-colors line-clamp-1">
+                                        <a href="{% url 'user_product' pdc.slug %}">{{ pdc.name }}</a>
+                                    </h3>
+                                    <div class="h-px w-10 bg-fantasy-brown/10 mx-auto mb-3"></div>
+                                </div>
+                            </div>
+
+                            <!-- Card decoration -->
+                            <div
+                                class="absolute inset-0 bg-fantasy-gold/10 rounded-2xl transform rotate-3 scale-[0.98] -z-10 group-hover:rotate-6 transition-transform duration-500 opacity-0 group-hover:opacity-100">
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
-                <p class="text-xs text-[#e5d0ac]/30">&copy; 2025 Fantasy Foods. Crafted with <i
-                        class="fa-solid fa-heart text-[#DAA520] mx-1"></i> in Kerala.</p>
-            </div>
-        </footer>
+            </section>
+
+            <!-- Handmade Badge Section -->
+            <section class="py-20 bg-fantasy-brown text-fantasy-cream text-center relative overflow-hidden">
+                <div class="absolute inset-0 opacity-10"
+                    style="background-image: url('https://www.transparenttextures.com/patterns/wood-pattern.png');">
+                </div>
+                <div class="container mx-auto px-6 relative z-10 reveal-on-scroll">
+                    <div
+                        class="w-20 h-20 mx-auto border-2 border-fantasy-gold rounded-full flex items-center justify-center mb-6 text-3xl shadow-lg bg-fantasy-brown">
+                        🍯
+                    </div>
+                    <h2 class="font-serif text-3xl md:text-5xl italic mb-6">"Handmade with love in Kerala"</h2>
+                    <p
+                        class="text-fantasy-gold/60 max-w-2xl mx-auto text-sm tracking-[0.2em] leading-relaxed uppercase">
+                        Every batch is a tribute to tradition, baked fresh daily using locally sourced ingredients.
+                    </p>
+                </div>
+            </section>
+
+            {% endblock %}
+
+            <footer class="bg-[#1a120b] text-[#e5d0ac] py-20 border-t border-[#DAA520]/20 font-sans">
+                <div class="container mx-auto px-6 text-center">
+                    <div
+                        class="w-16 h-16 mx-auto mb-8 border border-[#DAA520] rounded-full flex items-center justify-center text-[#DAA520] text-2xl">
+                        <i class="fa-solid fa-cookie-bite"></i>
+                    </div>
+                    <h2 class="text-3xl font-serif font-bold text-white mb-6">Fantasy Foods</h2>
+                    <div class="flex justify-center gap-8 text-sm tracking-widest uppercase mb-12 text-[#e5d0ac]/70">
+                        <a href="{% url 'home' %}" class="hover:text-[#DAA520]">Home</a>
+                        <a href="{% url 'products' %}" class="hover:text-[#DAA520]">Shop</a>
+                        <a href="{% url 'aboutus' %}" class="hover:text-[#DAA520]">Story</a>
+                        <a href="{% url 'contact' %}" class="hover:text-[#DAA520]">Contact</a>
+                    </div>
+                    <p class="text-xs text-[#e5d0ac]/30">&copy; 2025 Fantasy Foods. Crafted with <i
+                            class="fa-solid fa-heart text-[#DAA520] mx-1"></i> in Kerala.</p>
+                </div>
+            </footer>
     </div>
 
     <script src="{% static 'script/script.js' %}"></script>
