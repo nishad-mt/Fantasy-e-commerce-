@@ -64,19 +64,34 @@ def create_from_cart(request):
     # The user will be prompted to add/select an address on the checkout page
 
     # 2️⃣ Reuse existing DRAFT order OR create new one
-    order, created = Order.objects.get_or_create(
+    existing_drafts = Order.objects.filter(
         user=request.user,
         status="DRAFT",
-        source="CART",
-        defaults={
-            "address": default_address,
-            "delivery_date": date.today() + timedelta(days=3),
-        }
-    )
+        source="CART"
+    ).order_by("-created_at")
 
-    # 3️⃣ Clear existing items if draft already existed
+    if existing_drafts.exists():
+        order = existing_drafts.first()
+        # Clean up duplicates if any
+        if existing_drafts.count() > 1:
+            existing_drafts.exclude(pk=order.pk).delete()
+            
+        # Update defaults if needed (e.g. if address was None before but now we have one)
+        if default_address and not order.address:
+            order.address = default_address
+            order.save(update_fields=["address"])
+    else:
+        order = Order.objects.create(
+            user=request.user,
+            status="DRAFT",
+            source="CART",
+            address=default_address,
+            delivery_date=date.today() + timedelta(days=3)
+        )
+
+    # 3️⃣ Clear existing items
     order.items.all().delete()
-
+    
     # 4️⃣ Copy cart items → order items
     OrderItem.objects.bulk_create([
         OrderItem(
@@ -87,11 +102,6 @@ def create_from_cart(request):
         )
         for item in items
     ])
-
-    # 5️⃣ DO NOT calculate totals here (do it in checkout preview)
-    # order.order_items_total = ...
-    # order.total_amount = ...
-    # ❌ NOT HERE
 
     return redirect("pay_order", order_id=order.order_id)
 
