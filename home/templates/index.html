@@ -704,26 +704,32 @@
         }
 
         // Mobile Menu Logic
-        document.addEventListener('DOMContentLoaded', () => {
+       document.addEventListener('DOMContentLoaded', () => {
             const btn = document.getElementById('mobile-menu-btn');
             const menu = document.getElementById('mobile-nav-container');
             const overlay = document.getElementById('menu-overlay');
-            const close = document.getElementById('close-menu');
+            const closeBtn = document.getElementById('close-menu');
 
-            function toggleMenu() {
-                menu.classList.toggle('translate-x-full');
-                overlay.classList.toggle('hidden');
+            function openMenu() {
+                menu.classList.remove('translate-x-full');
+                overlay.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
             }
 
-            if (btn) btn.addEventListener('click', toggleMenu);
-            if (close) close.addEventListener('click', toggleMenu);
-            if (overlay) overlay.addEventListener('click', toggleMenu);
+            function closeMenu() {
+                menu.classList.add('translate-x-full');
+                overlay.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            }
+
+            if (btn) btn.addEventListener('click', openMenu);
+            if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+            if (overlay) overlay.addEventListener('click', closeMenu);
 
             // Auto-close on resize
             window.addEventListener('resize', () => {
                 if (window.innerWidth >= 1024) {
-                    menu.classList.add('translate-x-full');
-                    overlay.classList.add('hidden');
+                    closeMenu();
                 }
             });
         });
