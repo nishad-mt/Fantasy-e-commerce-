@@ -60,12 +60,8 @@ def create_from_cart(request):
         is_default=True
     ).first()
 
-    if not default_address:
-        messages.warning(
-            request,
-            "Please add a delivery address to continue."
-        )
-        return redirect("create_address")
+    # If no default address, we proceed with None for now
+    # The user will be prompted to add/select an address on the checkout page
 
     # 2️⃣ Reuse existing DRAFT order OR create new one
     order, created = Order.objects.get_or_create(
@@ -140,13 +136,13 @@ def pay_order(request, order_id):
 
     # ---------- Address ----------
     addresses = Address.objects.filter(user=request.user)
-    if not addresses.exists():
-        messages.warning(request, "Please add a delivery address to continue.")
-        return redirect("create_address")
+    # if not addresses.exists():
+    #     messages.warning(request, "Please add a delivery address to continue.")
+    #     return redirect("create_address")
 
     default_address = addresses.filter(is_default=True).first()
 
-    if not order.address or order.address not in addresses:
+    if (not order.address or order.address not in addresses) and default_address:
         order.address = default_address
         order.save(update_fields=["address"])
 
@@ -445,17 +441,17 @@ def buy_now(request, variant_id):
 
     # ---------- Address check ----------
     addresses = Address.objects.filter(user=request.user)
-    if not addresses.exists():
-        messages.warning(request, "Please add a delivery address.")
-        return redirect("create_address")
+    # if not addresses.exists():
+    #     messages.warning(request, "Please add a delivery address.")
+    #     return redirect("create_address")
 
     default_address = addresses.filter(is_default=True).first()
-    if not default_address:
-        messages.warning(
-            request,
-            "Please set a default delivery address."
-        )
-        return redirect("address_list")
+    # if not default_address:
+    #     messages.warning(
+    #         request,
+    #         "Please set a default delivery address."
+    #     )
+    #     return redirect("address_list")
 
     # ---------- Variant ----------
     variant = get_object_or_404(SizeVariant, id=variant_id)
@@ -474,7 +470,7 @@ def buy_now(request, variant_id):
         status="DRAFT",
         source="BUY_NOW",
         defaults={
-            "address": default_address,
+            "address": default_address,  # Can be None, handled in pay_order
             "delivery_date": date.today() + timedelta(days=3),
         }
     )
