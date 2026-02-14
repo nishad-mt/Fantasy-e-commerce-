@@ -60,7 +60,7 @@ class Product(models.Model):
         return not self.variants.filter(is_available=True).exists()
     
     def get_absolute_url(self):
-        return reverse('product_detail', args=[self.slug])
+        return reverse('user_product', args=[self.slug])
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="images")
