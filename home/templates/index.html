@@ -341,14 +341,8 @@
                     </ul>
                 </div>
             </div>
-        </nav>
-                <!-- Footer Decor -->
-                <div class="p-8 text-center bg-[#2d1f16] border-t border-[#D4AF37]/10">
-                    <p class="font-script text-2xl text-[#D4AF37] mb-2">Fantasy Foods</p>
-                    <p class="text-[10px] uppercase tracking-[0.2em] text-white/40">Est. 2022 • Kerala</p>
-                </div>
-            </div>
             <div id="menu-overlay" class="fixed inset-0 bg-black/50 hidden z-[998] lg:hidden"></div>
+        </nav>
 
         {% block content %}
 
@@ -357,17 +351,12 @@
             class="relative min-h-screen flex items-center justify-center pt-24 pb-32 bg-fantasy-cream perspective-1000">
             <!-- Background Texture -->
             <div class="absolute inset-0 z-0 opacity-[0.03]"
-                style="background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');"></div>
+                style="background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');">
+            </div>
 
             <div class="container mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <!-- Text Content -->
                 <div class="text-center lg:text-left order-2 lg:order-1">
-                    <div class="inline-block mb-4 px-4 py-1 border border-fantasy-brown/20 rounded-full bg-white/50 backdrop-blur-sm opacity-0 animate-fade-in-up will-change-transform"
-                        style="animation-delay: 0.1s;">
-                        <span class="text-xs font-bold tracking-[0.2em] text-fantasy-brown uppercase">EST. 2022 •
-                            Kerala</span>
-                    </div>
-
                     <!-- Headline -->
                     <h1 class="text-5xl md:text-7xl lg:text-8xl font-serif font-extrabold mb-6 leading-[1.1] text-fantasy-brown opacity-0 animate-fade-in-up"
                         style="animation-delay: 0.2s;">
@@ -378,7 +367,8 @@
                     <p class="text-lg md:text-xl font-medium text-fantasy-brown/80 mb-10 max-w-lg mx-auto lg:mx-0 opacity-0 animate-fade-in-up leading-relaxed"
                         style="animation-delay: 0.4s;">
                         Handcrafted delicacies baking with love, premium ingredients, and a touch of fantasy.
-                        <span class="block mt-2 font-script text-fantasy-gold text-3xl">~ Pure Artisanal Bliss ~</span>
+                        <span class="block mt-2 font-script text-fantasy-gold text-3xl">~ Pure Artisanal Bliss
+                            ~</span>
                     </p>
 
                     <!-- Magnetic CTA Button -->
@@ -443,7 +433,8 @@
                                     <span
                                         class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-fantasy-gold shadow-sm shrink-0"><i
                                             class="fa-solid fa-utensils text-xs"></i></span>
-                                    <span class="font-sans font-medium text-fantasy-brown text-sm">Traditional Kerala
+                                    <span class="font-sans font-medium text-fantasy-brown text-sm">Traditional
+                                        Kerala
                                         Recipes</span>
                                 </li>
                                 <li class="flex flex-col md:flex-row items-center gap-3">
@@ -476,7 +467,8 @@
                 <div class="text-center mb-16">
                     <p class="font-script text-3xl text-fantasy-gold mb-2">Discover More</p>
                     <div class="reveal-clip">
-                        <h2 class="text-4xl md:text-5xl font-serif font-extrabold text-fantasy-brown">Explore Fantasy
+                        <h2 class="text-4xl md:text-5xl font-serif font-extrabold text-fantasy-brown">Explore
+                            Fantasy
                         </h2>
                     </div>
                 </div>
@@ -533,7 +525,8 @@
                         <i class="fa-solid fa-quote-left text-fantasy-gold/20 text-6xl absolute top-4 left-4"></i>
                         <div class="relative z-10 h-full flex flex-col justify-between">
                             <h3 class="text-xl font-serif font-bold">Our Story</h3>
-                            <p class="text-sm text-white/80 line-clamp-3">From a small kitchen in Kerala to your table.
+                            <p class="text-sm text-white/80 line-clamp-3">From a small kitchen in Kerala to your
+                                table.
                                 Read about our journey.</p>
                             <a href="{% url 'aboutus' %}"
                                 class="text-fantasy-gold text-sm font-bold mt-2 hover:underline">Read More</a>
@@ -561,7 +554,8 @@
         <section class="py-16 md:py-24 bg-fantasy-cream relative overflow-hidden">
             <!-- Background Texture -->
             <div class="absolute inset-0 z-0 opacity-[0.03]"
-                style="background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');"></div>
+                style="background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');">
+            </div>
 
             <!-- Decorative Shape -->
             <div
@@ -634,7 +628,8 @@
         <!-- Handmade Badge Section -->
         <section class="py-20 bg-fantasy-brown text-fantasy-cream text-center relative overflow-hidden">
             <div class="absolute inset-0 opacity-10"
-                style="background-image: url('https://www.transparenttextures.com/patterns/wood-pattern.png');"></div>
+                style="background-image: url('https://www.transparenttextures.com/patterns/wood-pattern.png');">
+            </div>
             <div class="container mx-auto px-6 relative z-10 reveal-on-scroll">
                 <div
                     class="w-20 h-20 mx-auto border-2 border-fantasy-gold rounded-full flex items-center justify-center mb-6 text-3xl shadow-lg bg-fantasy-brown">
@@ -704,7 +699,7 @@
         }
 
         // Mobile Menu Logic
-       document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', () => {
             const btn = document.getElementById('mobile-menu-btn');
             const menu = document.getElementById('mobile-nav-container');
             const overlay = document.getElementById('menu-overlay');
