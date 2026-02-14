@@ -268,70 +268,80 @@
                 </div>
 
                 <!-- Navigation -->
-                <nav class="flex-1 w-full px-6 py-6 space-y-2 overflow-y-auto">
-                    <a href="{% url 'home' %}"
-                        class="block w-full px-4 py-3 text-white text-lg font-bold rounded-lg hover:bg-[#D4AF37] hover:text-[#3e2b1e] transition-colors">
-                        <span class="inline-flex items-center gap-4">
-                            <i data-lucide="home" class="w-6 h-6"></i>
-                            Home
-                        </span>
-                    </a>
+                <div class="flex-grow overflow-y-auto px-6 py-6">
+                    <ul class="flex flex-col gap-4">
+                        <!-- Home -->
+                        <li>
+                            <a href="{% url 'home' %}"
+                                class="flex items-center gap-4 px-4 py-3 bg-[#3e2b1e] text-white text-lg font-bold rounded-lg border border-white/10 hover:bg-[#D4AF37] hover:text-[#3e2b1e] hover:border-transparent transition-all">
+                                <i data-lucide="home" class="w-5 h-5"></i>
+                                Home
+                            </a>
+                        </li>
 
-                    <a href="{% url 'products' %}"
-                        class="block w-full px-4 py-3 text-white text-lg font-bold rounded-lg hover:bg-[#D4AF37] hover:text-[#3e2b1e] transition-colors">
-                        <span class="inline-flex items-center gap-4">
-                            <i data-lucide="shopping-bag" class="w-6 h-6"></i>
-                            Shop
-                        </span>
-                    </a>
+                        <!-- Shop -->
+                        <li>
+                            <a href="{% url 'products' %}"
+                                class="flex items-center gap-4 px-4 py-3 bg-[#3e2b1e] text-white text-lg font-bold rounded-lg border border-white/10 hover:bg-[#D4AF37] hover:text-[#3e2b1e] hover:border-transparent transition-all">
+                                <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                                Shop
+                            </a>
+                        </li>
 
-                    {% if user.is_authenticated %}
-                    <a href="{% url 'order' %}"
-                        class="block w-full px-4 py-3 text-white text-lg font-bold rounded-lg hover:bg-[#D4AF37] hover:text-[#3e2b1e] transition-colors">
-                        <span class="inline-flex items-center gap-4">
-                            <i data-lucide="package" class="w-6 h-6"></i>
-                            My Orders
-                        </span>
-                    </a>
-                    {% endif %}
+                        <!-- My Orders (Auth Only) -->
+                        {% if user.is_authenticated %}
+                        <li>
+                            <a href="{% url 'order' %}"
+                                class="flex items-center gap-4 px-4 py-3 bg-[#3e2b1e] text-white text-lg font-bold rounded-lg border border-white/10 hover:bg-[#D4AF37] hover:text-[#3e2b1e] hover:border-transparent transition-all">
+                                <i data-lucide="package" class="w-5 h-5"></i>
+                                My Orders
+                            </a>
+                        </li>
+                        {% endif %}
 
-                    <a href="{% url 'aboutus' %}"
-                        class="block w-full px-4 py-3 text-white text-lg font-bold rounded-lg hover:bg-[#D4AF37] hover:text-[#3e2b1e] transition-colors">
-                        <span class="inline-flex items-center gap-4">
-                            <i data-lucide="book-open" class="w-6 h-6"></i>
-                            Our Story
-                        </span>
-                    </a>
+                        <!-- Our Story -->
+                        <li>
+                            <a href="{% url 'aboutus' %}"
+                                class="flex items-center gap-4 px-4 py-3 bg-[#3e2b1e] text-white text-lg font-bold rounded-lg border border-white/10 hover:bg-[#D4AF37] hover:text-[#3e2b1e] hover:border-transparent transition-all">
+                                <i data-lucide="book-open" class="w-5 h-5"></i>
+                                Our Story
+                            </a>
+                        </li>
 
-                    <a href="{% url 'contact' %}"
-                        class="block w-full px-4 py-3 text-white text-lg font-bold rounded-lg hover:bg-[#D4AF37] hover:text-[#3e2b1e] transition-colors">
-                        <span class="inline-flex items-center gap-4">
-                            <i data-lucide="phone" class="w-6 h-6"></i>
-                            Contact
-                        </span>
-                    </a>
+                        <!-- Contact -->
+                        <li>
+                            <a href="{% url 'contact' %}"
+                                class="flex items-center gap-4 px-4 py-3 bg-[#3e2b1e] text-white text-lg font-bold rounded-lg border border-white/10 hover:bg-[#D4AF37] hover:text-[#3e2b1e] hover:border-transparent transition-all">
+                                <i data-lucide="phone" class="w-5 h-5"></i>
+                                Contact
+                            </a>
+                        </li>
 
-                    <div class="h-px bg-white/10 my-4"></div>
+                        <!-- Divider -->
+                        <li class="h-px bg-white/10 my-2"></li>
 
-                    {% if user.is_authenticated %}
-                    <a href="{% url 'logout' %}"
-                        class="block w-full px-4 py-3 text-white text-lg font-bold rounded-lg hover:bg-[#D4AF37] hover:text-[#3e2b1e] transition-colors">
-                        <span class="inline-flex items-center gap-4">
-                            <i data-lucide="log-out" class="w-6 h-6"></i>
-                            Logout
-                        </span>
-                    </a>
-                    {% else %}
-                    <a href="{% url 'login' %}"
-                        class="block w-full px-4 py-3 text-white text-lg font-bold rounded-lg hover:bg-[#D4AF37] hover:text-[#3e2b1e] transition-colors">
-                        <span class="inline-flex items-center gap-4">
-                            <i data-lucide="log-in" class="w-6 h-6"></i>
-                            Login
-                        </span>
-                    </a>
-                    {% endif %}
-                </nav>
-
+                        <!-- Auth Links -->
+                        {% if user.is_authenticated %}
+                        <li>
+                            <a href="{% url 'logout' %}"
+                                class="flex items-center gap-4 px-4 py-3 bg-[#3e2b1e] text-white text-lg font-bold rounded-lg border border-white/10 hover:bg-red-500 hover:text-white hover:border-transparent transition-all">
+                                <i data-lucide="log-out" class="w-5 h-5"></i>
+                                Logout
+                            </a>
+                        </li>
+                        {% else %}
+                        <li>
+                            <a href="{% url 'login' %}"
+                                class="flex items-center gap-4 px-4 py-3 bg-[#3e2b1e] text-white text-lg font-bold rounded-lg border border-white/10 hover:bg-[#D4AF37] hover:text-[#3e2b1e] hover:border-transparent transition-all">
+                                <i data-lucide="log-in" class="w-5 h-5"></i>
+                                Login
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
                 <!-- Footer Decor -->
                 <div class="p-8 text-center bg-[#2d1f16] border-t border-[#D4AF37]/10">
                     <p class="font-script text-2xl text-[#D4AF37] mb-2">Fantasy Foods</p>
@@ -339,7 +349,6 @@
                 </div>
             </div>
             <div id="menu-overlay" class="fixed inset-0 bg-black/50 hidden z-[998] lg:hidden"></div>
-        </nav>
 
         {% block content %}
 
