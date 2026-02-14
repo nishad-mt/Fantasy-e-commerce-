@@ -223,13 +223,11 @@
                         <i data-lucide="shopping-bag" class="w-5 h-5"></i>
                     </a>
                     {% else %}
-                    <button
-                        onclick="showToast('Member Exclusive', 'Please <a href=\'{% url 'login' %}?next={{request.path}}\' class=\'underline font-bold text-fantasy-brown\'>login</a> to access your wishlist.', 'info')"
+                    <button onclick="showLoginToast('{{ request.path }}', 'wishlist')"
                         class="hover:text-fantasy-gold transition-transform hover:scale-110" aria-label="Wishlist">
                         <i data-lucide="heart" class="w-5 h-5"></i>
                     </button>
-                    <button
-                        onclick="showToast('Member Exclusive', 'Please <a href=\'{% url 'login' %}?next={{request.path}}\' class=\'underline font-bold text-fantasy-brown\'>login</a> to view your cart.', 'info')"
+                    <button onclick="showLoginToast('{{ request.path }}', 'cart')"
                         class="hover:text-fantasy-gold transition-transform hover:scale-110" aria-label="Cart">
                         <i data-lucide="shopping-bag" class="w-5 h-5"></i>
                     </button>
@@ -252,19 +250,64 @@
             </div>
 
             <!-- Mobile Menu Sidebar (Hidden) -->
+            <!-- Mobile Menu Sidebar (Redesigned) -->
             <div id="mobile-nav-container"
-                class="fixed inset-y-0 right-0 w-72 bg-white opacity-100 z-[999] transform translate-x-full transition-transform duration-300 ease-in-out shadow-[-10px_0_30px_rgba(0,0,0,0.15)] flex flex-col lg:hidden">
-                <button id="close-menu" class="p-6 text-right text-fantasy-brown font-bold text-2xl">&times;</button>
-                <nav class="flex flex-col">
+                class="fixed inset-y-0 right-0 w-80 h-full bg-fantasy-cream/95 backdrop-blur-xl z-[999] transform translate-x-full transition-transform duration-500 cubic-bezier(0.16, 1, 0.3, 1) shadow-[-10px_0_40px_rgba(212,175,55,0.2)] border-l border-white/40 flex flex-col lg:hidden">
+
+                <!-- Header -->
+                <div
+                    class="p-6 flex justify-between items-center border-b border-fantasy-brown/5 relative overflow-hidden">
+                    <div class="absolute inset-0 bg-fantasy-gold/5"></div>
+                    <span
+                        class="text-2xl font-serif font-bold text-fantasy-brown relative z-10 flex items-center gap-2">
+                        <i class="fa-solid fa-cookie-bite text-fantasy-gold"></i> Menu
+                    </span>
+                    <button id="close-menu"
+                        class="w-10 h-10 flex items-center justify-center rounded-full bg-white text-fantasy-brown shadow-sm hover:rotate-90 hover:bg-fantasy-brown hover:text-white transition-all duration-300 relative z-10">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="flex-1 overflow-y-auto p-6 space-y-3">
                     <a href="{% url 'home' %}"
-                        class="p-5 border-b text-fantasy-brown font-bold hover:bg-fantasy-cream transition-colors">Home</a>
+                        class="flex items-center justify-between px-5 py-4 rounded-2xl text-fantasy-brown font-bold hover:bg-white hover:shadow-md hover:text-fantasy-gold transition-all group border border-transparent hover:border-fantasy-brown/5">
+                        <span class="flex items-center gap-3"><i data-lucide="home"
+                                class="w-5 h-5 opacity-50 group-hover:opacity-100"></i> Home</span>
+                        <i data-lucide="chevron-right"
+                            class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0"></i>
+                    </a>
+
                     <a href="{% url 'products' %}"
-                        class="p-5 border-b text-fantasy-brown font-bold hover:bg-fantasy-cream transition-colors">Shop</a>
+                        class="flex items-center justify-between px-5 py-4 rounded-2xl text-fantasy-brown font-bold hover:bg-white hover:shadow-md hover:text-fantasy-gold transition-all group border border-transparent hover:border-fantasy-brown/5">
+                        <span class="flex items-center gap-3"><i data-lucide="shopping-bag"
+                                class="w-5 h-5 opacity-50 group-hover:opacity-100"></i> Shop</span>
+                        <i data-lucide="chevron-right"
+                            class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0"></i>
+                    </a>
+
                     <a href="{% url 'aboutus' %}"
-                        class="p-5 border-b text-fantasy-brown font-bold hover:bg-fantasy-cream transition-colors">Story</a>
+                        class="flex items-center justify-between px-5 py-4 rounded-2xl text-fantasy-brown font-bold hover:bg-white hover:shadow-md hover:text-fantasy-gold transition-all group border border-transparent hover:border-fantasy-brown/5">
+                        <span class="flex items-center gap-3"><i data-lucide="book-open"
+                                class="w-5 h-5 opacity-50 group-hover:opacity-100"></i> Our Story</span>
+                        <i data-lucide="chevron-right"
+                            class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0"></i>
+                    </a>
+
                     <a href="{% url 'contact' %}"
-                        class="p-5 border-b text-fantasy-brown font-bold hover:bg-fantasy-cream transition-colors">Contact</a>
+                        class="flex items-center justify-between px-5 py-4 rounded-2xl text-fantasy-brown font-bold hover:bg-white hover:shadow-md hover:text-fantasy-gold transition-all group border border-transparent hover:border-fantasy-brown/5">
+                        <span class="flex items-center gap-3"><i data-lucide="phone"
+                                class="w-5 h-5 opacity-50 group-hover:opacity-100"></i> Contact</span>
+                        <i data-lucide="chevron-right"
+                            class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0"></i>
+                    </a>
                 </nav>
+
+                <!-- Footer Decor -->
+                <div class="p-8 text-center bg-gradient-to-t from-fantasy-brown/10 to-transparent">
+                    <p class="font-script text-2xl text-fantasy-brown mb-2">Fantasy Foods</p>
+                    <p class="text-[10px] uppercase tracking-[0.2em] text-fantasy-brown/60">Est. 2022 • Kerala</p>
+                </div>
             </div>
             <div id="menu-overlay" class="fixed inset-0 bg-black/50 hidden z-[998] lg:hidden"></div>
         </nav>
@@ -792,15 +835,30 @@
             }
         };
 
+        // Helper for Login Toasts
+        function showLoginToast(nextUrl, feature) {
+            const loginUrl = "{% url 'login' %}?next=" + nextUrl;
+            const msg = `Please <a href="${loginUrl}" class="underline font-bold text-fantasy-brown">login</a> to access your ${feature}.`;
+            showToast('Member Exclusive', msg, 'info');
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
 
             // Check for Django Success Messages
             {% if messages %}
-            {% for message in messages %}
+            const djangoMessages = [
+                {% for message in messages %}
+                {
+                text: "{{ message|escapejs }}",
+                tags: "{{ message.tags }}".toLowerCase()
+            },
+            {% endfor %}
+            ];
 
-            const messageText = "{{ message|escapejs }}";
-            const messageTag = "{{ message.tags }}".toLowerCase();
+        djangoMessages.forEach(msgData => {
+            const messageText = msgData.text;
+            const messageTag = msgData.tags;
             const lowerMsg = messageText.toLowerCase();
 
             // Special logic for Login Welcome Modal (Only for Success)
@@ -832,8 +890,8 @@
                 const title = lowerMsg.includes('out') ? 'Signed Out' : (messageTag.charAt(0).toUpperCase() + messageTag.slice(1));
                 showToast(title, messageText, messageTag);
             }
-            {% endfor %}
-            {% endif %}
+        });
+        {% endif %}
         });
     </script>
 </body>
