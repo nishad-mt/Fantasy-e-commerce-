@@ -163,8 +163,7 @@
     </style>
 </head>
 
-<body
-    class="bg-fantasy-cream text-gray-800 font-sans antialiased selection:bg-fantasy-gold selection:text-white overflow-x-hidden">
+<body class="bg-fantasy-cream text-gray-800 font-sans antialiased selection:bg-fantasy-gold selection:text-white">
     <!-- Grain Texture -->
     <div class="grain-overlay"></div>
 
@@ -901,6 +900,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
+            document.body.classList.remove('overflow-hidden');
 
             // Check for Django Success Messages
             {% if messages %}
