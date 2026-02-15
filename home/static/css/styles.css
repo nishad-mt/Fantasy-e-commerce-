@@ -62,10 +62,7 @@
     scrollbar-width: none;
 }
 
-/* Smooth Scrolling */
-html {
-    scroll-behavior: smooth;
-}
+/* Smooth Scrolling Removed */
 
 /* Shake Animation for Errors */
 @keyframes shake {
