@@ -160,24 +160,11 @@
         .parallax-wrapper {
             will-change: transform;
         }
-
-        /* Scroll Fixes */
-        html {
-            height: 100%;
-            overflow-y: auto !important;
-            overflow-x: hidden;
-        }
-
-        body {
-            height: auto !important;
-            min-height: 100%;
-            overflow-y: visible;
-            overflow-x: hidden;
-        }
     </style>
 </head>
 
-<body class="bg-fantasy-cream text-gray-800 font-sans antialiased selection:bg-fantasy-gold selection:text-white">
+<body
+    class="bg-fantasy-cream text-gray-800 font-sans antialiased selection:bg-fantasy-gold selection:text-white overflow-x-hidden">
     <!-- Grain Texture -->
     <div class="grain-overlay"></div>
 
