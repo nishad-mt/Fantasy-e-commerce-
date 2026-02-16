@@ -253,11 +253,14 @@
                         <!-- Auth Links -->
                         {% if user.is_authenticated %}
                         <li>
-                            <a href="{% url 'logout' %}"
+                            <form method="POST" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button type="submit"
                                 class="group flex items-center gap-4 px-5 py-4 bg-[#3e2b1e] text-white/90 text-lg font-bold rounded-xl border border-white/5 hover:bg-red-500 hover:text-white hover:border-transparent transition-all duration-300 shadow-sm active:scale-[0.98]">
                                 <i data-lucide="log-out" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
                                 Logout
-                            </a>
+                            </button>
+                            </form>
                         </li>
                         {% else %}
                         <li>
