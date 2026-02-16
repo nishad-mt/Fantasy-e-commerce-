@@ -43,6 +43,7 @@
                         class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] cursor-zoom-in">
 
                     <!-- Wishlist Button (Floating) -->
+                    {% if user.is_authenticated %}
                     <form method="POST" action="{% url 'wishlist:toggle_wishlist' product.product_id %}">
                         {% csrf_token %}
                         <button type="submit" class="absolute top-6 right-6 z-20 w-12 h-12 bg-white/90 backdrop-blur-md
@@ -55,6 +56,13 @@
                             <i class="fa-solid fa-heart text-lg"></i>
                         </button>
                     </form>
+                    {% else %}
+                    <button type="button" onclick="showLoginToast('{{ request.path }}', 'wishlist')" class="absolute top-6 right-6 z-20 w-12 h-12 bg-white/90 backdrop-blur-md
+                        rounded-full flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-110 active:scale-95
+                        text-gray-400 hover:text-red-500">
+                        <i class="fa-solid fa-heart text-lg"></i>
+                    </button>
+                    {% endif %}
 
                     {% if not product.is_active or product.is_out_of_stock %}
                     <div class="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center z-10">
