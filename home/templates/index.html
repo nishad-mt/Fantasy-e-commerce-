@@ -710,22 +710,24 @@
             const overlay = document.getElementById('menu-overlay');
             const closeBtn = document.getElementById('close-menu');
 
+            // SAFETY CHECK: Ensure body is never locked on load (fixes bfcache issues)
+            document.body.classList.remove('overflow-hidden');
+
             function openMenu() {
                 if (!menu || !overlay) return;
                 menu.classList.remove('translate-x-full');
                 overlay.classList.remove('hidden');
-                // delayed fade in for overlay if we were using opacity, but 'hidden' is abrupt. 
-                // Let's stick to the current CSS for simplicity but ensure body scroll is locked.
                 document.body.classList.add('overflow-hidden');
-                btn.setAttribute('aria-expanded', 'true');
+                if (btn) btn.setAttribute('aria-expanded', 'true');
             }
 
             function closeMenu() {
-                if (!menu || !overlay) return;
-                menu.classList.add('translate-x-full');
-                overlay.classList.add('hidden');
+                // SAFETY: Always remove scroll lock first, even if elements are missing
                 document.body.classList.remove('overflow-hidden');
-                btn.setAttribute('aria-expanded', 'false');
+
+                if (menu) menu.classList.add('translate-x-full');
+                if (overlay) overlay.classList.add('hidden');
+                if (btn) btn.setAttribute('aria-expanded', 'false');
             }
 
             if (btn) btn.addEventListener('click', openMenu);
@@ -734,14 +736,15 @@
 
             // Close on Escape key
             document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && !menu.classList.contains('translate-x-full')) {
+                if (e.key === 'Escape' && menu && !menu.classList.contains('translate-x-full')) {
                     closeMenu();
                 }
             });
 
-            // Auto-close on resize
+            // Auto-close on resize (Safety net)
             window.addEventListener('resize', () => {
-                if (window.innerWidth >= 1024) {
+                // Should match the md breakpoint where button becomes hidden (768px)
+                if (window.innerWidth >= 768) {
                     closeMenu();
                 }
             });
