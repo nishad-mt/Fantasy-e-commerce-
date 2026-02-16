@@ -96,6 +96,7 @@
                 <!-- Name Field -->
                 <div class="relative group">
                     <input type="text" id="name" name="name"
+                    value="{{ form.name.value|default_if_none:'' }}"
                         class="floating-input peer w-full px-4 py-3.5 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:border-fantasy-gold focus:ring-1 focus:ring-fantasy-gold placeholder-transparent transition-all bg-transparent"
                         placeholder="Name">
                     <label for="name"
@@ -108,6 +109,7 @@
                 <!-- Phone Field -->
                 <div class="relative group">
                     <input type="tel" id="phone" name="phone" maxlength="10"
+                    value="{{ form.phone.value|default_if_none:'' }}"
                         class="floating-input peer w-full px-4 py-3.5 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:border-fantasy-gold focus:ring-1 focus:ring-fantasy-gold placeholder-transparent transition-all bg-transparent"
                         placeholder="Mobile Number">
                     <label for="phone"
@@ -122,6 +124,7 @@
                     <!-- Pincode -->
                     <div class="relative group">
                         <input type="text" id="pincode" name="pincode" maxlength="6"
+                        value="{{ form.pincode.value|default_if_none:'' }}"
                             class="floating-input peer w-full px-4 py-3.5 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:border-fantasy-gold focus:ring-1 focus:ring-fantasy-gold placeholder-transparent transition-all bg-transparent"
                             placeholder="Pincode">
                         <label for="pincode"
@@ -134,6 +137,7 @@
                     <!-- City -->
                     <div class="relative group">
                         <input type="text" id="city" name="city"
+                         value="{{ form.city.value|default_if_none:'' }}"
                             class="floating-input peer w-full px-4 py-3.5 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:border-fantasy-gold focus:ring-1 focus:ring-fantasy-gold placeholder-transparent transition-all bg-transparent"
                             placeholder="City">
                         <label for="city"
@@ -147,6 +151,7 @@
                 <!-- State (Full width or split if needed, keep full for flow) -->
                 <div class="relative group">
                     <input type="text" id="state" name="state"
+                    value="{{ form.state.value|default_if_none:'' }}"
                         class="floating-input peer w-full px-4 py-3.5 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:border-fantasy-gold focus:ring-1 focus:ring-fantasy-gold placeholder-transparent transition-all bg-transparent"
                         placeholder="State">
                     <label for="state"
@@ -160,7 +165,7 @@
                 <div class="relative group">
                     <textarea id="street" name="street" rows="3"
                         class="floating-input peer w-full px-4 py-3.5 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:border-fantasy-gold focus:ring-1 focus:ring-fantasy-gold placeholder-transparent transition-all bg-transparent resize-none leading-relaxed"
-                        placeholder="Address (House No, Building, Street, Area)"></textarea>
+                        placeholder="Address (House No, Building, Street, Area)">{{ form.street.value|default_if_none:'' }}</textarea>
                     <label for="street"
                         class="absolute left-4 top-3.5 text-gray-400 transition-all pointer-events-none duration-200 ease-in-out bg-white">
                         Address (House No, Building, Street, Area)*
@@ -176,6 +181,7 @@
                 <div class="flex items-center gap-3 pt-2">
                     <div class="relative flex items-center">
                         <input type="checkbox" id="is_default" name="is_default"
+                         {% if form.is_default.value %}checked{% endif %}
                             class="peer h-5 w-5 cursor-pointer appearance-none rounded border border-gray-300 bg-white checked:bg-fantasy-gold checked:border-fantasy-gold transition-all">
                         <i
                             class="fa-solid fa-check absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white text-xs opacity-0 peer-checked:opacity-100 pointer-events-none"></i>
