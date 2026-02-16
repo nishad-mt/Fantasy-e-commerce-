@@ -703,27 +703,37 @@
             });
         }
 
-        // Mobile Menu Logic (Enhanced)
+        // Mobile Menu Logic (Robust & Production Ready)
         document.addEventListener('DOMContentLoaded', () => {
             const btn = document.getElementById('mobile-menu-btn');
             const menu = document.getElementById('mobile-nav-container');
             const overlay = document.getElementById('menu-overlay');
             const closeBtn = document.getElementById('close-menu');
 
-            // SAFETY CHECK: Ensure body is never locked on load (fixes bfcache issues)
-            document.body.classList.remove('overflow-hidden');
+            // 1. GLOBAL SAFETY RESET
+            // Immediately remove any scroll locks from previous states or bfcache
+            const releaseScroll = () => {
+                document.body.classList.remove('overflow-hidden'); // Remove Tailwind class
+                document.body.style.removeProperty('overflow');   // Remove inline style
+                document.documentElement.style.removeProperty('overflow'); // Start fresh
+            };
+
+            // Run immediately on load
+            releaseScroll();
 
             function openMenu() {
                 if (!menu || !overlay) return;
                 menu.classList.remove('translate-x-full');
                 overlay.classList.remove('hidden');
+
+                // Lock scroll
                 document.body.classList.add('overflow-hidden');
                 if (btn) btn.setAttribute('aria-expanded', 'true');
             }
 
             function closeMenu() {
-                // SAFETY: Always remove scroll lock first, even if elements are missing
-                document.body.classList.remove('overflow-hidden');
+                // Unlock scroll immediately (Prioritize UX)
+                releaseScroll();
 
                 if (menu) menu.classList.add('translate-x-full');
                 if (overlay) overlay.classList.add('hidden');
@@ -736,16 +746,23 @@
 
             // Close on Escape key
             document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && menu && !menu.classList.contains('translate-x-full')) {
+                if (e.key === 'Escape') closeMenu();
+            });
+
+            // Auto-close on resize (matches Tailwind 'md' breakpoint 768px)
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 768) {
                     closeMenu();
                 }
             });
 
-            // Auto-close on resize (Safety net)
-            window.addEventListener('resize', () => {
-                // Should match the md breakpoint where button becomes hidden (768px)
-                if (window.innerWidth >= 768) {
-                    closeMenu();
+            // Fix: If the page is restored from bfcache (Back button), ensure scroll is released
+            window.addEventListener('pageshow', (event) => {
+                if (event.persisted) {
+                    releaseScroll();
+                    // Optional: Close menu if you want it closed on back nav
+                    if (menu) menu.classList.add('translate-x-full');
+                    if (overlay) overlay.classList.add('hidden');
                 }
             });
         });
