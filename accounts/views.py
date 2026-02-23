@@ -300,8 +300,10 @@ def login(request):
         request.session.pop("login_attempts", None)
         request.session.pop("last_login_attempt", None)
 
+        # Block admin users from normal login
         if user.is_staff or user.is_superuser:
-            return redirect("/admin/")
+            messages.error(request, "Admin users must login through the admin portal.")
+            return render(request, "login.html")
 
         if next_url and url_has_allowed_host_and_scheme(
             next_url,
