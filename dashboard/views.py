@@ -49,7 +49,7 @@ def admin_login(request):
         if form.is_valid():
             logged_user = form.cleaned_data['user']
 
-            if User.is_staff or User.is_superuser:
+            if logged_user.is_staff or logged_user.is_superuser:
                 login(request, logged_user)
                 return redirect('dashboard')
             else:
